@@ -571,14 +571,14 @@ function renderStoreDetail(id) {
 
   // 桌面表格
   let tableHtml = `<table class="detail"><thead><tr>
-    <th>商品編號</th><th>款號</th><th>商品名稱</th><th>顏色</th><th>尺寸</th>
+    <th>商品編號</th><th>款號</th><th>商品名稱</th><th>顏色</th><th>尺寸</th><th>品牌
     <th>大分類</th><th>季節</th><th style="text-align:right">負庫存</th>
   </tr></thead><tbody>`;
   rows.forEach(r => {
     tableHtml += `<tr>
       <td>${r.商品編號}</td><td>${r.款號||''}</td><td>${r.商品名稱||''}</td>
       <td>${r.顏色||''}</td><td>${r.商品尺寸||''}</td>
-      <td>${r.大分類||''}</td><td>${r.季節||''}</td>
+      <td>${r.品牌||''}<td>${r.大分類||''}</td><td>${r.季節||''}</td>
       <td class="qty">${r.庫存數量}</td>
     </tr>`;
   });
@@ -596,6 +596,7 @@ function renderStoreDetail(id) {
           <span>📏 ${r.商品尺寸||''}</span>
         </div>
         <div class="detail-meta" style="margin-top:3px">
+          <span>🏷️ ${r.品牌||''}</span>
           <span>${r.大分類||''}</span>
           <span>${r.季節||''}</span>
         </div>

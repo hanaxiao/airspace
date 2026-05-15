@@ -17,6 +17,7 @@
     background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
     color: white; padding: 16px 20px; border-radius: 10px;
     margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: relative;
   }
   header h1 { font-size: 18px; margin-bottom: 4px; letter-spacing: 0.5px; }
   header .meta {
@@ -30,9 +31,7 @@
     padding: 6px 12px; border-radius: 6px; cursor: pointer;
     font-size: 12px; font-family: inherit;
   }
-  header { position: relative; }
 
-  /* Tabs - 手機友善 */
   .tabs {
     display: flex; gap: 4px; background: white;
     padding: 5px; border-radius: 10px; margin-bottom: 14px;
@@ -50,7 +49,6 @@
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* KPI - 手機 2 欄 */
   .kpi-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
     gap: 10px; margin-bottom: 14px;
@@ -69,7 +67,6 @@
   .kpi-value { font-size: 22px; font-weight: 700; color: #1e3a5f; }
   .kpi-sub { font-size: 10px; color: #9ca3af; margin-top: 2px; }
 
-  /* Manager grid */
   .mgr-grid {
     display: grid; grid-template-columns: 1fr;
     gap: 12px;
@@ -114,7 +111,6 @@
     border-top: 2px solid #e5e7eb;
   }
 
-  /* Pivot */
   .pivot-control {
     background: white; padding: 14px; border-radius: 10px;
     margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
@@ -131,7 +127,6 @@
     border-radius: 16px; font-size: 12px; font-weight: 500;
   }
 
-  /* 手機表格用卡片式 */
   .detail-card {
     background: white; border-radius: 10px; padding: 12px;
     margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
@@ -146,7 +141,6 @@
     align-self: center; padding: 0 8px;
   }
 
-  /* 桌面用表格 */
   table.detail {
     width: 100%; background: white; border-radius: 10px;
     overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
@@ -182,7 +176,6 @@
     border-radius: 8px; font-size: 13px; margin-bottom: 14px;
   }
 
-  /* 主管視角過濾器 */
   .filter-bar {
     background: white; padding: 12px; border-radius: 10px;
     margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
@@ -195,6 +188,22 @@
     border: none; font-family: inherit;
   }
   .filter-chip.active { background: #1e3a5f; color: white; }
+
+  /* 品牌區塊 */
+  .brand-section {
+    background: white; border-radius: 10px;
+    margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  .brand-section-header {
+    color: white; padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .brand-section-title { font-size: 15px; font-weight: 600; }
+  .brand-section-badge {
+    background: rgba(255,255,255,0.25); padding: 3px 10px;
+    border-radius: 12px; font-size: 12px;
+  }
 </style>
 </head>
 <body>
@@ -243,19 +252,28 @@
 
 <script>
 // ============ 設定區（部署時要改）============
-// 把 Apps Script 部署後得到的網址貼到這裡
 const API_URL = 'https://script.google.com/macros/s/AKfycbzLk0abJl_1EMCPVq_a9l2exTwRAQUZZpDkc0YuEv4htYFrT6YxWQv_E1iYiAHCY8aL/exec';
+
+// ============ 品牌設定 ============
+const BRAND_ORDER = ['AS','CA','OL','A PLUS','PLUS'];
+const BRAND_COLOR = {
+  'AS': '#1e3a5f',
+  'CA': '#7c3aed',
+  'OL': '#0891b2',
+  'A PLUS': '#db2777',
+  'PLUS': '#db2777',
+  '未分類': '#6b7280'
+};
 
 // ============ 狀態 ============
 let STORE_MAP = {};
 let MGR_ORDER = [];
 let negData = [];
 let meta = {};
-let currentMgrFilter = 'all';  // 主管過濾
+let currentMgrFilter = 'all';
 
 const $ = id => document.getElementById(id);
 
-// URL 參數：?store=AS04 直接看單店、?mgr=樺樺 直接看單主管
 const urlParams = new URLSearchParams(window.location.search);
 const focusStore = (urlParams.get('store') || '').toUpperCase();
 const focusMgr = urlParams.get('mgr') || '';
@@ -276,7 +294,6 @@ async function loadData(force = false) {
     negData = data.negData;
     meta = data.meta || {};
 
-    // 套主管資訊（試算表來的不一定有）
     negData.forEach(r => {
       const s = STORE_MAP[r.倉庫編號];
       if (s) {
@@ -290,13 +307,11 @@ async function loadData(force = false) {
     $('tabsBar').style.display = 'flex';
 
     if (focusStore && STORE_MAP[focusStore]) {
-      // 跳到單店
       switchTab('pivot');
       $('storeSelect').value = focusStore;
       renderStoreDetail(focusStore);
       renderPivotOptions();
     } else if (focusMgr) {
-      // 跳到主管 + 過濾
       switchTab('manager');
       currentMgrFilter = focusMgr;
       renderManager();
@@ -323,7 +338,6 @@ function renderMeta() {
   `;
 }
 
-// ============ Tabs ============
 document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => switchTab(t.dataset.tab));
 });
@@ -333,6 +347,22 @@ function switchTab(name) {
   document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
   document.querySelector(`[data-tab="${name}"]`).classList.add('active');
   $('panel-' + name).classList.add('active');
+}
+
+function sortBrand(a, b) {
+  const ia = BRAND_ORDER.indexOf(a), ib = BRAND_ORDER.indexOf(b);
+  if (ia === -1 && ib === -1) return a.localeCompare(b);
+  if (ia === -1) return 1;
+  if (ib === -1) return -1;
+  return ia - ib;
+}
+
+function sortMgr(a, b) {
+  const ia = MGR_ORDER.indexOf(a); const ib = MGR_ORDER.indexOf(b);
+  if (ia === -1 && ib === -1) return a.localeCompare(b);
+  if (ia === -1) return 1;
+  if (ib === -1) return -1;
+  return ia - ib;
 }
 
 // ============ Dashboard ============
@@ -353,7 +383,7 @@ function renderDashboard() {
     byMgr[r.主管].total += Number(r.庫存數量);
     byMgr[r.主管].stores.add(r.倉庫編號);
   });
-  const mgrList = Object.keys(byMgr).sort((a,b) => sortMgr(a,b));
+  const mgrList = Object.keys(byMgr).sort(sortMgr);
 
   // Top 10 門市
   const byStore = {};
@@ -362,6 +392,20 @@ function renderDashboard() {
     byStore[r.倉庫編號] += Number(r.庫存數量);
   });
   const topStores = Object.entries(byStore).sort((a,b)=>a[1]-b[1]).slice(0,10);
+
+  // 品牌
+  const byBrand = {};
+  const brandStores = {};
+  const brandCount = {};
+  negData.forEach(r => {
+    const k = r.品牌 || '未分類';
+    if (!byBrand[k]) { byBrand[k] = 0; brandStores[k] = new Set(); brandCount[k] = 0; }
+    byBrand[k] += Number(r.庫存數量);
+    brandStores[k].add(r.倉庫編號);
+    brandCount[k]++;
+  });
+  const brandList = Object.keys(byBrand).sort(sortBrand);
+  const brandTotal = brandList.reduce((s,k) => s + Math.abs(byBrand[k]), 0);
 
   // 大分類
   const byCat = {};
@@ -396,6 +440,7 @@ function renderDashboard() {
     </div>
   `;
 
+  // 主管 bar
   const maxAbs = Math.max(...mgrList.map(m => Math.abs(byMgr[m].total)));
   html += `<div style="background:white;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:14px">
     <h3 style="font-size:14px;margin-bottom:12px;color:#1e3a5f">📌 各區主管負庫存總覽</h3>`;
@@ -414,6 +459,33 @@ function renderDashboard() {
       </div>`;
   });
   html += `</div>`;
+
+  // 品牌分組
+  html += `<div style="background:white;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:14px">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#1e3a5f">🏷️ 各品牌支線負庫存</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px">`;
+  brandList.forEach(k => {
+    const v = byBrand[k];
+    const cnt = brandCount[k];
+    const stores = brandStores[k].size;
+    const color = BRAND_COLOR[k] || '#6b7280';
+    html += `
+      <div style="border-left:4px solid ${color};padding:10px 12px;background:#f9fafb;border-radius:6px">
+        <div style="font-size:12px;color:#6b7280">${k}</div>
+        <div style="font-size:22px;font-weight:700;color:${color};margin:2px 0">${v}</div>
+        <div style="font-size:11px;color:#9ca3af">${stores} 店 · ${cnt} 筆</div>
+      </div>`;
+  });
+  html += `</div>
+    <div style="display:flex;height:24px;border-radius:6px;overflow:hidden;border:1px solid #e5e7eb">`;
+  brandList.forEach(k => {
+    const pct = Math.abs(byBrand[k]) / brandTotal * 100;
+    const color = BRAND_COLOR[k] || '#6b7280';
+    html += `<div style="background:${color};width:${pct}%;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:600" title="${k}: ${byBrand[k]}">${pct>=10?k:''}</div>`;
+  });
+  html += `</div>
+    <div style="font-size:11px;color:#9ca3af;text-align:center;margin-top:6px">占比堆疊圖（依負庫存絕對值）</div>
+  </div>`;
 
   // Top stores
   html += `<div style="background:white;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:14px">
@@ -457,14 +529,6 @@ function renderDashboard() {
   $('dashContent').innerHTML = html;
 }
 
-function sortMgr(a, b) {
-  const ia = MGR_ORDER.indexOf(a); const ib = MGR_ORDER.indexOf(b);
-  if (ia === -1 && ib === -1) return a.localeCompare(b);
-  if (ia === -1) return 1;
-  if (ib === -1) return -1;
-  return ia - ib;
-}
-
 // ============ Manager ============
 function renderManager() {
   if (!negData.length) {
@@ -489,7 +553,6 @@ function renderManager() {
 
   const mgrList = Object.keys(groups).sort(sortMgr);
 
-  // 過濾 chips
   let chipHtml = `<label>查看：</label>
     <button class="filter-chip ${currentMgrFilter==='all'?'active':''}" onclick="setMgrFilter('all')">全部</button>`;
   mgrList.forEach(m => {
@@ -569,43 +632,68 @@ function renderStoreDetail(id) {
   const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
   sm.textContent = `${rows.length} 筆 ｜ 總計 ${total} ｜ ${s?s.mgr:'-'}`;
 
-  // 桌面表格
-  let tableHtml = `<table class="detail"><thead><tr>
-    <th>商品編號</th><th>款號</th><th>商品名稱</th><th>顏色</th><th>尺寸</th><th>品牌
-    <th>大分類</th><th>季節</th><th style="text-align:right">負庫存</th>
-  </tr></thead><tbody>`;
+  // 按品牌分組
+  const byBrand = {};
   rows.forEach(r => {
-    tableHtml += `<tr>
-      <td>${r.商品編號}</td><td>${r.款號||''}</td><td>${r.商品名稱||''}</td>
-      <td>${r.顏色||''}</td><td>${r.商品尺寸||''}</td>
-      <td>${r.品牌||''}<td>${r.大分類||''}</td><td>${r.季節||''}</td>
-      <td class="qty">${r.庫存數量}</td>
-    </tr>`;
+    const k = r.品牌 || '未分類';
+    if (!byBrand[k]) byBrand[k] = [];
+    byBrand[k].push(r);
   });
-  tableHtml += `</tbody></table>`;
+  const brandList = Object.keys(byBrand).sort(sortBrand);
 
-  // 手機卡片
-  let cardHtml = '';
-  rows.forEach(r => {
-    cardHtml += `<div class="detail-card">
-      <div class="detail-main">
-        <div class="detail-name">${r.商品名稱||r.商品編號}</div>
-        <div class="detail-meta">
-          <span>📦 ${r.款號||''}</span>
-          <span>🎨 ${r.顏色||''}</span>
-          <span>📏 ${r.商品尺寸||''}</span>
+  let html = '';
+  brandList.forEach(brand => {
+    const brandRows = byBrand[brand];
+    const brandTotal = brandRows.reduce((s,r) => s + Number(r.庫存數量), 0);
+    const color = BRAND_COLOR[brand] || '#6b7280';
+
+    html += `
+      <div class="brand-section">
+        <div class="brand-section-header" style="background:${color}">
+          <div class="brand-section-title">🏷️ ${brand}</div>
+          <div class="brand-section-badge">${brandRows.length} 筆 · ${brandTotal}</div>
+        </div>`;
+
+    // 桌面表格
+    html += `<table class="detail" style="box-shadow:none;border-radius:0">
+      <thead><tr>
+        <th>商品編號</th><th>款號</th><th>商品名稱</th><th>顏色</th><th>尺寸</th>
+        <th>大分類</th><th>季節</th><th style="text-align:right">負庫存</th>
+      </tr></thead><tbody>`;
+    brandRows.forEach(r => {
+      html += `<tr>
+        <td>${r.商品編號}</td><td>${r.款號||''}</td><td>${r.商品名稱||''}</td>
+        <td>${r.顏色||''}</td><td>${r.商品尺寸||''}</td>
+        <td>${r.大分類||''}</td><td>${r.季節||''}</td>
+        <td class="qty">${r.庫存數量}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+
+    // 手機卡片
+    html += `<div style="padding:8px">`;
+    brandRows.forEach(r => {
+      html += `<div class="detail-card" style="box-shadow:none;border:1px solid #f3f4f6">
+        <div class="detail-main">
+          <div class="detail-name">${r.商品名稱||r.商品編號}</div>
+          <div class="detail-meta">
+            <span>📦 ${r.款號||''}</span>
+            <span>🎨 ${r.顏色||''}</span>
+            <span>📏 ${r.商品尺寸||''}</span>
+          </div>
+          <div class="detail-meta" style="margin-top:3px">
+            <span>${r.大分類||''}</span>
+            <span>${r.季節||''}</span>
+          </div>
         </div>
-        <div class="detail-meta" style="margin-top:3px">
-          <span>🏷️ ${r.品牌||''}</span>
-          <span>${r.大分類||''}</span>
-          <span>${r.季節||''}</span>
-        </div>
-      </div>
-      <div class="detail-qty">${r.庫存數量}</div>
-    </div>`;
+        <div class="detail-qty">${r.庫存數量}</div>
+      </div>`;
+    });
+    html += `</div>`;
+    html += `</div>`;
   });
 
-  c.innerHTML = tableHtml + cardHtml;
+  c.innerHTML = html;
 }
 
 // ============ 啟動 ============

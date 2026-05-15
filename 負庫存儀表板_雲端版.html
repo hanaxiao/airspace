@@ -627,7 +627,14 @@ function renderStoreDetail(id) {
     sm.textContent = '';
     return;
   }
-  const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => Number(a.庫存數量) - Number(b.庫存數量));
+  const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
+    // 先按款號 A→Z，同款再按顏色、尺寸
+    const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
+    if (k1 !== 0) return k1;
+    const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
+    if (c1 !== 0) return c1;
+    return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
+  });
   const s = STORE_MAP[id];
   const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
   sm.textContent = `${rows.length} 筆 ｜ 總計 ${total} ｜ ${s?s.mgr:'-'}`;

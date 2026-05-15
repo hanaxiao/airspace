@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIR SPACE｜門市負庫存儀表板</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+    background: #f4f5f7; color: #2c3e50; line-height: 1.5;
+    padding: 12px; min-height: 100vh;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+    color: white; padding: 16px 20px; border-radius: 10px;
+    margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  header h1 { font-size: 18px; margin-bottom: 4px; letter-spacing: 0.5px; }
+  header .meta {
+    font-size: 12px; opacity: 0.85; display: flex; gap: 12px;
+    flex-wrap: wrap; margin-top: 6px;
+  }
+  header .meta span { background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; }
+  header .refresh-btn {
+    position: absolute; top: 18px; right: 20px;
+    background: rgba(255,255,255,0.2); border: none; color: white;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-family: inherit;
+  }
+  header { position: relative; }
+
+  /* Tabs - 手機友善 */
+  .tabs {
+    display: flex; gap: 4px; background: white;
+    padding: 5px; border-radius: 10px; margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    flex: 1; min-width: 90px; padding: 10px 8px; text-align: center; cursor: pointer;
+    border-radius: 6px; font-size: 13px; font-weight: 500;
+    color: #6b7280; transition: all 0.2s; border: none;
+    background: transparent; font-family: inherit; white-space: nowrap;
+  }
+  .tab.active { background: #1e3a5f; color: white; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* KPI - 手機 2 欄 */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 10px; margin-bottom: 14px;
+  }
+  @media (min-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .kpi-card {
+    background: white; padding: 14px; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-left: 4px solid #1e3a5f;
+  }
+  .kpi-card.warn { border-left-color: #dc2626; }
+  .kpi-card.info { border-left-color: #f59e0b; }
+  .kpi-label { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+  .kpi-value { font-size: 22px; font-weight: 700; color: #1e3a5f; }
+  .kpi-sub { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+  /* Manager grid */
+  .mgr-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 600px) {
+    .mgr-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px) {
+    .mgr-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .mgr-card {
+    background: white; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden;
+  }
+  .mgr-header {
+    background: linear-gradient(135deg, #1e3a5f, #2c5282);
+    color: white; padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mgr-name { font-size: 15px; font-weight: 600; }
+  .mgr-total {
+    background: rgba(255,255,255,0.2); padding: 3px 10px;
+    border-radius: 12px; font-size: 12px;
+  }
+  .mgr-row {
+    display: grid; grid-template-columns: 1fr 70px;
+    padding: 10px 14px; border-bottom: 1px solid #f3f4f6;
+    cursor: pointer; transition: background 0.15s;
+    font-size: 13px;
+  }
+  .mgr-row:hover, .mgr-row:active { background: #f9fafb; }
+  .mgr-row:last-child { border-bottom: none; }
+  .store-id { color: #374151; font-weight: 500; }
+  .store-id small { color: #9ca3af; font-weight: normal; margin-left: 6px; display: block; font-size: 11px; }
+  .neg-num { text-align: right; font-weight: 600; color: #dc2626; align-self: center; }
+  .neg-num.heavy { background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
+  .neg-num.medium { color: #ea580c; }
+  .neg-num.light { color: #ca8a04; }
+  .mgr-footer {
+    padding: 8px 14px; background: #f9fafb;
+    text-align: right; font-size: 12px; color: #6b7280;
+    border-top: 2px solid #e5e7eb;
+  }
+
+  /* Pivot */
+  .pivot-control {
+    background: white; padding: 14px; border-radius: 10px;
+    margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  }
+  .pivot-control label { font-size: 13px; color: #6b7280; }
+  .pivot-control select {
+    padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-size: 14px; font-family: inherit; flex: 1; min-width: 200px;
+    background: white;
+  }
+  .summary-chip {
+    background: #fef3c7; color: #92400e; padding: 6px 12px;
+    border-radius: 16px; font-size: 12px; font-weight: 500;
+  }
+
+  /* 手機表格用卡片式 */
+  .detail-card {
+    background: white; border-radius: 10px; padding: 12px;
+    margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    display: grid; grid-template-columns: 1fr auto; gap: 8px;
+  }
+  .detail-main { font-size: 13px; }
+  .detail-name { font-weight: 600; color: #1e3a5f; margin-bottom: 4px; }
+  .detail-meta { font-size: 11px; color: #6b7280; }
+  .detail-meta span { margin-right: 8px; }
+  .detail-qty {
+    font-size: 18px; font-weight: 700; color: #dc2626;
+    align-self: center; padding: 0 8px;
+  }
+
+  /* 桌面用表格 */
+  table.detail {
+    width: 100%; background: white; border-radius: 10px;
+    overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-collapse: collapse; font-size: 13px; display: none;
+  }
+  @media (min-width: 768px) {
+    table.detail { display: table; }
+    .detail-card { display: none; }
+  }
+  table.detail thead { background: #1e3a5f; color: white; }
+  table.detail th { padding: 10px 12px; text-align: left; font-size: 12px; white-space: nowrap; }
+  table.detail td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
+  table.detail .qty { text-align: right; font-weight: 600; color: #dc2626; }
+
+  .empty {
+    background: white; padding: 40px 20px; border-radius: 10px;
+    text-align: center; color: #9ca3af; font-size: 14px;
+  }
+
+  .loading {
+    text-align: center; padding: 60px 20px; color: #6b7280; font-size: 14px;
+  }
+  .spinner {
+    border: 3px solid #e5e7eb; border-top-color: #1e3a5f;
+    border-radius: 50%; width: 32px; height: 32px;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    background: #fee2e2; color: #991b1b; padding: 16px;
+    border-radius: 8px; font-size: 13px; margin-bottom: 14px;
+  }
+
+  /* 主管視角過濾器 */
+  .filter-bar {
+    background: white; padding: 12px; border-radius: 10px;
+    margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  }
+  .filter-bar label { font-size: 12px; color: #6b7280; }
+  .filter-chip {
+    padding: 6px 12px; border-radius: 16px; font-size: 12px;
+    background: #f3f4f6; color: #4b5563; cursor: pointer;
+    border: none; font-family: inherit;
+  }
+  .filter-chip.active { background: #1e3a5f; color: white; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>AIR SPACE · 門市負庫存儀表板</h1>
+  <div class="meta" id="dataMeta">
+    <span>載入中...</span>
+  </div>
+  <button class="refresh-btn" onclick="loadData(true)">🔄 重新整理</button>
+</header>
+
+<div id="errorBox"></div>
+
+<div class="tabs" id="tabsBar" style="display:none">
+  <button class="tab active" data-tab="dashboard">📊 儀表板</button>
+  <button class="tab" data-tab="manager">👥 主管彙總</button>
+  <button class="tab" data-tab="pivot">🔎 單店明細</button>
+</div>
+
+<div class="panel active" id="panel-dashboard">
+  <div id="dashContent" class="loading">
+    <div class="spinner"></div>
+    <div>正在載入最新資料...</div>
+  </div>
+</div>
+
+<div class="panel" id="panel-manager">
+  <div class="filter-bar" id="mgrFilterBar"></div>
+  <div id="mgrContent"></div>
+</div>
+
+<div class="panel" id="panel-pivot">
+  <div class="pivot-control">
+    <label>店代號：</label>
+    <select id="storeSelect">
+      <option value="">-- 請選擇 --</option>
+    </select>
+    <span class="summary-chip" id="storeSummary"></span>
+  </div>
+  <div id="pivotContent"></div>
+</div>
+
+</div>
+
+<script>
+// ============ 設定區（部署時要改）============
+// 把 Apps Script 部署後得到的網址貼到這裡
+const API_URL = 'https://script.google.com/a/macros/airspaceonline.com/s/AKfycbzLk0abJl_1EMCPVq_a9l2exTwRAQUZZpDkc0YuEv4htYFrT6YxWQv_E1iYiAHCY8aL/exec';
+
+// ============ 狀態 ============
+let STORE_MAP = {};
+let MGR_ORDER = [];
+let negData = [];
+let meta = {};
+let currentMgrFilter = 'all';  // 主管過濾
+
+const $ = id => document.getElementById(id);
+
+// URL 參數：?store=AS04 直接看單店、?mgr=樺樺 直接看單主管
+const urlParams = new URLSearchParams(window.location.search);
+const focusStore = (urlParams.get('store') || '').toUpperCase();
+const focusMgr = urlParams.get('mgr') || '';
+
+// ============ 載入資料 ============
+async function loadData(force = false) {
+  $('dashContent').innerHTML = '<div class="spinner"></div><div>正在載入最新資料...</div>';
+  $('errorBox').innerHTML = '';
+
+  try {
+    const url = API_URL + (force ? '?t=' + Date.now() : '');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    STORE_MAP = data.storeMap;
+    MGR_ORDER = data.mgrOrder;
+    negData = data.negData;
+    meta = data.meta || {};
+
+    // 套主管資訊（試算表來的不一定有）
+    negData.forEach(r => {
+      const s = STORE_MAP[r.倉庫編號];
+      if (s) {
+        r.主管 = r.主管 || s.mgr;
+        r.門市名稱 = r.門市名稱 || s.name;
+        r.轄區 = r.轄區 || s.area;
+      }
+    });
+
+    renderMeta();
+    $('tabsBar').style.display = 'flex';
+
+    if (focusStore && STORE_MAP[focusStore]) {
+      // 跳到單店
+      switchTab('pivot');
+      $('storeSelect').value = focusStore;
+      renderStoreDetail(focusStore);
+      renderPivotOptions();
+    } else if (focusMgr) {
+      // 跳到主管 + 過濾
+      switchTab('manager');
+      currentMgrFilter = focusMgr;
+      renderManager();
+    } else {
+      renderDashboard();
+      renderManager();
+      renderPivotOptions();
+    }
+  } catch (err) {
+    $('errorBox').innerHTML = '<div class="error">❌ 載入失敗：' + err.message +
+      '<br>請檢查 API_URL 是否正確、或重新部署 Apps Script</div>';
+    $('dashContent').innerHTML = '';
+  }
+}
+
+function renderMeta() {
+  const total = negData.reduce((s,r)=>s+Number(r.庫存數量), 0);
+  const fileName = meta['資料來源檔名'] || '-';
+  const procTime = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleString('zh-TW') : '-';
+  $('dataMeta').innerHTML = `
+    <span>📄 ${fileName}</span>
+    <span>🕐 ${procTime}</span>
+    <span>共 ${negData.length} 筆 ｜ 總計 ${total}</span>
+  `;
+}
+
+// ============ Tabs ============
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => switchTab(t.dataset.tab));
+});
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  $('panel-' + name).classList.add('active');
+}
+
+// ============ Dashboard ============
+function renderDashboard() {
+  if (!negData.length) {
+    $('dashContent').innerHTML = '<div class="empty">本週無負庫存紀錄 🎉</div>';
+    return;
+  }
+  const total = negData.reduce((s,r) => s + Number(r.庫存數量), 0);
+  const storeSet = new Set(negData.map(r => r.倉庫編號));
+  const mgrSet = new Set(negData.map(r => r.主管));
+  const skuSet = new Set(negData.map(r => r.商品編號));
+
+  // 主管彙總
+  const byMgr = {};
+  negData.forEach(r => {
+    if (!byMgr[r.主管]) byMgr[r.主管] = { total:0, stores:new Set() };
+    byMgr[r.主管].total += Number(r.庫存數量);
+    byMgr[r.主管].stores.add(r.倉庫編號);
+  });
+  const mgrList = Object.keys(byMgr).sort((a,b) => sortMgr(a,b));
+
+  // Top 10 門市
+  const byStore = {};
+  negData.forEach(r => {
+    if (!byStore[r.倉庫編號]) byStore[r.倉庫編號] = 0;
+    byStore[r.倉庫編號] += Number(r.庫存數量);
+  });
+  const topStores = Object.entries(byStore).sort((a,b)=>a[1]-b[1]).slice(0,10);
+
+  // 大分類
+  const byCat = {};
+  negData.forEach(r => {
+    const k = r.大分類 || '未分類';
+    byCat[k] = (byCat[k]||0) + Number(r.庫存數量);
+  });
+  const catList = Object.entries(byCat).sort((a,b)=>a[1]-b[1]);
+
+  let html = `
+    <div class="kpi-grid">
+      <div class="kpi-card warn">
+        <div class="kpi-label">總負庫存</div>
+        <div class="kpi-value">${total}</div>
+        <div class="kpi-sub">負數越大越嚴重</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">影響門市</div>
+        <div class="kpi-value">${storeSet.size}</div>
+        <div class="kpi-sub">共 ${Object.keys(STORE_MAP).length} 家</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">負庫存 SKU</div>
+        <div class="kpi-value">${skuSet.size}</div>
+        <div class="kpi-sub">${negData.length} 筆明細</div>
+      </div>
+      <div class="kpi-card info">
+        <div class="kpi-label">涉及主管</div>
+        <div class="kpi-value">${mgrSet.size}</div>
+        <div class="kpi-sub">人</div>
+      </div>
+    </div>
+  `;
+
+  const maxAbs = Math.max(...mgrList.map(m => Math.abs(byMgr[m].total)));
+  html += `<div style="background:white;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:14px">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#1e3a5f">📌 各區主管負庫存總覽</h3>`;
+  mgrList.forEach(m => {
+    const v = byMgr[m].total;
+    const pct = Math.abs(v)/maxAbs*100;
+    html += `
+      <div style="margin-bottom:10px;cursor:pointer" onclick="switchTab('manager');currentMgrFilter='${m}';renderManager()">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span><strong>${m}</strong> <span style="color:#9ca3af">${byMgr[m].stores.size} 店</span></span>
+          <span style="color:#dc2626;font-weight:600">${v}</span>
+        </div>
+        <div style="background:#fee2e2;height:8px;border-radius:4px;overflow:hidden">
+          <div style="background:linear-gradient(90deg,#dc2626,#f87171);height:100%;width:${pct}%"></div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  // Top stores
+  html += `<div style="background:white;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:14px">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#1e3a5f">🏪 負庫存最重 Top 10 門市</h3>`;
+  const maxStore = Math.abs(topStores[0][1]);
+  topStores.forEach(([id,v]) => {
+    const s = STORE_MAP[id];
+    const pct = Math.abs(v)/maxStore*100;
+    html += `
+      <div style="margin-bottom:8px;font-size:12px;cursor:pointer" onclick="jumpToStore('${id}')">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span><strong>${id}</strong> ${s?s.name:''} <span style="color:#9ca3af">(${s?s.mgr:'-'})</span></span>
+          <span style="color:#dc2626;font-weight:600">${v}</span>
+        </div>
+        <div style="background:#f3f4f6;height:6px;border-radius:3px;overflow:hidden">
+          <div style="background:#dc2626;height:100%;width:${pct}%"></div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  // 大分類
+  html += `<div style="background:white;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
+    <h3 style="font-size:14px;margin-bottom:12px;color:#1e3a5f">📦 各大分類負庫存</h3>`;
+  const maxCat = Math.abs(catList[0][1]);
+  catList.forEach(([k,v]) => {
+    const pct = Math.abs(v)/maxCat*100;
+    html += `
+      <div style="margin-bottom:8px;font-size:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span><strong>${k}</strong></span>
+          <span style="color:#dc2626;font-weight:600">${v}</span>
+        </div>
+        <div style="background:#f3f4f6;height:6px;border-radius:3px;overflow:hidden">
+          <div style="background:#f59e0b;height:100%;width:${pct}%"></div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  $('dashContent').innerHTML = html;
+}
+
+function sortMgr(a, b) {
+  const ia = MGR_ORDER.indexOf(a); const ib = MGR_ORDER.indexOf(b);
+  if (ia === -1 && ib === -1) return a.localeCompare(b);
+  if (ia === -1) return 1;
+  if (ib === -1) return -1;
+  return ia - ib;
+}
+
+// ============ Manager ============
+function renderManager() {
+  if (!negData.length) {
+    $('mgrContent').innerHTML = '<div class="empty">本週無負庫存 🎉</div>';
+    $('mgrFilterBar').innerHTML = '';
+    return;
+  }
+
+  const storeTotal = {};
+  negData.forEach(r => {
+    storeTotal[r.倉庫編號] = (storeTotal[r.倉庫編號]||0) + Number(r.庫存數量);
+  });
+
+  const groups = {};
+  Object.keys(storeTotal).forEach(id => {
+    const s = STORE_MAP[id];
+    const mgr = s ? s.mgr : '未對應';
+    if (!groups[mgr]) groups[mgr] = [];
+    groups[mgr].push({ id, name: s?s.name:'', total: storeTotal[id] });
+  });
+  Object.keys(groups).forEach(m => groups[m].sort((a,b) => a.total - b.total));
+
+  const mgrList = Object.keys(groups).sort(sortMgr);
+
+  // 過濾 chips
+  let chipHtml = `<label>查看：</label>
+    <button class="filter-chip ${currentMgrFilter==='all'?'active':''}" onclick="setMgrFilter('all')">全部</button>`;
+  mgrList.forEach(m => {
+    chipHtml += `<button class="filter-chip ${currentMgrFilter===m?'active':''}" onclick="setMgrFilter('${m}')">${m}</button>`;
+  });
+  $('mgrFilterBar').innerHTML = chipHtml;
+
+  const showMgrs = currentMgrFilter === 'all' ? mgrList : [currentMgrFilter];
+  let html = `<div class="mgr-grid">`;
+  showMgrs.forEach(m => {
+    if (!groups[m]) return;
+    const stores = groups[m];
+    const t = stores.reduce((s,x) => s + x.total, 0);
+    html += `
+      <div class="mgr-card">
+        <div class="mgr-header">
+          <div class="mgr-name">${m}</div>
+          <div class="mgr-total">${stores.length} 店 · ${t}</div>
+        </div>`;
+    stores.forEach(s => {
+      const cls = s.total <= -30 ? 'heavy' : s.total <= -10 ? 'medium' : 'light';
+      html += `
+        <div class="mgr-row" onclick="jumpToStore('${s.id}')">
+          <div class="store-id">${s.id}<small>${s.name||''}</small></div>
+          <div class="neg-num ${cls}">${s.total}</div>
+        </div>`;
+    });
+    html += `<div class="mgr-footer">小計：${t}</div></div>`;
+  });
+  html += `</div>`;
+
+  if (currentMgrFilter === 'all') {
+    const grand = negData.reduce((s,r) => s + Number(r.庫存數量), 0);
+    html += `<div style="background:#1e3a5f;color:white;padding:14px;border-radius:10px;
+                text-align:center;margin-top:14px;font-size:15px;font-weight:600">
+      總計：${grand}
+    </div>`;
+  }
+  $('mgrContent').innerHTML = html;
+}
+
+window.setMgrFilter = function(m) {
+  currentMgrFilter = m;
+  renderManager();
+};
+
+window.jumpToStore = function(id) {
+  switchTab('pivot');
+  $('storeSelect').value = id;
+  renderStoreDetail(id);
+};
+
+// ============ Pivot ============
+function renderPivotOptions() {
+  const storesWithNeg = [...new Set(negData.map(r => r.倉庫編號))].sort();
+  const sel = $('storeSelect');
+  sel.innerHTML = '<option value="">-- 請選擇 --</option>' +
+    storesWithNeg.map(id => {
+      const s = STORE_MAP[id];
+      const total = negData.filter(r => r.倉庫編號===id).reduce((sm,r) => sm + Number(r.庫存數量), 0);
+      return `<option value="${id}">${id} ${s?s.name:''} (${s?s.mgr:'-'}) ｜ ${total}</option>`;
+    }).join('');
+  sel.onchange = e => renderStoreDetail(e.target.value);
+  if (!sel.value) renderStoreDetail('');
+}
+
+function renderStoreDetail(id) {
+  const c = $('pivotContent');
+  const sm = $('storeSummary');
+  if (!id) {
+    c.innerHTML = '<div class="empty">請從上方選擇店代號</div>';
+    sm.textContent = '';
+    return;
+  }
+  const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => Number(a.庫存數量) - Number(b.庫存數量));
+  const s = STORE_MAP[id];
+  const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
+  sm.textContent = `${rows.length} 筆 ｜ 總計 ${total} ｜ ${s?s.mgr:'-'}`;
+
+  // 桌面表格
+  let tableHtml = `<table class="detail"><thead><tr>
+    <th>商品編號</th><th>款號</th><th>商品名稱</th><th>顏色</th><th>尺寸</th>
+    <th>大分類</th><th>季節</th><th style="text-align:right">負庫存</th>
+  </tr></thead><tbody>`;
+  rows.forEach(r => {
+    tableHtml += `<tr>
+      <td>${r.商品編號}</td><td>${r.款號||''}</td><td>${r.商品名稱||''}</td>
+      <td>${r.顏色||''}</td><td>${r.商品尺寸||''}</td>
+      <td>${r.大分類||''}</td><td>${r.季節||''}</td>
+      <td class="qty">${r.庫存數量}</td>
+    </tr>`;
+  });
+  tableHtml += `</tbody></table>`;
+
+  // 手機卡片
+  let cardHtml = '';
+  rows.forEach(r => {
+    cardHtml += `<div class="detail-card">
+      <div class="detail-main">
+        <div class="detail-name">${r.商品名稱||r.商品編號}</div>
+        <div class="detail-meta">
+          <span>📦 ${r.款號||''}</span>
+          <span>🎨 ${r.顏色||''}</span>
+          <span>📏 ${r.商品尺寸||''}</span>
+        </div>
+        <div class="detail-meta" style="margin-top:3px">
+          <span>${r.大分類||''}</span>
+          <span>${r.季節||''}</span>
+        </div>
+      </div>
+      <div class="detail-qty">${r.庫存數量}</div>
+    </div>`;
+  });
+
+  c.innerHTML = tableHtml + cardHtml;
+}
+
+// ============ 啟動 ============
+loadData();
+</script>
+</body>
+</html>

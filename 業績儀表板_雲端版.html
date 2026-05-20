@@ -37,6 +37,23 @@ function parseDateFromDisplay(s) {
   return null;
 }
 
+// ============ 取得儲存格數字(優先 raw,raw 失敗時用顯示值) ============
+function getCellNumber(row, displayRow, colIdx) {
+  if (colIdx === undefined || colIdx < 0) return 0;
+  const rawVal = row[colIdx];
+  let v = (typeof rawVal === 'number') ? rawVal : (Number(rawVal) || 0);
+  if (v === 0 && displayRow) {
+    const dispVal = displayRow[colIdx];
+    if (dispVal) {
+      const cleanStr = String(dispVal).replace(/[,\s]/g, '');
+      const dispNum = Number(cleanStr);
+      if (!isNaN(dispNum) && dispNum !== 0) v = dispNum;
+    }
+  }
+  return v;
+}
+
+
 
 
 // ============ 主處理函式 ============
@@ -112,6 +129,7 @@ function processFile(file) {
     const ws = ss.getSheetByName('業績') || ss.getSheets()[0];
     Logger.log('讀取分頁: ' + ws.getName());
     const data = ws.getDataRange().getValues();
+    const displayValues = ws.getDataRange().getDisplayValues();  // 抓顯示文字,避免公式失敗造成 null
     Logger.log('資料維度: ' + data.length + ' 列 x ' + (data[0] ? data[0].length : 0) + ' 欄');
 
     const HEADER_ROW = 3;
@@ -162,7 +180,6 @@ function processFile(file) {
     // 找日期欄 —— 用多重判斷,兼顧 Date 物件、文字、和儲存格顯示值
     // 同時取「顯示文字」避免時區誤判
     const dailyCols = [];
-    const displayValues = ws.getDataRange().getDisplayValues();  // 抓格式化後的文字
     const candidateCols = {};
     
     // Phase 1: 掃前 10 列,找 Date 物件
@@ -228,8 +245,21 @@ function processFile(file) {
       const daily = [];
       dailyCols.forEach(dc => {
         const rawVal = row[dc.col];
-        const v = (typeof rawVal === 'number') ? rawVal : (Number(rawVal) || 0);
-        // dc.date 是 {year, month, day} 物件
+        // 第一輪:嘗試從原始值解析數字
+        let v = (typeof rawVal === 'number') ? rawVal : (Number(rawVal) || 0);
+        // 第二輪:如果原始值是 0 或無效,改從顯示值抓
+        // (處理公式失敗的情況:儲存格顯示有數字,但 raw 是空的)
+        if (v === 0 && r < displayValues.length) {
+          const dispVal = displayValues[r][dc.col];
+          if (dispVal) {
+            // 去掉千分位逗號、空白
+            const cleanStr = String(dispVal).replace(/[,\s]/g, '');
+            const dispNum = Number(cleanStr);
+            if (!isNaN(dispNum) && dispNum !== 0) {
+              v = dispNum;
+            }
+          }
+        }
         const dateStr = dc.date.year + '-' + 
                         String(dc.date.month).padStart(2, '0') + '-' + 
                         String(dc.date.day).padStart(2, '0');
@@ -240,17 +270,18 @@ function processFile(file) {
         daily.push({ date: dateStr, amt: v });
       });
 
-      const mtdFromFile = Number(row[colIdx.MTD]);
-      if (!isNaN(mtdFromFile) && mtdFromFile > 0) {
+      const mtdFromFile = getCellNumber(row, displayValues[r] || [], colIdx.MTD);
+      if (mtdFromFile > 0) {
         mtd = mtdFromFile;
       }
 
-      const ly = Number(row[colIdx.LY]) || 0;
-      const cm = Number(row[colIdx.CM]) || 0;
-      const lm = Number(row[colIdx.LM銷售]) || 0;
-      const tw = Number(row[colIdx.TW銷售]) || 0;
-      const lw = Number(row[colIdx.LW銷售]) || 0;
-      const tm客 = Number(row[colIdx.交易客次]) || 0;
+      const dispRow = displayValues[r] || [];
+      const ly = getCellNumber(row, dispRow, colIdx.LY);
+      const cm = getCellNumber(row, dispRow, colIdx.CM);
+      const lm = getCellNumber(row, dispRow, colIdx.LM銷售);
+      const tw = getCellNumber(row, dispRow, colIdx.TW銷售);
+      const lw = getCellNumber(row, dispRow, colIdx.LW銷售);
+      const tm客 = getCellNumber(row, dispRow, colIdx.交易客次);
 
       records.push({
         倉庫編號: codeU,

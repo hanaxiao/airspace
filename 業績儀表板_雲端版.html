@@ -68,6 +68,14 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     cursor: pointer; transition: transform 0.12s;
   }
+  .mgr-card-zoe {
+    border-top: 4px solid #7c3aed;
+    background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  }
+  .mgr-card-zoe .mgr-name::after {
+    content: " 👑";
+    font-size: 14px;
+  }
   .mgr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
   .mgr-card-header {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -253,6 +261,7 @@ let STORE_MAP = {};
 let MGR_ORDER = [];
 let records = [];
 let dailyByStore = {};
+  let lyByStore = {};
 let meta = {};
 
 const $ = id => document.getElementById(id);
@@ -274,6 +283,7 @@ async function loadData() {
     MGR_ORDER = data.mgrOrder;
     records = data.records;
     dailyByStore = data.dailyByStore || {};
+    lyByStore = data.lyByStore || {};
     meta = data.meta || {};
 
     renderMeta();
@@ -313,9 +323,13 @@ function renderMeta() {
 }
 
 function populateSelects() {
-  // 主管篩選
+  // 主管篩選(佐伊放最前)
   ['mgrFilter', 'rankMgrFilter'].forEach(id => {
     const sel = $(id);
+    // 佐伊先放(區副理彙總)
+    const optZ = document.createElement('option');
+    optZ.value = '佐伊'; optZ.text = '佐伊 (北區彙總)';
+    sel.appendChild(optZ);
     MGR_ORDER.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m; opt.text = m;
@@ -446,7 +460,8 @@ function renderDashboard() {
       <div class="kpi-sub">MoM ${pct(lm_gr)}</div></div>
   `;
 
-  // 通路 × 縣市
+  // 通路 × 縣市(縣市按北中南排序)
+  const CITY_ORDER = ['台北', '新北', '桃園', '新竹', '台中', '嘉義', '台南', '高雄'];
   const byChannel = {};
   records.forEach(r => {
     const k1 = r.門市型態;
@@ -458,6 +473,18 @@ function renderDashboard() {
     byChannel[k1][k2].MTD += r.MTD || 0;
     byChannel[k1][k2].count += 1;
   });
+  
+  // 縣市排序函式
+  function sortCities(cities) {
+    return cities.slice().sort((a, b) => {
+      const ia = CITY_ORDER.indexOf(a);
+      const ib = CITY_ORDER.indexOf(b);
+      if (ia === -1 && ib === -1) return a.localeCompare(b);
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+  }
 
   let html = '<table style="max-width:900px"><thead><tr>' +
     '<th style="width:70px">通路</th>' +
@@ -473,7 +500,7 @@ function renderDashboard() {
   const channelOrder = ['百貨店', '街邊店'];
   channelOrder.forEach(ch => {
     if (!byChannel[ch]) return;
-    const cities = Object.keys(byChannel[ch]).sort();
+    const cities = sortCities(Object.keys(byChannel[ch]));
     let chTotal = { LY: 0, CM: 0, MTD: 0, count: 0 };
     cities.forEach((c, i) => {
       const d = byChannel[ch][c];
@@ -520,18 +547,37 @@ function renderDashboard() {
 }
 
 // ============ 主管彙總 ============
+// 佐伊管轄的 4 位區副理
+const ZOE_TEAM = ['律廷', '含含', '樺樺', 'RIISA'];
+
 function renderManager() {
   const filterM = $('mgrFilter').value;
   const byMgr = {};
   records.forEach(r => {
-    if (filterM && r.主管 !== filterM) return;
+    if (filterM && r.主管 !== filterM && filterM !== '佐伊') return;
+    // 若篩選為「佐伊」,只看 ZOE_TEAM 那 4 位的店
+    if (filterM === '佐伊' && !ZOE_TEAM.includes(r.主管)) return;
     if (!byMgr[r.主管]) byMgr[r.主管] = [];
     byMgr[r.主管].push(r);
   });
+  
+  // 加入佐伊群組(聚合 ZOE_TEAM 的店,但不重複,只是加總顯示用)
+  if (!filterM || filterM === '佐伊') {
+    const zoeStores = [];
+    ZOE_TEAM.forEach(m => {
+      if (byMgr[m]) zoeStores.push(...byMgr[m]);
+    });
+    if (zoeStores.length > 0) {
+      byMgr['佐伊'] = zoeStores;
+    }
+  }
 
   // 卡片
   let cards = '';
   const mgrs = Object.keys(byMgr).sort((a, b) => {
+    // 佐伊放最前(區副理摘要卡)
+    if (a === '佐伊') return -1;
+    if (b === '佐伊') return 1;
     const ia = MGR_ORDER.indexOf(a); const ib = MGR_ORDER.indexOf(b);
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
   });
@@ -548,8 +594,9 @@ function renderManager() {
     let cls = 'progress-fill';
     if (rate < exp * 0.85) cls += ' bad';
     else if (rate < exp) cls += ' warn';
+    const isZoe = (m === '佐伊');
     cards += `
-      <div class="mgr-card" onclick="filterByMgr('${m}')">
+      <div class="mgr-card${isZoe ? ' mgr-card-zoe' : ''}" onclick="filterByMgr('${m}')">
         <div class="mgr-card-header">
           <div class="mgr-name">${m}</div>
           <div class="mgr-stores">${list.length} 店</div>
@@ -599,6 +646,8 @@ function renderManager() {
     '<th style="width:80px">LM_GR</th>' +
     '</tr></thead><tbody>';
   mgrs.forEach(m => {
+    // 詳細表中跳過佐伊群組(避免跟原 4 位主管重複列出明細)
+    if (m === '佐伊' && !filterM) return;
     const list = byMgr[m].sort((a, b) => (a.達成率 || 0) - (b.達成率 || 0));
     list.forEach((r, i) => {
       html += `<tr>
@@ -726,39 +775,70 @@ function renderStoreDetail() {
   // 等分目標線 (CM/總天數 為日平均)
   const dailyTarget = r.CM目標 / (Number(meta['月底總天數']) || 31);
 
+  // 去年同店每日銷售(對齊今年日期的「月-日」)
+  const lyDaily = lyByStore[code] || [];
+  const lyMap = {};
+  lyDaily.forEach(d => {
+    const m = String(d.date).match(/(\d{2})-(\d{2})$/);
+    if (m) lyMap[m[1] + '-' + m[2]] = d.amt;
+  });
+  const lyData = daily.map(d => {
+    const m = String(d.date).match(/(\d{2})-(\d{2})$/);
+    if (m && lyMap[m[1] + '-' + m[2]] !== undefined) return lyMap[m[1] + '-' + m[2]];
+    return null;
+  });
+  const hasLY = lyData.some(v => v !== null && v !== 0);
+  
+  const chartDatasets = [
+    {
+      type: 'bar',
+      label: '每日銷售',
+      data: data,
+      backgroundColor: 'rgba(44,82,130,0.55)',
+      yAxisID: 'y'
+    },
+    {
+      type: 'line',
+      label: '日均目標',
+      data: data.map(() => dailyTarget),
+      borderColor: '#dc2626',
+      borderDash: [6, 4],
+      backgroundColor: 'transparent',
+      pointRadius: 0,
+      yAxisID: 'y'
+    },
+    {
+      type: 'line',
+      label: '累積銷售',
+      data: cumData,
+      borderColor: '#059669',
+      backgroundColor: 'rgba(5,150,105,0.1)',
+      fill: true,
+      tension: 0.3,
+      yAxisID: 'y1'
+    }
+  ];
+  if (hasLY) {
+    chartDatasets.push({
+      type: 'line',
+      label: '去年同期',
+      data: lyData,
+      borderColor: '#9ca3af',
+      borderDash: [8, 4],
+      backgroundColor: 'transparent',
+      pointRadius: 3,
+      pointBackgroundColor: '#9ca3af',
+      tension: 0.2,
+      yAxisID: 'y',
+      spanGaps: true
+    });
+  }
+  
   if (storeChart) storeChart.destroy();
   storeChart = new Chart($('storeChart'), {
     data: {
       labels: labels,
-      datasets: [
-        {
-          type: 'bar',
-          label: '每日銷售',
-          data: data,
-          backgroundColor: 'rgba(44,82,130,0.55)',
-          yAxisID: 'y'
-        },
-        {
-          type: 'line',
-          label: '日均目標',
-          data: data.map(() => dailyTarget),
-          borderColor: '#dc2626',
-          borderDash: [6, 4],
-          backgroundColor: 'transparent',
-          pointRadius: 0,
-          yAxisID: 'y'
-        },
-        {
-          type: 'line',
-          label: '累積銷售',
-          data: cumData,
-          borderColor: '#059669',
-          backgroundColor: 'rgba(5,150,105,0.1)',
-          fill: true,
-          tension: 0.3,
-          yAxisID: 'y1'
-        }
-      ]
+      datasets: chartDatasets
     },
     options: {
       responsive: true, maintainAspectRatio: false,

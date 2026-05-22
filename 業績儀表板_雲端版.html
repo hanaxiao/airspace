@@ -156,6 +156,90 @@
     transition: all 0.15s;
   }
   .filter-clear-btn:hover { background: #e2e8f0; color: #1e293b; }
+  
+  /* 登入畫面 */
+  .login-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #3b82f6 100%);
+    z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Microsoft JhengHei', sans-serif;
+  }
+  .login-card {
+    background: white;
+    padding: 40px 50px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 380px;
+    max-width: 90%;
+  }
+  .login-logo {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .login-logo .icon { font-size: 48px; }
+  .login-title {
+    text-align: center;
+    font-size: 22px;
+    color: #1e3a5f;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .login-subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .login-field { margin-bottom: 14px; }
+  .login-field label {
+    display: block;
+    font-size: 12px;
+    color: #475569;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .login-field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
+  .login-field input:focus {
+    outline: none;
+    border-color: #3b82f6;
+  }
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: transform 0.1s;
+  }
+  .login-btn:hover { transform: translateY(-1px); }
+  .login-btn:active { transform: translateY(0); }
+  .login-error {
+    color: #dc2626;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+  .login-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #94a3b8;
+    font-size: 11px;
+  }
   .mgr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
   .mgr-card-header {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -251,6 +335,31 @@
 </style>
 </head>
 <body>
+
+<!-- 登入畫面 -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-logo"><span class="icon">🔐</span></div>
+    <div class="login-title">AIR SPACE 業績儀表板</div>
+    <div class="login-subtitle">請使用公司電郵登入</div>
+    
+    <div class="login-field">
+      <label>公司電郵</label>
+      <input type="email" id="loginEmail" placeholder="your@airspaceonline.com" autocomplete="email" />
+    </div>
+    <div class="login-field">
+      <label>密碼</label>
+      <input type="password" id="loginPassword" placeholder="請輸入密碼" autocomplete="current-password" />
+    </div>
+    
+    <button class="login-btn" onclick="doLogin()">登入</button>
+    <div id="loginError" class="login-error"></div>
+    <div class="login-footer">
+      AIR SPACE 業績儀表板系統 · 內部使用
+    </div>
+  </div>
+</div>
+
 <button id="refreshBtn" class="refresh-btn" onclick="refreshData()">
   <span id="refreshIcon">🔄</span>
   <span id="refreshText">立即更新</span>
@@ -373,6 +482,101 @@
 // 部署 Apps Script 後填入 Web App URL
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEMZdyDcsCi9pC5fZxY6XoZPi3t0YrQIlikObf97IBLpGxIg0UeFeE6jjG-R1hA2B87A/exec';
 
+// ============ 登入驗證設定 ============
+// ⚠️ 修改這裡可換密碼/網域
+const AUTH_CONFIG = {
+  PASSWORD: 'Air@2026',                  // 統一密碼(可改)
+  EMAIL_DOMAIN: '@airspaceonline.com',          // 公司電郵結尾(可改)
+  REMEMBER_HOURS: 24                         // 記住幾小時(預設 24 = 1 天)
+};
+
+// 檢查登入狀態
+function checkLogin() {
+  const stored = localStorage.getItem('airspace_auth');
+  if (!stored) return false;
+  try {
+    const data = JSON.parse(stored);
+    const now = Date.now();
+    const ageHours = (now - data.loginTime) / (1000 * 60 * 60);
+    if (ageHours > AUTH_CONFIG.REMEMBER_HOURS) {
+      localStorage.removeItem('airspace_auth');
+      return false;
+    }
+    return data;  // 回傳登入資料 { email, loginTime }
+  } catch (e) {
+    return false;
+  }
+}
+
+// 執行登入
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pw = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  
+  // 驗證電郵格式
+  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    err.textContent = '⚠️ 電郵格式不正確';
+    return;
+  }
+  
+  // 驗證公司網域
+  if (!email.endsWith(AUTH_CONFIG.EMAIL_DOMAIN)) {
+    err.textContent = '⚠️ 請使用公司電郵 (' + AUTH_CONFIG.EMAIL_DOMAIN + ')';
+    return;
+  }
+  
+  // 驗證密碼
+  if (pw !== AUTH_CONFIG.PASSWORD) {
+    err.textContent = '⚠️ 密碼錯誤';
+    return;
+  }
+  
+  // 登入成功
+  localStorage.setItem('airspace_auth', JSON.stringify({
+    email: email,
+    loginTime: Date.now()
+  }));
+  
+  console.log('登入成功:', email);
+  hideLogin();
+  // 觸發載入資料
+  if (typeof loadData === 'function') loadData();
+}
+
+function hideLogin() {
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+function showLogin() {
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function logout() {
+  localStorage.removeItem('airspace_auth');
+  location.reload();
+}
+
+// 進入頁面時立刻檢查登入狀態
+(function() {
+  const auth = checkLogin();
+  if (auth) {
+    setTimeout(hideLogin, 50);  // 等 DOM 渲染
+    console.log('已登入用戶:', auth.email, '登入時間:', new Date(auth.loginTime).toLocaleString());
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    const pwInput = document.getElementById('loginPassword');
+    const emailInput = document.getElementById('loginEmail');
+    if (pwInput) pwInput.addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+    if (emailInput) emailInput.addEventListener('keypress', e => { if (e.key === 'Enter') {
+      if (emailInput.value) document.getElementById('loginPassword').focus();
+    }});
+  });
+})();
+
 // ============ 全域狀態 ============
 let STORE_MAP = {};
 let MGR_ORDER = [];
@@ -380,24 +584,21 @@ let records = [];
 let dailyByStore = {};
   let lyByStore = {};
   let top5ByStore = {};
-  
-  // 全門市 5 月每日目標(用於智能日均目標計算)
-  const DAILY_TOTAL_TARGET = {
-    '05-01': 4200000, '05-02': 4650000, '05-03': 4000000, '05-04': 2100000,
-    '05-05': 2300000, '05-06': 2300000, '05-07': 2450000, '05-08': 2800000,
-    '05-09': 4300000, '05-10': 3700000, '05-11': 1950000, '05-12': 2050000,
-    '05-13': 1950000, '05-14': 2000000, '05-15': 2450000, '05-16': 4000000,
-    '05-17': 3200000, '05-18': 2300000, '05-19': 2500000, '05-20': 2500000,
-    '05-21': 2750000, '05-22': 3200000, '05-23': 4856290, '05-24': 4300000,
-    '05-25': 2000000, '05-26': 2100000, '05-27': 2000000, '05-28': 2200000,
-    '05-29': 2550000, '05-30': 4750000, '05-31': 3455000
-  };
+  // 動態目標(從 API 讀取,取代寫死的 DAILY_TOTAL_TARGET)
+  let dailyTotalTargets = {};      // { '05-01': 4200000, ... }
+  let storeMonthTargets = {};      // { 'AS04': 1700000, ... }
+  let totalMonthTarget = 0;         // 全公司月總目標
 let meta = {};
 
 const $ = id => document.getElementById(id);
 
 // ============ 載入資料 ============
 async function loadData() {
+  // 守衛:未登入時不執行
+  if (!checkLogin()) {
+    showLogin();
+    return;
+  }
   // 處理 URL 參數
   const params = new URLSearchParams(window.location.search);
   const focusMgr = params.get('mgr');
@@ -415,6 +616,9 @@ async function loadData() {
     dailyByStore = data.dailyByStore || {};
     lyByStore = data.lyByStore || {};
     top5ByStore = data.top5ByStore || {};
+    dailyTotalTargets = data.dailyTotalTargets || {};
+    storeMonthTargets = data.storeMonthTargets || {};
+    totalMonthTarget = data.totalMonthTarget || 0;
     meta = data.meta || {};
 
     renderMeta();
@@ -1027,17 +1231,20 @@ function renderStoreDetail() {
   });
   const hasLY = lyData.some(v => v !== null && v !== 0);
   
-  // 智能日均目標:全門市當日目標 × (該店月目標 ÷ 全門市月目標)
-  const TOTAL_MONTH_TARGET = 91861290;  // 全門市月總目標
-  const storeMonthTarget = r.CM目標 || 0;
-  const storeRatio = TOTAL_MONTH_TARGET > 0 ? storeMonthTarget / TOTAL_MONTH_TARGET : 0;
+  // 智能日均目標:從 API 讀取的動態目標
+  // 公式:該店今日目標 = 全公司今日目標 × (該店月目標 ÷ 全公司月目標)
+  // 優先用 storeMonthTargets(從 Drive 讀的目標),fallback 用 r.CM目標
+  const storeMonthTargetFromAPI = storeMonthTargets[code];
+  const storeMonthTarget = (storeMonthTargetFromAPI > 0) ? storeMonthTargetFromAPI : (r.CM目標 || 0);
+  const monthTotalForRatio = (totalMonthTarget > 0) ? totalMonthTarget : 91861290;
+  const storeRatio = monthTotalForRatio > 0 ? storeMonthTarget / monthTotalForRatio : 0;
   
   const smartTargets = daily.map(d => {
-    const mm_dd = String(d.date).match(/(\d{2}-\d{2})$/);
-    if (mm_dd && DAILY_TOTAL_TARGET[mm_dd[1]]) {
-      return Math.round(DAILY_TOTAL_TARGET[mm_dd[1]] * storeRatio);
+    const mm_dd_match = String(d.date).match(/(\d{2}-\d{2})$/);
+    if (mm_dd_match && dailyTotalTargets[mm_dd_match[1]]) {
+      return Math.round(dailyTotalTargets[mm_dd_match[1]] * storeRatio);
     }
-    return dailyTarget;  // 找不到全門市目標時,退回平均日目標
+    return dailyTarget;  // 找不到目標時,退回平均日目標
   });
   
   const chartDatasets = [

@@ -141,6 +141,21 @@
   .refresh-toast.error {
     border-left-color: #ef4444;
   }
+  
+  /* 多維度篩選樣式 */
+  .filter-multi { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .filter-multi .fg { display: flex; flex-direction: column; gap: 3px; }
+  .filter-multi .fg label { font-size: 11px; color: #64748b; font-weight: 500; }
+  .filter-multi .fg select {
+    padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 6px;
+    font-size: 13px; min-width: 90px; background: white;
+  }
+  .filter-clear-btn {
+    padding: 6px 12px; background: #f1f5f9; border: 1px solid #cbd5e1;
+    border-radius: 6px; cursor: pointer; font-size: 12px; color: #475569;
+    transition: all 0.15s;
+  }
+  .filter-clear-btn:hover { background: #e2e8f0; color: #1e293b; }
   .mgr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
   .mgr-card-header {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -273,15 +288,46 @@
       <h2>📊 通路彙總(百貨/街邊)</h2>
       <div id="channelTable"></div>
     </div>
+    <div class="card">
+      <h2>🏆 全公司熱銷 TOP 10 商品(各店 TOP 5 加總)</h2>
+      <div id="globalTop10"></div>
+    </div>
   </div>
 
   <!-- 主管彙總 -->
   <div class="panel" id="panel-manager">
-    <div class="controls">
-      <label>篩選主管:</label>
-      <select id="mgrFilter" onchange="renderManager()">
-        <option value="">全部</option>
-      </select>
+    <div class="controls filter-multi">
+      <div class="fg"><label>主管</label>
+        <select id="mgrFilter" onchange="applyFilters()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="fg"><label>區域</label>
+        <select id="areaFilter" onchange="applyFilters()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="fg"><label>縣市</label>
+        <select id="cityFilter" onchange="applyFilters()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="fg"><label>級別</label>
+        <select id="lvlFilter" onchange="applyFilters()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="fg"><label>通路</label>
+        <select id="chFilter" onchange="applyFilters()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="fg"><label>販售店</label>
+        <select id="shopFilter" onchange="applyFilters()">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <button class="filter-clear-btn" onclick="clearAllFilters()">清除</button>
     </div>
     <div id="mgrCards" class="mgr-grid"></div>
     <div class="card" style="margin-top:14px">
@@ -333,6 +379,19 @@ let MGR_ORDER = [];
 let records = [];
 let dailyByStore = {};
   let lyByStore = {};
+  let top5ByStore = {};
+  
+  // 全門市 5 月每日目標(用於智能日均目標計算)
+  const DAILY_TOTAL_TARGET = {
+    '05-01': 4200000, '05-02': 4650000, '05-03': 4000000, '05-04': 2100000,
+    '05-05': 2300000, '05-06': 2300000, '05-07': 2450000, '05-08': 2800000,
+    '05-09': 4300000, '05-10': 3700000, '05-11': 1950000, '05-12': 2050000,
+    '05-13': 1950000, '05-14': 2000000, '05-15': 2450000, '05-16': 4000000,
+    '05-17': 3200000, '05-18': 2300000, '05-19': 2500000, '05-20': 2500000,
+    '05-21': 2750000, '05-22': 3200000, '05-23': 4856290, '05-24': 4300000,
+    '05-25': 2000000, '05-26': 2100000, '05-27': 2000000, '05-28': 2200000,
+    '05-29': 2550000, '05-30': 4750000, '05-31': 3455000
+  };
 let meta = {};
 
 const $ = id => document.getElementById(id);
@@ -355,6 +414,7 @@ async function loadData() {
     records = data.records;
     dailyByStore = data.dailyByStore || {};
     lyByStore = data.lyByStore || {};
+    top5ByStore = data.top5ByStore || {};
     meta = data.meta || {};
 
     renderMeta();
@@ -374,7 +434,8 @@ async function loadData() {
       renderManager();
     } else {
       renderDashboard();
-      renderManager();
+    renderManager();
+    renderGlobalTop10();
       renderRanking();
     }
   } catch (err) {
@@ -397,6 +458,7 @@ function populateSelects() {
   // 主管篩選(佐伊放最前)
   ['mgrFilter', 'rankMgrFilter'].forEach(id => {
     const sel = $(id);
+    if (!sel) return;
     // 佐伊先放(區副理彙總)
     const optZ = document.createElement('option');
     optZ.value = '佐伊'; optZ.text = '佐伊 (北區彙總)';
@@ -407,6 +469,47 @@ function populateSelects() {
       sel.appendChild(opt);
     });
   });
+  
+  // 多維度篩選下拉內容填充
+  const CITY_ORDER = ['台北', '新北', '桃園', '新竹', '台中', '嘉義', '台南', '高雄'];
+  const FILTERS_CONFIG = [
+    { id: 'areaFilter', field: '轄區' },
+    { id: 'cityFilter', field: '縣市', order: CITY_ORDER },
+    { id: 'lvlFilter', field: '級別' },
+    { id: 'chFilter', field: '門市型態' },
+    { id: 'shopFilter', field: '販售店' }
+  ];
+  FILTERS_CONFIG.forEach(cfg => {
+    const sel = document.getElementById(cfg.id);
+    if (!sel) return;
+    const vals = [...new Set(records.map(r => r[cfg.field]).filter(v => v))];
+    let sorted;
+    if (cfg.order) {
+      sorted = cfg.order.filter(v => vals.includes(v));
+      vals.forEach(v => { if (!sorted.includes(v)) sorted.push(v); });
+    } else {
+      sorted = vals.sort();
+    }
+    sorted.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.text = v;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+// 套用所有篩選
+function applyFilters() {
+  renderManager();
+}
+
+// 清除所有篩選
+function clearAllFilters() {
+  ['mgrFilter', 'areaFilter', 'cityFilter', 'lvlFilter', 'chFilter', 'shopFilter'].forEach(id => {
+    const s = document.getElementById(id);
+    if (s) s.value = '';
+  });
+  renderManager();
 
   // 門市下拉(分組顯示:依主管,從 records 直接讀)
   const storeSel = $('storeSelect');
@@ -664,11 +767,24 @@ const ZOE_TEAM = ['律廷', '含含', '樺樺', 'RIISA'];
 
 function renderManager() {
   const filterM = $('mgrFilter').value;
+  const filterA = ($('areaFilter') || {}).value || '';
+  const filterC = ($('cityFilter') || {}).value || '';
+  const filterL = ($('lvlFilter') || {}).value || '';
+  const filterCh = ($('chFilter') || {}).value || '';
+  const filterShop = ($('shopFilter') || {}).value || '';
+  
   const byMgr = {};
   records.forEach(r => {
-    if (filterM && r.主管 !== filterM && filterM !== '佐伊') return;
-    // 若篩選為「佐伊」,只看 ZOE_TEAM 那 4 位的店
+    // 主管篩選(佐伊特殊處理)
+    if (filterM && filterM !== '佐伊' && r.主管 !== filterM) return;
     if (filterM === '佐伊' && !ZOE_TEAM.includes(r.主管)) return;
+    // 其他篩選
+    if (filterA && r.轄區 !== filterA) return;
+    if (filterC && r.縣市 !== filterC) return;
+    if (filterL && r.級別 !== filterL) return;
+    if (filterCh && r.門市型態 !== filterCh) return;
+    if (filterShop && r.販售店 !== filterShop) return;
+    
     if (!byMgr[r.主管]) byMgr[r.主管] = [];
     byMgr[r.主管].push(r);
   });
@@ -867,6 +983,10 @@ function renderStoreDetail() {
       <h2>📅 每日明細</h2>
       <div id="storeDailyTable"></div>
     </div>
+    <div class="card">
+      <h2>🏆 該店熱銷 TOP 5 商品</h2>
+      <div id="storeTop5"></div>
+    </div>
   `;
 
   // 繪圖
@@ -901,6 +1021,19 @@ function renderStoreDetail() {
   });
   const hasLY = lyData.some(v => v !== null && v !== 0);
   
+  // 智能日均目標:全門市當日目標 × (該店月目標 ÷ 全門市月目標)
+  const TOTAL_MONTH_TARGET = 91861290;  // 全門市月總目標
+  const storeMonthTarget = r.CM目標 || 0;
+  const storeRatio = TOTAL_MONTH_TARGET > 0 ? storeMonthTarget / TOTAL_MONTH_TARGET : 0;
+  
+  const smartTargets = daily.map(d => {
+    const mm_dd = String(d.date).match(/(\d{2}-\d{2})$/);
+    if (mm_dd && DAILY_TOTAL_TARGET[mm_dd[1]]) {
+      return Math.round(DAILY_TOTAL_TARGET[mm_dd[1]] * storeRatio);
+    }
+    return dailyTarget;  // 找不到全門市目標時,退回平均日目標
+  });
+  
   const chartDatasets = [
     {
       type: 'bar',
@@ -911,23 +1044,14 @@ function renderStoreDetail() {
     },
     {
       type: 'line',
-      label: '日均目標',
-      data: data.map(() => dailyTarget),
+      label: '當日目標',
+      data: smartTargets,
       borderColor: '#dc2626',
       borderDash: [6, 4],
       backgroundColor: 'transparent',
       pointRadius: 0,
-      yAxisID: 'y'
-    },
-    {
-      type: 'line',
-      label: '累積銷售',
-      data: cumData,
-      borderColor: '#059669',
-      backgroundColor: 'rgba(5,150,105,0.1)',
-      fill: true,
-      tension: 0.3,
-      yAxisID: 'y1'
+      yAxisID: 'y',
+      tension: 0.1
     }
   ];
   if (hasLY) {
@@ -992,6 +1116,89 @@ function renderStoreDetail() {
   });
   dtbl += '</tbody></table>';
   $('storeDailyTable').innerHTML = dtbl;
+  
+  // 渲染 TOP 5 商品
+  renderStoreTop5(code);
+}
+
+// 渲染單店 TOP 5
+function renderStoreTop5(code) {
+  const container = $('storeTop5');
+  if (!container) return;
+  const items = top5ByStore[code] || [];
+  if (items.length === 0) {
+    container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">這家店暫無 TOP 5 商品資料</p>';
+    return;
+  }
+  // 按排名排序
+  items.sort((a, b) => (a.rank || 99) - (b.rank || 99));
+  const medals = ['🥇', '🥈', '🥉', '4', '5'];
+  let html = '<table style="max-width:900px"><thead><tr>' +
+    '<th style="width:60px">排名</th>' +
+    '<th>商品名稱</th>' +
+    '<th style="width:90px">銷售件數</th>' +
+    '<th style="width:120px">銷售金額</th>' +
+    '</tr></thead><tbody>';
+  items.forEach((it, i) => {
+    const medal = medals[i] || (i + 1);
+    html += `<tr>
+      <td class="col-center" style="font-size:16px">${medal}</td>
+      <td class="col-txt">${it.name}</td>
+      <td>${(it.qty || 0).toLocaleString()}</td>
+      <td>${(it.amt || 0).toLocaleString()}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// 渲染全公司熱銷 TOP 10
+function renderGlobalTop10() {
+  const container = $('globalTop10');
+  if (!container) return;
+  // 整合所有店的 TOP 5 商品銷量
+  const productMap = {};  // { '商品名': { qty: , amt: , stores: [] } }
+  Object.keys(top5ByStore).forEach(code => {
+    top5ByStore[code].forEach(item => {
+      if (!productMap[item.name]) {
+        productMap[item.name] = { qty: 0, amt: 0, stores: 0 };
+      }
+      productMap[item.name].qty += (item.qty || 0);
+      productMap[item.name].amt += (item.amt || 0);
+      productMap[item.name].stores += 1;
+    });
+  });
+  // 排序取前 10(依銷售金額)
+  const ranked = Object.entries(productMap)
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => b.amt - a.amt)
+    .slice(0, 10);
+  
+  if (ranked.length === 0) {
+    container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">尚未取得 TOP 5 資料,請執行一鍵更新</p>';
+    return;
+  }
+  
+  let html = '<table><thead><tr>' +
+    '<th style="width:60px">排名</th>' +
+    '<th>商品名稱</th>' +
+    '<th style="width:80px">上榜店數</th>' +
+    '<th style="width:100px">總銷售件數</th>' +
+    '<th style="width:120px">總銷售金額</th>' +
+    '</tr></thead><tbody>';
+  const medals = ['🥇', '🥈', '🥉'];
+  ranked.forEach((p, i) => {
+    const m = medals[i] || (i + 1);
+    html += `<tr>
+      <td class="col-center" style="font-size:16px">${m}</td>
+      <td class="col-txt">${p.name}</td>
+      <td>${p.stores} 店</td>
+      <td>${p.qty.toLocaleString()}</td>
+      <td>${p.amt.toLocaleString()}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
 }
 
 // ============ 達成率排名 ============

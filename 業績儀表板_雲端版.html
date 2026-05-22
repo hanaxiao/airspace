@@ -76,6 +76,71 @@
     content: " 👑";
     font-size: 14px;
   }
+  
+  /* 立即更新按鈕 */
+  .refresh-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 999;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .refresh-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(30, 58, 95, 0.4);
+  }
+  .refresh-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .refresh-btn .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .refresh-toast {
+    position: fixed;
+    top: 72px;
+    right: 16px;
+    z-index: 998;
+    background: white;
+    border-left: 4px solid #10b981;
+    padding: 12px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    font-size: 13px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .refresh-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .refresh-toast.error {
+    border-left-color: #ef4444;
+  }
   .mgr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
   .mgr-card-header {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -171,6 +236,12 @@
 </style>
 </head>
 <body>
+<button id="refreshBtn" class="refresh-btn" onclick="refreshData()">
+  <span id="refreshIcon">🔄</span>
+  <span id="refreshText">立即更新</span>
+</button>
+<div id="refreshToast" class="refresh-toast"></div>
+
 
 <div class="topbar">
   <div>
@@ -385,6 +456,47 @@ function switchTab(name) {
   document.querySelectorAll('.panel').forEach(p => {
     p.classList.toggle('active', p.id === 'panel-' + name);
   });
+}
+
+// ============ 立即更新按鈕 ============
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  const icon = document.getElementById('refreshIcon');
+  const text = document.getElementById('refreshText');
+  const toast = document.getElementById('refreshToast');
+  
+  // 防止重複點擊
+  if (btn.disabled) return;
+  btn.disabled = true;
+  icon.innerHTML = '<span class="spinner"></span>';
+  text.textContent = '更新中...';
+  toast.classList.remove('show', 'error');
+  
+  try {
+    // 呼叫 Apps Script Web App 的 processAll
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbyEMZdyDcsCi9pC5fZxY6XoZPi3t0YrQIlikObf97IBLpGxIg0UeFeE6jjG-R1hA2B87A/exec?action=refresh';
+    const response = await fetch(apiUrl, { method: 'GET' });
+    
+    if (!response.ok) throw new Error('更新失敗');
+    
+    // 等資料更新完,重新載入頁面(讓網頁去抓最新資料)
+    toast.textContent = '✅ 更新完成,正在重新載入...';
+    toast.classList.add('show');
+    
+    // 1 秒後重新整理頁面
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+    
+  } catch (error) {
+    console.error(error);
+    btn.disabled = false;
+    icon.textContent = '🔄';
+    text.textContent = '立即更新';
+    toast.textContent = '❌ 更新失敗:' + error.message;
+    toast.classList.add('show', 'error');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
 }
 
 // ============ 日期 parsing(避免 UTC/local 時區問題) ============

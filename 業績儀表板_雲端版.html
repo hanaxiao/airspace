@@ -496,6 +496,8 @@ function populateSelects() {
       sel.appendChild(opt);
     });
   });
+  populateStoreSelect();
+
 }
 
 // 套用所有篩選
@@ -510,9 +512,14 @@ function clearAllFilters() {
     if (s) s.value = '';
   });
   renderManager();
+}
 
-  // 門市下拉(分組顯示:依主管,從 records 直接讀)
+// 填入門市下拉(分組顯示:依主管,從 records 直接讀)
+function populateStoreSelect() {
   const storeSel = $('storeSelect');
+  if (!storeSel) return;
+  // 清空既有 option(保留 -- 請選擇 --)
+  while (storeSel.options.length > 1) storeSel.remove(1);
   const byMgr = {};
   records.forEach(r => {
     const m = r.主管;
@@ -531,7 +538,6 @@ function clearAllFilters() {
     });
     storeSel.appendChild(og);
   });
-  // 加上不在 MGR_ORDER 內的主管(以防有新主管)
   Object.keys(byMgr).forEach(m => {
     if (MGR_ORDER.includes(m)) return;
     const og = document.createElement('optgroup');

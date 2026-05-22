@@ -509,6 +509,23 @@ function checkLogin() {
 }
 
 // 執行登入
+// 回報登入事件到 Apps Script(背景送,不阻塞 UI)
+function reportLoginEvent(email, type) {
+  try {
+    fetch(API_URL, {
+      method: 'POST',
+      // 不設 Content-Type,讓它變 simple request 避免 CORS preflight
+      body: JSON.stringify({
+        email: email,
+        type: type,
+        userAgent: navigator.userAgent
+      })
+    }).catch(e => console.log('回報失敗(可忽略):', e));
+  } catch (e) {
+    console.log('回報失敗(可忽略):', e);
+  }
+}
+
 function doLogin() {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pw = document.getElementById('loginPassword').value;
@@ -524,12 +541,14 @@ function doLogin() {
   // 驗證公司網域
   if (!email.endsWith(AUTH_CONFIG.EMAIL_DOMAIN)) {
     err.textContent = '⚠️ 請使用公司電郵 (' + AUTH_CONFIG.EMAIL_DOMAIN + ')';
+    reportLoginEvent(email, 'wrong_domain');  // 回報非公司電郵
     return;
   }
   
   // 驗證密碼
   if (pw !== AUTH_CONFIG.PASSWORD) {
     err.textContent = '⚠️ 密碼錯誤';
+    reportLoginEvent(email, 'wrong_password');  // 回報密碼錯誤
     return;
   }
   
@@ -539,6 +558,7 @@ function doLogin() {
     loginTime: Date.now()
   }));
   
+  reportLoginEvent(email, 'login');  // 回報登入成功
   console.log('登入成功:', email);
   hideLogin();
   // 觸發載入資料

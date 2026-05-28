@@ -587,17 +587,30 @@ function csvToEvents(rows){
   const iStatus = idxOf("狀態");
   const iNote = idxOf("備註");
 
+  // 清理字串:移除圖片佔位符、隱藏字元、多餘空白
+  const sanitize = s => {
+    if(!s) return "";
+    return String(s)
+      .replace(/\[image:[^\]]*\]/gi, '')           // [image: image.png] 之類
+      .replace(/\[圖片[^\]]*\]/g, '')              // [圖片:xxx]
+      .replace(/\[img:[^\]]*\]/gi, '')             // [img:xxx]
+      .replace(/[\uFFFC\uFEFF]/g, '')              // 物件替代字元 / BOM
+      .replace(/[\u200B-\u200F]/g, '')             // 零寬空白
+      .replace(/\s+/g, ' ')                        // 多個空白合併成一個
+      .trim();
+  };
+
   const events=[];
   for(let i=1;i<rows.length;i++){
     const r=rows[i];
     if(!r || r.length === 0) continue;
     const year = parseInt((r[iYear]||"").trim()) || new Date().getFullYear();
-    const range = (r[iRange]||"").trim();
-    const type = (r[iType]||"").trim();
-    const content = (r[iContent]||"").trim();
-    const store = (r[iStore]||"").trim();
-    const status = (r[iStatus]||"").trim();
-    const note = (r[iNote]||"").trim();
+    const range = sanitize(r[iRange]);
+    const type = sanitize(r[iType]);
+    const content = sanitize(r[iContent]);
+    const store = sanitize(r[iStore]);
+    const status = sanitize(r[iStatus]);
+    const note = sanitize(r[iNote]);
 
     if(!content && !range) continue;
 

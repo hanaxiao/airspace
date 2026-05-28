@@ -398,8 +398,37 @@
       <div id="channelTable"></div>
     </div>
     <div class="card">
-      <h2>🏆 全公司熱銷 TOP 10 商品(各店 TOP 5 加總)</h2>
-      <div id="globalTop10"></div>
+     <h2>🏆 全公司熱銷 TOP 10 商品 (區分 OUTLET 與 其他門市)</h2>
+      <!-- 使用 flexbox 讓兩個表格可以並排顯示 -->
+      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        
+        <!-- 左側：OUTLET 表格 -->
+        <div style="flex: 1; min-width: 300px;">
+          <h4 style="background: #1e3a5f; color: white; padding: 8px; margin-top: 0; text-align: center;">🛍️ OUTLET 熱銷 TOP 10</h4>
+          <table style="width: 100%; border-collapse: collapse; text-align: center;">
+            <thead style="background-color: #f2f2f2;">
+              <tr><th>排名</th><th>商品名稱</th><th>銷售件數</th><th>銷售金額</th></tr>
+            </thead>
+            <tbody id="outlet-top10-body">
+              <!-- JS 會將資料塞入這裡 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 右側：其他門市 表格 -->
+        <div style="flex: 1; min-width: 300px;">
+          <h4 style="background: #1e3a5f; color: white; padding: 8px; margin-top: 0; text-align: center;">🏬 其他門市熱銷 TOP 10</h4>
+          <table style="width: 100%; border-collapse: collapse; text-align: center;">
+            <thead style="background-color: #f2f2f2;">
+              <tr><th>排名</th><th>商品名稱</th><th>銷售件數</th><th>銷售金額</th></tr>
+            </thead>
+            <tbody id="others-top10-body">
+              <!-- JS 會將資料塞入這裡 -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -1387,51 +1416,43 @@ function renderStoreTop5(code) {
 
 // 渲染全公司熱銷 TOP 10
 function renderGlobalTop10() {
-  const container = $('globalTop10');
-  if (!container) return;
-  // 整合所有店的 TOP 5 商品銷量
-  const productMap = {};  // { '商品名': { qty: , amt: , stores: [] } }
-  Object.keys(top5ByStore).forEach(code => {
-    top5ByStore[code].forEach(item => {
-      if (!productMap[item.name]) {
-        productMap[item.name] = { qty: 0, amt: 0, stores: 0 };
-      }
-      productMap[item.name].qty += (item.qty || 0);
-      productMap[item.name].amt += (item.amt || 0);
-      productMap[item.name].stores += 1;
+  // ===== 渲染 OUTLET TOP 10 =====
+  let outletHtml = '';
+  if (data.top10Outlet && data.top10Outlet.length > 0) {
+    data.top10Outlet.forEach((item, index) => {
+      outletHtml += `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 8px;">${index + 1}</td>
+          <td style="padding: 8px; text-align: left;">${item.name}</td>
+          <td style="padding: 8px;">${item.qty}</td>
+          <td style="padding: 8px;">$${item.amt.toLocaleString()}</td>
+        </tr>
+      `;
     });
-  });
-  // 排序取前 10(依銷售金額)
-  const ranked = Object.entries(productMap)
-    .map(([name, v]) => ({ name, ...v }))
-    .sort((a, b) => b.amt - a.amt)
-    .slice(0, 10);
-  
-  if (ranked.length === 0) {
-    container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">尚未取得 TOP 5 資料,請執行一鍵更新</p>';
-    return;
+  } else {
+    outletHtml = '<tr><td colspan="4" style="padding: 10px;">目前無資料</td></tr>';
   }
-  
-  let html = '<table><thead><tr>' +
-    '<th style="width:60px">排名</th>' +
-    '<th>商品名稱</th>' +
-    '<th style="width:80px">上榜店數</th>' +
-    '<th style="width:100px">總銷售件數</th>' +
-    '<th style="width:120px">總銷售金額</th>' +
-    '</tr></thead><tbody>';
-  const medals = ['🥇', '🥈', '🥉'];
-  ranked.forEach((p, i) => {
-    const m = medals[i] || (i + 1);
-    html += `<tr>
-      <td class="col-center" style="font-size:16px">${m}</td>
-      <td class="col-txt">${p.name}</td>
-      <td>${p.stores} 店</td>
-      <td>${p.qty.toLocaleString()}</td>
-      <td>${p.amt.toLocaleString()}</td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
+  const outletBody = document.getElementById('outlet-top10-body');
+  if (outletBody) outletBody.innerHTML = outletHtml;
+
+  // ===== 渲染 其他門市 TOP 10 =====
+  let othersHtml = '';
+  if (data.top10Others && data.top10Others.length > 0) {
+    data.top10Others.forEach((item, index) => {
+      othersHtml += `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 8px;">${index + 1}</td>
+          <td style="padding: 8px; text-align: left;">${item.name}</td>
+          <td style="padding: 8px;">${item.qty}</td>
+          <td style="padding: 8px;">$${item.amt.toLocaleString()}</td>
+        </tr>
+      `;
+    });
+  } else {
+    othersHtml = '<tr><td colspan="4" style="padding: 10px;">目前無資料</td></tr>';
+  }
+  const othersBody = document.getElementById('others-top10-body');
+  if (othersBody) othersBody.innerHTML = othersHtml;
 }
 
 // ============ 達成率排名 ============

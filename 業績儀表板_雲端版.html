@@ -1416,10 +1416,47 @@ function renderStoreTop5(code) {
 
 // 渲染全公司熱銷 TOP 10
 function renderGlobalTop10() {
-  // ===== 渲染 OUTLET TOP 10 =====
+  // 1. 從原有的 records 判斷哪些店是 OUTLET
+  const isOutlet = {};
+  if (typeof records !== 'undefined') {
+    records.forEach(r => {
+      isOutlet[r.倉庫編號] = (r.販售店 === 'OUTLET');
+    });
+  }
+
+  // 2. 將 top5ByStore 的商品分組並加總
+  const outletItems = {};
+  const otherItems = {};
+
+  if (typeof top5ByStore !== 'undefined') {
+    for (const code in top5ByStore) {
+      const items = top5ByStore[code];
+      const targetObj = isOutlet[code] ? outletItems : otherItems;
+
+      items.forEach(item => {
+        if (!targetObj[item.name]) {
+          targetObj[item.name] = { name: item.name, qty: 0, amt: 0 };
+        }
+        targetObj[item.name].qty += (Number(item.qty) || 0);
+        targetObj[item.name].amt += (Number(item.amt) || 0);
+      });
+    }
+  }
+
+  // 3. 轉為陣列，並嚴格按照「銷售數量 (qty)」由大到小排序
+  const top10OutletData = Object.values(outletItems)
+    .sort((a, b) => b.qty - a.qty || b.amt - a.amt)
+    .slice(0, 10);
+
+  const top10OthersData = Object.values(otherItems)
+    .sort((a, b) => b.qty - a.qty || b.amt - a.amt)
+    .slice(0, 10);
+
+
+  // ===== 4. 畫出 OUTLET TOP 10 =====
   let outletHtml = '';
-  if (data.top10Outlet && data.top10Outlet.length > 0) {
-    data.top10Outlet.forEach((item, index) => {
+  if (top10OutletData.length > 0) {
+    top10OutletData.forEach((item, index) => {
       outletHtml += `
         <tr style="border-bottom: 1px solid #ddd;">
           <td style="padding: 8px;">${index + 1}</td>
@@ -1435,10 +1472,11 @@ function renderGlobalTop10() {
   const outletBody = document.getElementById('outlet-top10-body');
   if (outletBody) outletBody.innerHTML = outletHtml;
 
-  // ===== 渲染 其他門市 TOP 10 =====
+
+  // ===== 5. 畫出 其他門市 TOP 10 =====
   let othersHtml = '';
-  if (data.top10Others && data.top10Others.length > 0) {
-    data.top10Others.forEach((item, index) => {
+  if (top10OthersData.length > 0) {
+    top10OthersData.forEach((item, index) => {
       othersHtml += `
         <tr style="border-bottom: 1px solid #ddd;">
           <td style="padding: 8px;">${index + 1}</td>

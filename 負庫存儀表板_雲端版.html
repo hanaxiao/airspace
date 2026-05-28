@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AIR SPACE｜門市負庫存儀表板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
@@ -204,6 +205,73 @@
     background: rgba(255,255,255,0.25); padding: 3px 10px;
     border-radius: 12px; font-size: 12px;
   }
+
+  /* 下載按鈕 */
+  .action-btn {
+    padding: 8px 14px; border: none; border-radius: 6px;
+    font-size: 13px; font-family: inherit; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: opacity 0.2s;
+  }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .action-btn.excel { background: #059669; color: white; }
+  .action-btn.excel:hover:not(:disabled) { background: #047857; }
+  .action-btn.print { background: #6366f1; color: white; }
+  .action-btn.print:hover:not(:disabled) { background: #4f46e5; }
+
+  /* === 列印專用樣式 === */
+  @media print {
+    @page { size: A4; margin: 1cm; }
+    body { padding: 0; background: white; }
+    .container { max-width: 100%; }
+    header, .tabs, .refresh-btn, #panel-dashboard, #panel-manager,
+    .pivot-control, .filter-bar, .action-btn, #errorBox { display: none !important; }
+    #panel-pivot { display: block !important; }
+    .panel { display: block !important; }
+
+    /* 列印標題 */
+    #printHeader { display: block !important; }
+
+    /* 列印時的單店明細：精簡、節省紙張 */
+    .brand-section {
+      box-shadow: none; border: 1px solid #ccc;
+      margin-bottom: 8px; page-break-inside: avoid;
+    }
+    .brand-section-header {
+      padding: 6px 10px; -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .brand-section-title { font-size: 12px; }
+    .brand-section-badge { font-size: 10px; padding: 1px 6px; }
+
+    /* 列印用緊湊表格 */
+    table.detail {
+      display: table !important; box-shadow: none;
+      border-radius: 0; font-size: 10px; width: 100%;
+    }
+    table.detail th {
+      background: #f3f4f6 !important; color: #1f2937 !important;
+      padding: 4px 6px; font-size: 10px;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      border: 1px solid #d1d5db;
+    }
+    table.detail td {
+      padding: 3px 6px; font-size: 10px;
+      border: 1px solid #e5e7eb;
+    }
+    table.detail .qty { font-weight: 700; color: #000 !important; }
+    .detail-card { display: none !important; }
+
+    /* 行內背景色強制顯示（列印時瀏覽器預設會剝除） */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+  #printHeader { display: none; }
+  #printHeader h2 { font-size: 18px; margin-bottom: 4px; }
+  #printHeader .sub { font-size: 12px; color: #555; margin-bottom: 10px; }
+  #printHeader .sub strong { color: #000; }
 </style>
 </head>
 <body>
@@ -244,7 +312,13 @@
       <option value="">-- 請選擇 --</option>
     </select>
     <span class="summary-chip" id="storeSummary"></span>
+    <button class="action-btn excel" id="btnExcel" onclick="downloadExcel()" disabled>📥 下載 Excel</button>
+    <button class="action-btn print" id="btnPrint" onclick="window.print()" disabled>🖨️ 列印 / 存 PDF</button>
   </div>
+
+  <!-- 列印用標題（平時隱藏，只在列印時顯示）-->
+  <div id="printHeader"></div>
+
   <div id="pivotContent"></div>
 </div>
 
@@ -252,7 +326,7 @@
 
 <script>
 // ============ 設定區（部署時要改）============
-const API_URL = 'https://script.google.com/macros/s/AKfycbzLk0abJl_1EMCPVq_a9l2exTwRAQUZZpDkc0YuEv4htYFrT6YxWQv_E1iYiAHCY8aL/exec';
+const API_URL = '請貼上_Apps_Script_部署網址';
 
 // ============ 品牌設定 ============
 const BRAND_ORDER = ['AS','CA','OL','A PLUS','PLUS'];
@@ -622,13 +696,20 @@ function renderPivotOptions() {
 function renderStoreDetail(id) {
   const c = $('pivotContent');
   const sm = $('storeSummary');
+  const btnExcel = $('btnExcel');
+  const btnPrint = $('btnPrint');
+  const printHeader = $('printHeader');
+
   if (!id) {
     c.innerHTML = '<div class="empty">請從上方選擇店代號</div>';
     sm.textContent = '';
+    btnExcel.disabled = true;
+    btnPrint.disabled = true;
+    printHeader.innerHTML = '';
     return;
   }
   const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
-    // 先按款號 A→Z，同款再按顏色、尺寸
+    // 款號 A→Z，同款再顏色、尺寸
     const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
     if (k1 !== 0) return k1;
     const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
@@ -638,6 +719,24 @@ function renderStoreDetail(id) {
   const s = STORE_MAP[id];
   const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
   sm.textContent = `${rows.length} 筆 ｜ 總計 ${total} ｜ ${s?s.mgr:'-'}`;
+
+  // 啟用按鈕
+  btnExcel.disabled = false;
+  btnPrint.disabled = false;
+
+  // 設定列印標題
+  const fileName = meta['資料來源檔名'] || '';
+  const procTime = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
+  printHeader.innerHTML = `
+    <h2>${id} ${s?s.name:''} - 負庫存明細</h2>
+    <div class="sub">
+      區主管：<strong>${s?s.mgr:'-'}</strong> ｜
+      負庫存筆數：<strong>${rows.length}</strong> 筆 ｜
+      總負庫存：<strong>${total}</strong> ｜
+      資料日期：${procTime} ｜
+      檔案：${fileName}
+    </div>
+  `;
 
   // 按品牌分組
   const byBrand = {};
@@ -701,6 +800,98 @@ function renderStoreDetail(id) {
   });
 
   c.innerHTML = html;
+}
+
+// ============ 下載 Excel ============
+function downloadExcel() {
+  const id = $('storeSelect').value;
+  if (!id) return;
+
+  const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
+    const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
+    if (k1 !== 0) return k1;
+    const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
+    if (c1 !== 0) return c1;
+    return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
+  });
+  const s = STORE_MAP[id];
+  const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
+
+  // 按品牌分組
+  const byBrand = {};
+  rows.forEach(r => {
+    const k = r.品牌 || '未分類';
+    if (!byBrand[k]) byBrand[k] = [];
+    byBrand[k].push(r);
+  });
+  const brandList = Object.keys(byBrand).sort(sortBrand);
+
+  // 組成 AOA (Array of Arrays)，依品牌分區塊
+  const aoa = [];
+  // 標題列
+  aoa.push([`${id} ${s?s.name:''} 負庫存明細`]);
+  aoa.push([`區主管：${s?s.mgr:'-'}    筆數：${rows.length}    總負庫存：${total}    資料日期：${meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : ''}`]);
+  aoa.push([]);  // 空行
+
+  brandList.forEach(brand => {
+    const brandRows = byBrand[brand];
+    const brandTotal = brandRows.reduce((s,r) => s + Number(r.庫存數量), 0);
+    // 品牌標題
+    aoa.push([`【${brand}】 ${brandRows.length} 筆 · 負庫存 ${brandTotal}`]);
+    // 欄位標題
+    aoa.push(['商品編號','款號','商品名稱','顏色','尺寸','大分類','季節','負庫存']);
+    // 資料
+    brandRows.forEach(r => {
+      aoa.push([
+        r.商品編號 || '',
+        r.款號 || '',
+        r.商品名稱 || '',
+        r.顏色 || '',
+        r.商品尺寸 || '',
+        r.大分類 || '',
+        r.季節 || '',
+        Number(r.庫存數量)
+      ]);
+    });
+    aoa.push([]);  // 品牌間空一行
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  // 設定欄寬
+  ws['!cols'] = [
+    { wch: 13 }, // 商品編號
+    { wch: 12 }, // 款號
+    { wch: 36 }, // 商品名稱
+    { wch: 8 },  // 顏色
+    { wch: 6 },  // 尺寸
+    { wch: 8 },  // 大分類
+    { wch: 6 },  // 季節
+    { wch: 8 }   // 負庫存
+  ];
+
+  // 合併標題列
+  ws['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }
+  ];
+
+  // 列印設定（A4、橫向、自動縮放）
+  ws['!pageSetup'] = {
+    orientation: 'portrait',
+    paperSize: 9,           // 9 = A4
+    fitToWidth: 1,
+    fitToHeight: 0          // 自動延伸頁數
+  };
+  ws['!margins'] = { left: 0.5, right: 0.5, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 };
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, id);
+
+  // 檔名加日期方便辨識
+  const dateStr = meta['資料來源檔名'] ? meta['資料來源檔名'].replace(/[^0-9]/g,'').slice(0,4) : '';
+  const fname = `負庫存明細_${id}_${s?s.name:''}${dateStr?'_'+dateStr:''}.xlsx`;
+  XLSX.writeFile(wb, fname);
 }
 
 // ============ 啟動 ============

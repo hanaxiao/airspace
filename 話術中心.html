@@ -156,12 +156,42 @@ label { font-size: 0.95rem; color: #6b7280; display: block; margin-bottom: 6px; 
   </div>
 </div>
 
+
+<!-- 區域選擇畫面 (登入後第一個畫面) -->
+<div id="region-screen" style="display:none;position:fixed;inset:0;z-index:9998;background:linear-gradient(135deg,#e8a4b0 0%,#d4849a 40%,#c97090 100%);display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:20px;padding:32px 28px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:inline-flex;flex-direction:column;align-items:center;background:#c97090;border-radius:14px;padding:12px 32px;margin-bottom:14px;">
+        <div style="color:white;letter-spacing:0.4em;font-size:1.2rem;font-weight:600;line-height:1.5;">A I R</div>
+        <div style="color:white;letter-spacing:0.4em;font-size:1.2rem;font-weight:600;line-height:1.5;">S P A C E</div>
+      </div>
+      <h1 style="font-size:1.4rem;color:#374151;font-weight:700;margin:0;">請選擇您的區域</h1>
+      <p style="font-size:0.92rem;color:#9ca3af;margin-top:6px;">將套用對應的話術口吻</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button onclick="selectRegion('北區')" class="region-pick-btn" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid #3b82f6;color:#1e40af;padding:18px;border-radius:14px;font-size:1.15rem;font-weight:700;cursor:pointer;text-align:left;">
+        🏙️ 北區 <span style="font-size:0.92rem;font-weight:400;color:#3b82f6;">都會時尚 · 注重品味與效率</span>
+      </button>
+      <button onclick="selectRegion('中區')" class="region-pick-btn" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);border:2px solid #10b981;color:#065f46;padding:18px;border-radius:14px;font-size:1.15rem;font-weight:700;cursor:pointer;text-align:left;">
+        🌿 中區 <span style="font-size:0.92rem;font-weight:400;color:#10b981;">溫暖親切 · 重視實用與家庭</span>
+      </button>
+      <button onclick="selectRegion('南區')" class="region-pick-btn" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;color:#92400e;padding:18px;border-radius:14px;font-size:1.15rem;font-weight:700;cursor:pointer;text-align:left;">
+        ☀️ 南區 <span style="font-size:0.92rem;font-weight:400;color:#f59e0b;">熱情直接 · 重視人情與實惠</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="main-app" style="display:none;">
 <div class="wrap">
   <div class="header">
     <div class="logo-box"><div>A I R</div><div>S P A C E</div></div>
     <h1>話術中心</h1>
     <p>產生器 × 話術手卡 280 筆</p>
+    <div id="region-badge" style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:6px 16px;background:rgba(255,255,255,0.25);border-radius:999px;color:white;font-size:0.92rem;font-weight:600;cursor:pointer;" onclick="changeRegion()">
+      <span id="region-badge-text">📍 北區</span>
+      <span style="font-size:0.78rem;opacity:0.85;">切換 ▾</span>
+    </div>
   </div>
   <div class="main-tabs">
     <button class="main-tab active" id="tab-gen" onclick="switchTab('gen')">🎯 話術產生器</button>
@@ -190,10 +220,18 @@ const SCENARIOS=[{key:"icebreak",label:"破冰建立親和力",icon:"💬",desc:
 const STYLES=[{key:"fab",label:"FAB法則",icon:"📊",desc:"特色→優點→利益"},{key:"scarcity",label:"稀缺感",icon:"⏰",desc:"限量限時錯過可惜"},{key:"compare",label:"比較法",icon:"⚖️",desc:"原價vs活動價對比"},{key:"social",label:"社會證明",icon:"👥",desc:"熱銷款多人購買"},{key:"scene",label:"情境搭配",icon:"👗",desc:"穿搭場合衣櫃延伸"},{key:"vip",label:"會員回饋",icon:"💝",desc:"針對熟客感性"}];
 const REGION_TONES={"🟦 北部":{greeting:"您好",desc:"都會時尚、注重品味與效率",compliment:["這件的線條設計感很強,襯托您整體的氣場","這個剪裁很有都會感,搭配您的氣質剛剛好","版型的細節處理很精緻,質感跟您今天的搭配很合"],closing:["這是值得的選擇","建議您今天入手","把握這個檔期"],hashtag:"#都會穿搭 #職場OOTD #質感女孩 #台北穿搭"},"🟩 中部":{greeting:"您好歡迎光臨",desc:"溫暖親切、重視實用與家庭",compliment:["這件穿您身上真的很舒服又好看","您眼光真的很好,這件超實穿","這個版型日常穿搭超方便,怎麼搭都好看"],closing:["真的很實在","這個機會難得啊","現在帶走最划算"],hashtag:"#日常穿搭 #實穿必敗 #CP值王 #台中穿搭"},"🟨 南部":{greeting:"來來來姐姐",desc:"熱情直接、重視人情與實惠",compliment:["哎唷~這件穿您身上超適合啦!","姐您這樣穿真的超美,朋友看到都會羨慕死","這個顏色襯姐氣色超好,整個人都亮起來了"],closing:["不要再想了啦~","真的要把握啊姐","這個價真的不會再有了!"],hashtag:"#今日戰利品 #姐妹必買 #台南穿搭 #高雄逛街"}};
 
-let S={step:1,region:"",store:"",hasDept:null,deptPeriod:"",deptDiscount:"",deptCashThresh:"",deptCash:"",deptCard:"",brandDiscount:"",brandSpecial:"",tiers:[{threshold:"",cashOff:"",giftName:""}],price:"",scriptType:"",scenario:"",style:"",topic:"",scripts:""};
+let S={step:1,region:"",store:"",hasDept:null,deptPeriod:"",deptDiscount:"",deptCashThresh:"",deptCash:"",deptCard:"",brandDiscount:"",brandSpecial:"",tiers:[{threshold:"",cashOff:"",giftName:""}],price:"",scriptType:"",scenario:"",style:"",topic:"",scripts:"",fromHandbook:null};
 let EVENTS=[],LOADING=false,LOAD_ERROR="";
 let CURRENT_TAB="gen";
 let HB={search:"",category:"全部",region:"全部",openIds:new Set()};
+
+// 全域當前區域 (由登入後的選擇畫面設定)
+window.CURRENT_REGION = window.CURRENT_REGION || localStorage.getItem('as_huashu_region') || '北區';
+
+// 區域名稱對應 (含 emoji 版本給話術產生器內部使用)
+function regionWithIcon(r){
+  return {'北區':'🟦 北部','中區':'🟩 中部','南區':'🟨 南部'}[r] || '🟦 北部';
+}
 
 function switchTab(name){
   CURRENT_TAB=name;
@@ -202,6 +240,7 @@ function switchTab(name){
   document.getElementById("view-gen").style.display=name==="gen"?"block":"none";
   document.getElementById("view-book").style.display=name==="book"?"block":"none";
   if(name==="book")renderHandbook();
+  else if(name==="gen") render();
 }
 
 
@@ -237,6 +276,11 @@ function filterHandbook(){
 
 function renderHandbook(){
   const card=document.getElementById("book-card");
+  // 首次進入時,預設用使用者選的當前區域
+  if(HB._inited !== true){
+    HB.region = window.CURRENT_REGION || '北區';
+    HB._inited = true;
+  }
   const filtered=filterHandbook();
   const categories=["全部","商品材質(版型)","庫存調貨","銷售相關","讚美","異議處理"];
   const regions=["全部","北區","中區","南區"];
@@ -291,7 +335,10 @@ function renderHandbook(){
         h+='</div>';
         h+='<div class="qa-answer">';
         h+='<div class="a-text">'+highlightHtml(item.answer,HB.search)+'</div>';
-        h+='<div class="a-actions"><button class="qa-copy-btn" id="qcp-'+id+'" onclick="copyQa('+id+',event)">📋 複製答案</button></div>';
+        h+='<div class="a-actions">';
+        h+='<button class="qa-copy-btn" id="qcp-'+id+'" onclick="copyQa('+id+',event)">📋 複製答案</button>';
+        h+='<button class="qa-use-btn" onclick="useHandbook('+id+',event)" style="font-size:0.88rem;padding:6px 14px;border-radius:6px;border:none;background:#c97090;color:white;cursor:pointer;font-weight:600;margin-left:6px;">🎯 結合活動產出</button>';
+        h+='</div>';
         h+='</div></div>';
       });
       h+='</div>';
@@ -335,6 +382,101 @@ function copyQa(id,ev){
       setTimeout(()=>{btn.textContent=orig;btn.classList.remove("copied");},1500);
     }
   });
+}
+
+// === 從手卡進入產生器流程 ===
+function useHandbook(id, ev){
+  if(ev) ev.stopPropagation();
+  const item = HANDBOOK_DATA[id];
+  if(!item) return;
+  // 把手卡資料寫進 S
+  S.fromHandbook = item;
+  S.step = 1;
+  S.region = regionWithIcon(window.CURRENT_REGION || '北區');
+  S.scriptType = "現場攻單";
+  S.scenario = "";
+  S.style = "";
+  S.topic = "";
+  S.scripts = "";
+  // 切換到產生器分頁
+  switchTab('gen');
+}
+
+function backToHandbook(){
+  S.fromHandbook = null;
+  S.step = 1;
+  switchTab('book');
+}
+
+// 從手卡 + 活動產出話術:用原文當骨幹,自動把活動資訊嵌入結尾
+function generateFromHandbook(){
+  if(!S.fromHandbook) return;
+  const item = S.fromHandbook;
+  const c = calc();
+  const hasC = c && c.price > 0;
+  const region = window.CURRENT_REGION || '北區';
+
+  // 組裝活動句子
+  const activityParts = [];
+  if(S.brandDiscount) activityParts.push(S.brandDiscount);
+  S.tiers.filter(t => t.threshold).forEach(t => {
+    let s = '滿$' + t.threshold;
+    if(t.cashOff) s += '折$' + t.cashOff;
+    if(t.giftName) s += '送' + t.giftName;
+    activityParts.push(s);
+  });
+  if(S.hasDept){
+    if(S.deptDiscount) activityParts.push('百貨'+S.deptDiscount);
+    if(S.deptCash && parseFloat(S.deptCash) > 0) activityParts.push('百貨滿$'+(S.deptCashThresh||'0')+'抵$'+S.deptCash);
+    if(S.deptCard && parseFloat(S.deptCard) > 0) activityParts.push('刷卡折$'+S.deptCard);
+  }
+  const activityText = activityParts.join('、');
+
+  // 結尾活動嵌入句 (依區域語氣)
+  let activityTail = '';
+  if(activityText){
+    if(region === '南區'){
+      activityTail = '而且姐我跟您說,現在剛好有活動 — ' + activityText + ',真的超划算啦~';
+    } else if(region === '中區'){
+      activityTail = '另外目前我們有 ' + activityText + ',算下來真的很實在,可以順便看看。';
+    } else {
+      activityTail = '另外提醒您,目前有 ' + activityText + ',是個值得把握的時機。';
+    }
+    if(hasC){
+      if(region === '南區'){
+        activityTail += '姐,這款原價$'+c.price+',活動下來實付$'+c.fp+',直接省$'+c.ts+'耶!';
+      } else if(region === '中區'){
+        activityTail += '幫您算了一下,原價$'+c.price+'活動後是$'+c.fp+',省$'+c.ts+'。';
+      } else {
+        activityTail += '為您試算,原價$'+c.price+'折後實付$'+c.fp+',省$'+c.ts+'。';
+      }
+    }
+  }
+
+  // 組合:手卡原文 + 活動嵌入
+  let output = '━━━━━━━━━━━━━━━━━━\n';
+  output += '📚 ' + item.category + ' / ' + item.topic + '\n';
+  output += '📍 ' + region + ' · 顧客 Q:\n';
+  output += '「' + item.question + '」\n';
+  output += '━━━━━━━━━━━━━━━━━━\n\n';
+  output += '✦ 完整話術\n\n';
+  // 手卡原文(去掉開頭/結尾的空白)
+  output += item.answer.trim();
+  // 嵌入活動
+  if(activityTail){
+    output += '\n\n' + activityTail;
+  }
+  // 如果手卡有「再加$X就...」這種升級提示也加上
+  if(hasC && c.nt){
+    output += '\n\n💡 補充:再加$' + c.tg + '就可以再享';
+    if(c.nt.cashOff) output += '折$' + c.nt.cashOff;
+    if(c.nt.giftName) output += '贈' + c.nt.giftName;
+    output += '!';
+  }
+
+  S.scripts = output;
+  S.step = 3;
+  render();
 }
 
 
@@ -824,7 +966,17 @@ function renderCalc(){
 }
 
 function render(){
-  const dots=["選擇門市","活動設定","話術設定","產生結果"];
+  // 自動把全域區域同步進 S.region (用內部 emoji 格式)
+  if(!S.region && window.CURRENT_REGION){
+    S.region = regionWithIcon(window.CURRENT_REGION);
+  }
+  // 步驟標籤 (隨來源不同顯示不同)
+  let dots;
+  if(S.fromHandbook){
+    dots=["手卡選擇","活動設定","產生結果"];
+  } else {
+    dots=["活動設定","客戶情境","產生結果"];
+  }
   document.getElementById("progress").innerHTML=dots.map((l,i)=>{const s=i+1;const c=S.step>s?"done":S.step===s?"active":"";const lc=S.step>s?"done":"";return'<div class="step-dot '+c+'">'+(S.step>s?"✓":s)+'</div>'+(i<3?'<div class="step-line '+lc+'"></div>':"")}).join("");
   const card=document.getElementById("card");
   if(S.step===1)card.innerHTML=step1();
@@ -834,16 +986,12 @@ function render(){
 }
 
 function step1(){
-  let h='<div class="section-title">📍 選擇區域與門市</div>';
-  Object.entries(REGIONS).forEach(([reg,stores])=>{
-    h+='<button class="region-btn '+(S.region===reg?"active":"")+'" onclick="selReg(\''+reg+'\')">'+reg+' <span style="font-size:.85rem;color:#9ca3af;font-weight:400">- '+(REGION_TONES[reg]?.desc||"")+'</span></button>';
-    if(S.region===reg){h+='<div class="store-grid">';stores.forEach(s=>{h+='<button class="store-btn '+(S.store===s?"active":"")+'" onclick="selStore(\''+s+'\')">'+s+'</button>';});h+='</div>';}
-  });
-  h+='<div class="btn-row"><span></span><button class="btn-p" onclick="S.step=2;render()" '+(S.store?"":"disabled")+'>下一步 →</button></div>';
-  return h;
+  // 新的 step1:活動設定(原本 step2 的內容,移除門市顯示)
+  return step2Content();
 }
 
-function step2(){
+function step2Content(){
+  // 這是「活動設定」步驟 (原本的 step2 內容)
   const th=S.tiers.map((t,i)=>'<div class="tier-card"><div class="tier-header"><span class="tier-label">第 '+(i+1)+' 組門檻</span>'+(S.tiers.length>1?'<button class="tier-remove" onclick="rmTier('+i+')">✕ 移除</button>':'')+'</div><div class="tier-grid"><div><label>滿額 $</label><input type="number" placeholder="3000" value="'+t.threshold+'" onchange="S.tiers['+i+'].threshold=this.value;updateCalc()"></div><div><label>現抵 $</label><input type="number" placeholder="200" value="'+t.cashOff+'" onchange="S.tiers['+i+'].cashOff=this.value;updateCalc()"></div><div><label>贈品</label><input type="text" placeholder="提袋" value="'+t.giftName+'" onchange="S.tiers['+i+'].giftName=this.value"></div></div></div>').join("");
   // 排序:最近開始的優先(無 startDate 例如長期優惠排最後),取最新 3 檔當預設,其餘折疊
   const allCurrent = getSortedCurrentEvents();
@@ -857,7 +1005,6 @@ function step2(){
   else if(allCurrent.length===0){eventsHtml='<div style="font-size:.92rem;color:#9ca3af;padding:6px 0">目前無當期活動,請手動輸入</div>';}
   else{
     eventsHtml=currentEvents.map((ev,i)=>{
-      // 找出原始 index (因為 applyEvent 用的是 allCurrent 中的位置)
       const origIdx = allCurrent.indexOf(ev);
       const typeColor = ev.type === "長期優惠" ? "#10b981" : (ev.status === "延長" || ev.status === "再次調整" ? "#f97316" : "#c97090");
       let summaryParts = [];
@@ -875,11 +1022,9 @@ function step2(){
         '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap"><span style="font-size:.8rem;background:'+typeColor+';color:white;padding:2px 8px;border-radius:999px;font-weight:600">'+ev.type+'</span><span style="font-size:.8rem;color:#6b7280">'+ev.status+'</span><span style="font-size:.85rem;color:#374151;font-weight:600">📅 '+ev.rangeStr+'</span></div>'+
         '<div style="font-size:.95rem;color:#374151;line-height:1.4">'+ev.fullContent+'</div>'+
         (summary && summary !== ev.fullContent ? '<div style="font-size:.85rem;color:#c97090;margin-top:3px;font-weight:600">🎯 自動解析: '+summary+'</div>' : '')+
-        (ev.store ? '<div style="font-size:.8rem;color:#9ca3af;margin-top:2px">🏬 '+ev.store+'</div>' : '')+
         (ev.note && ev.note !== "—" ? '<div style="font-size:.78rem;color:#f97316;font-weight:400;margin-top:2px;line-height:1.4">ℹ️ '+ev.note.slice(0, 100)+(ev.note.length > 100 ? '…' : '')+'</div>' : '')+
         '</button>';
     }).join("");
-    // 展開/收合按鈕
     if(allCurrent.length > 3){
       if(!S.showAllEvents){
         eventsHtml += '<button onclick="S.showAllEvents=true;render()" style="width:100%;margin-top:6px;padding:10px;background:white;border:1.5px dashed #c97090;color:#c97090;border-radius:8px;cursor:pointer;font-size:.92rem;font-weight:600">▼ 查看全部 '+allCurrent.length+' 檔活動(還有 '+hiddenCount+' 檔)</button>';
@@ -892,9 +1037,19 @@ function step2(){
     eventsHtml+='<div style="font-size:.88rem;color:#9ca3af;margin-top:10px;margin-bottom:4px">📅 即將開始(14天內)</div>';
     eventsHtml+=upcomingEvents.map(ev=>'<div style="font-size:.92rem;padding:6px 10px;border-radius:8px;border:1px solid #e5e7eb;color:#6b7280;background:white;margin-bottom:4px">⏳ '+ev.fullContent.slice(0,50)+' <span style="font-size:.85rem">('+ev.rangeStr+')</span></div>').join("");
   }
-  const canNext=S.hasDept!==null&&S.brandDiscount;
+  // 修 bug:有折扣 或 有任一滿額門檻 或 有特定商品 都算有設定 ; 百貨選項必填
+  const hasAnyTier = S.tiers.some(t => t.threshold && parseFloat(t.threshold) > 0);
+  const hasActivity = S.brandDiscount || hasAnyTier || S.brandSpecial;
+  const canNext = S.hasDept !== null && hasActivity;
+
+  // 手卡來源時顯示已挑話術預覽
+  let handbookPreview = '';
+  if(S.fromHandbook){
+    handbookPreview = '<div style="background:#fdf6f8;border:1.5px solid #c97090;border-radius:12px;padding:14px;margin-bottom:14px"><div style="font-size:.82rem;color:#c97090;font-weight:600;margin-bottom:4px">📚 來自話術手卡</div><div style="font-size:.95rem;color:#374151;line-height:1.5"><strong>Q:</strong> '+escHtml(S.fromHandbook.question)+'</div><div style="font-size:.92rem;color:#6b7280;margin-top:6px;line-height:1.5;white-space:pre-wrap">'+escHtml(S.fromHandbook.answer)+'</div></div>';
+  }
+
   return '<div class="section-title">🎪 活動資訊設定</div>'+
-    '<div style="background:#f5e0e8;border-radius:12px;padding:12px 14px;margin-bottom:14px"><div style="font-size:.92rem;color:#c97090">目前選擇</div><div style="font-weight:600;color:#c97090;font-size:1.08rem">'+S.region+' / '+S.store+'</div></div>'+
+    handbookPreview+
     '<div class="brand-box">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="sub-title" style="margin-bottom:0">✨ 品牌自有活動</div><button onclick="loadEvents()" style="font-size:.85rem;color:#c97090;background:white;border:1px solid #c97090;padding:4px 12px;border-radius:6px;cursor:pointer">🔄 重新讀取</button></div>'+
     '<div class="template-section"><label>🔖 當期品牌活動(從 Google Sheets 自動讀取,共 '+allCurrent.length+' 檔)</label>'+eventsHtml+'</div>'+
@@ -906,19 +1061,27 @@ function step2(){
     '<div class="toggle-row"><button class="toggle-btn '+(S.hasDept===true?"yes":"")+'" onclick="setDept(true)">✅ 有參加</button><button class="toggle-btn '+(S.hasDept===false?"no":"")+'" onclick="setDept(false)">❌ 未參加</button></div>'+
     (S.hasDept===true?'<div class="dept-box"><div class="sub-title" style="color:#15803d">🏬 百貨活動內容(手動輸入)</div><div class="mt4"><label>活動期間(選填)</label><input type="text" placeholder="例:5/1~5/31" value="'+S.deptPeriod+'" onchange="S.deptPeriod=this.value"></div><div class="mt8"><label>購物金滿額折</label><input type="text" placeholder="例:滿5000折500" value="'+S.deptDiscount+'" onchange="S.deptDiscount=this.value;updateCalc()"></div><div class="grid2 mt8"><div><label>百貨現抵門檻</label><input type="number" placeholder="例:2000" value="'+S.deptCashThresh+'" onchange="S.deptCashThresh=this.value;updateCalc()"></div><div><label>現抵金額</label><input type="number" placeholder="例:200" value="'+S.deptCash+'" onchange="S.deptCash=this.value;updateCalc()"></div></div><div class="mt8"><label>刷卡折抵(選填)</label><input type="number" placeholder="例:100" value="'+S.deptCard+'" onchange="S.deptCard=this.value;updateCalc()"></div></div>':'')+
     '<div class="price-box"><div class="sub-title" style="color:#b45309">💰 商品金額回推(選填)</div><input type="number" placeholder="輸入商品折前原價,如:3500" value="'+S.price+'" onchange="S.price=this.value;updateCalc()"><div id="calc-area">'+renderCalc()+'</div></div>'+
-    '<div class="btn-row"><button class="btn-s" onclick="S.step=1;render()">← 上一步</button><button class="btn-p" onclick="S.step=3;render()" '+(canNext?"":"disabled")+'>下一步 →</button></div>';
+    (S.fromHandbook
+      ? '<div class="btn-row"><button class="btn-s" onclick="backToHandbook()">← 回手卡</button><button class="btn-p" onclick="generateFromHandbook()" '+(canNext?"":"disabled")+'>🚀 結合活動產出話術</button></div>'
+      : '<div class="btn-row"><span></span><button class="btn-p" onclick="S.step=2;render()" '+(canNext?"":"disabled")+'>下一步 →</button></div>');
 }
 
-function step3(){
-  const typeH=["現場攻單","社群推播","兩者皆要"].map(t=>'<button class="type-btn '+(S.scriptType===t?"active":"")+'" onclick="S.scriptType=\''+t+'\';render()">'+(t==="現場攻單"?"🗣️ 現場攻單 — 面對面推銷":t==="社群推播"?"📱 社群推播 — LINE / IG / FB":"✨ 兩者皆要")+'</button>').join("");
+function step2(){
+  // 第二步驟:客戶情境 (僅產生器流程用,手卡流程跳過)
   const tpH=TOPICS.map(t=>'<button class="scenario-btn '+(S.topic===t.key?"active":"")+'" onclick="S.topic=S.topic===\''+t.key+'\'?\'\':\''+t.key+'\';render()"><span class="s-label">'+t.icon+' '+t.label+'</span><span class="s-desc">'+t.desc+'</span></button>').join("");
   const scH=SCENARIOS.map(s=>'<button class="scenario-btn '+(S.scenario===s.key?"active":"")+'" onclick="S.scenario=S.scenario===\''+s.key+'\'?\'\':\''+s.key+'\';render()"><span class="s-label">'+s.icon+' '+s.label+'</span><span class="s-desc">'+s.desc+'</span></button>').join("");
   const stH=STYLES.map(s=>'<button class="style-btn '+(S.style===s.key?"active":"")+'" onclick="S.style=S.style===\''+s.key+'\'?\'\':\''+s.key+'\';render()"><div class="sl">'+s.icon+' '+s.label+'</div><div class="sd">'+s.desc+'</div></button>').join("");
-  return '<div class="section-title">📣 話術類型</div>'+typeH+
-    '<div class="section-title mt12">💡 話題起手式 <span style="font-size:.92rem;color:#9ca3af;font-weight:400">(選填)</span></div><p style="font-size:.92rem;color:#9ca3af;margin-bottom:8px">用話題自然破冰,員工演練各種情境</p>'+tpH+
+  // 自動把 scriptType 設為「現場攻單」(已拿掉社群推播選項)
+  if(!S.scriptType) S.scriptType = "現場攻單";
+  return '<div class="section-title">💡 話題起手式 <span style="font-size:.92rem;color:#9ca3af;font-weight:400">(選填)</span></div><p style="font-size:.92rem;color:#9ca3af;margin-bottom:8px">用話題自然破冰,員工演練各種情境</p>'+tpH+
     '<div class="section-title mt12">📚 顧客情境 <span style="font-size:.92rem;color:#9ca3af;font-weight:400">(選填)</span></div><p style="font-size:.92rem;color:#9ca3af;margin-bottom:8px">根據客人當下反應選擇</p>'+scH+
     '<div class="section-title mt12">🎨 話術風格 <span style="font-size:.92rem;color:#9ca3af;font-weight:400">(選填)</span></div><p style="font-size:.92rem;color:#9ca3af;margin-bottom:8px">選擇表達技巧</p><div class="style-grid">'+stH+'</div>'+
-    '<div class="btn-row"><button class="btn-s" onclick="S.step=2;render()">← 上一步</button><button class="btn-p" onclick="generate()" '+(S.scriptType?"":"disabled")+'>🚀 產生話術</button></div>';
+    '<div class="btn-row"><button class="btn-s" onclick="S.step=1;render()">← 上一步</button><button class="btn-p" onclick="generate()">🚀 產生話術</button></div>';
+}
+
+function step3(){
+  // 改為產出結果(原本的 step4)
+  return step4();
 }
 
 function step4(){
@@ -927,9 +1090,11 @@ function step4(){
   const sc=SCENARIOS.find(s=>s.key===S.scenario);
   const st=STYLES.find(s=>s.key===S.style);
   return '<div class="result-header"><div style="font-weight:700;color:#374151;font-size:1.15rem">✅ 話術結果</div><div class="result-btns"><button class="copy-btn" id="copy-btn" onclick="copyAll()">📋 複製全部</button><button class="reset-btn" onclick="resetAll()">重新開始</button></div></div>'+
-    '<div class="tag-row"><span class="tag">'+S.region+' / '+S.store+'</span><span class="tag gray">'+(S.hasDept?"✅ 百貨活動":"❌ 未參加百貨")+'</span><span class="tag gray">'+S.scriptType+'</span>'+(tp?'<span class="tag">'+tp.icon+' '+tp.label+'</span>':'')+(sc?'<span class="tag">'+sc.icon+' '+sc.label+'</span>':'')+(st?'<span class="tag">'+st.icon+' '+st.label+'</span>':'')+(c&&c.price>0?'<span class="tag" style="color:#b45309">💰 原價$'+c.price+'→實付$'+c.fp+',省$'+c.ts+'</span>':'')+'</div>'+
+    '<div class="tag-row"><span class="tag">📍 '+(window.CURRENT_REGION||'')+'</span><span class="tag gray">'+(S.hasDept?"✅ 百貨活動":"❌ 未參加百貨")+'</span>'+(S.fromHandbook?'<span class="tag">📚 來自手卡</span>':'')+(tp?'<span class="tag">'+tp.icon+' '+tp.label+'</span>':'')+(sc?'<span class="tag">'+sc.icon+' '+sc.label+'</span>':'')+(st?'<span class="tag">'+st.icon+' '+st.label+'</span>':'')+(c&&c.price>0?'<span class="tag" style="color:#b45309">💰 原價$'+c.price+'→實付$'+c.fp+',省$'+c.ts+'</span>':'')+'</div>'+
     '<div class="script-box">'+escHtml(S.scripts)+'</div>'+
-    '<div class="btn-row"><button class="btn-s" onclick="S.step=3;render()">← 重新設定</button><button class="btn-p" onclick="generate()">🔄 重新產生</button></div>';
+    (S.fromHandbook
+      ? '<div class="btn-row"><button class="btn-s" onclick="backToHandbook()">← 回手卡</button><button class="btn-p" onclick="generateFromHandbook()">🔄 重新產生</button></div>'
+      : '<div class="btn-row"><button class="btn-s" onclick="S.step=1;render()">← 重新設定</button><button class="btn-p" onclick="generate()">🔄 重新產生</button></div>');
 }
 
 function selReg(r){S.region=r;S.store="";render();}
@@ -938,8 +1103,8 @@ function setDept(v){S.hasDept=v;render();}
 function addTier(){S.tiers.push({threshold:"",cashOff:"",giftName:""});render();}
 function rmTier(i){S.tiers.splice(i,1);render();}
 function updateCalc(){const el=document.getElementById("calc-area");if(el)el.innerHTML=renderCalc();}
-function generate(){S.scripts=buildScripts(calc());S.step=4;render();}
-function resetAll(){S={step:1,region:"",store:"",hasDept:null,deptPeriod:"",deptDiscount:"",deptCashThresh:"",deptCash:"",deptCard:"",brandDiscount:"",brandSpecial:"",tiers:[{threshold:"",cashOff:"",giftName:""}],price:"",scriptType:"",scenario:"",style:"",topic:"",scripts:""};render();}
+function generate(){S.scripts=buildScripts(calc());S.step=3;render();}
+function resetAll(){S={step:1,region:regionWithIcon(window.CURRENT_REGION||'北區'),store:"",hasDept:null,deptPeriod:"",deptDiscount:"",deptCashThresh:"",deptCash:"",deptCard:"",brandDiscount:"",brandSpecial:"",tiers:[{threshold:"",cashOff:"",giftName:""}],price:"",scriptType:"現場攻單",scenario:"",style:"",topic:"",scripts:"",fromHandbook:null};render();}
 function copyAll(){navigator.clipboard.writeText(S.scripts).then(()=>{const b=document.getElementById("copy-btn");b.textContent="✓ 已複製";b.classList.add("copied");setTimeout(()=>{b.textContent="📋 複製全部";b.classList.remove("copied");},2000);});}
 
 // 主應用啟動 (由登入成功後的 showMainApp() 觸發)
@@ -1076,10 +1241,46 @@ function doLogin(){
 
 function showMainApp(){
   document.getElementById('login-screen').style.display = 'none';
+  // 檢查是否已選區域
+  const savedRegion = localStorage.getItem('as_huashu_region');
+  if(savedRegion && ['北區','中區','南區'].includes(savedRegion)){
+    if(typeof window.CURRENT_REGION !== 'undefined') window.CURRENT_REGION = savedRegion;
+    document.getElementById('region-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+    updateRegionBadge();
+    if(typeof render === 'function') render();
+    if(typeof loadEvents === 'function') loadEvents();
+  } else {
+    // 顯示區域選擇畫面
+    document.getElementById('region-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+  }
+}
+
+function selectRegion(region){
+  localStorage.setItem('as_huashu_region', region);
+  window.CURRENT_REGION = region;
+  // 重置手卡的 region 篩選,讓它跟隨新區域
+  if(typeof HB !== 'undefined'){ HB._inited = false; }
+  // 重置產生器的 S.region
+  if(typeof S !== 'undefined'){ S.region = regionWithIcon(region); }
+  document.getElementById('region-screen').style.display = 'none';
   document.getElementById('main-app').style.display = 'block';
-  // 觸發主應用的初始化
+  updateRegionBadge();
   if(typeof render === 'function') render();
   if(typeof loadEvents === 'function') loadEvents();
+}
+
+function changeRegion(){
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('region-screen').style.display = 'flex';
+}
+
+function updateRegionBadge(){
+  const region = window.CURRENT_REGION || localStorage.getItem('as_huashu_region') || '北區';
+  const icons = {'北區':'🏙️', '中區':'🌿', '南區':'☀️'};
+  const el = document.getElementById('region-badge-text');
+  if(el) el.textContent = (icons[region] || '📍') + ' ' + region;
 }
 
 function checkSession(){

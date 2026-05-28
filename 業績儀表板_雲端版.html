@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<!--
+  AIR SPACE 業績儀表板 v25 (2026/5/28)
+  改善:
+    需求 1: 全門市 TOP10 排序+加金額顯示
+    需求 2: TOP10 分 OUTLET / 一般兩組
+    需求 3: 各門市 TOP5 隱藏銷售金額(只看件數)
+    需求 5: 修 AS62 IP 店等空欄位 bug
+    需求 6: 排除 MTD<=0 的未開幕店
+-->
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -398,37 +407,8 @@
       <div id="channelTable"></div>
     </div>
     <div class="card">
-     <h2>🏆 全公司熱銷 TOP 10 商品 (區分 OUTLET 與 其他門市)</h2>
-      <!-- 使用 flexbox 讓兩個表格可以並排顯示 -->
-      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        
-        <!-- 左側：OUTLET 表格 -->
-        <div style="flex: 1; min-width: 300px;">
-          <h4 style="background: #1e3a5f; color: white; padding: 8px; margin-top: 0; text-align: center;">🛍️ OUTLET 熱銷 TOP 10</h4>
-          <table style="width: 100%; border-collapse: collapse; text-align: center;">
-            <thead style="background-color: #f2f2f2;">
-              <tr><th>排名</th><th>商品名稱</th><th>銷售件數</th><th>銷售金額</th></tr>
-            </thead>
-            <tbody id="outlet-top10-body">
-              <!-- JS 會將資料塞入這裡 -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- 右側：其他門市 表格 -->
-        <div style="flex: 1; min-width: 300px;">
-          <h4 style="background: #1e3a5f; color: white; padding: 8px; margin-top: 0; text-align: center;">🏬 其他門市熱銷 TOP 10</h4>
-          <table style="width: 100%; border-collapse: collapse; text-align: center;">
-            <thead style="background-color: #f2f2f2;">
-              <tr><th>排名</th><th>商品名稱</th><th>銷售件數</th><th>銷售金額</th></tr>
-            </thead>
-            <tbody id="others-top10-body">
-              <!-- JS 會將資料塞入這裡 -->
-            </tbody>
-          </table>
-        </div>
-
-      </div>
+      <h2>🏆 全公司熱銷 TOP 10 商品(各店 TOP 5 加總)</h2>
+      <div id="globalTop10"></div>
     </div>
   </div>
 
@@ -661,7 +641,21 @@ async function loadData() {
 
     STORE_MAP = data.storeMap;
     MGR_ORDER = data.mgrOrder;
-    records = data.records;
+    // ⭐ v25 需求 6: 排除 MTD <= 0 的店(未開幕店)
+    // ⭐ v25 需求 5: 修 AS62 等 IP 店 bug — 確保所有 records 有預設值
+    records = (data.records || [])
+      .filter(r => (r.MTD || 0) > 0)
+      .map(r => ({
+        ...r,
+        主管: r.主管 || '未指派',
+        轄區: r.轄區 || '其他',
+        縣市: r.縣市 || '其他',
+        販售店: r.販售店 || '其他',
+        販售支線: r.販售支線 || '其他',
+        門市型態: r.門市型態 || '其他',
+        級別: r.級別 || '其他'
+      }));
+    console.log('v25: 載入 ' + records.length + ' 家店(已排除 MTD<=0,fallback 預設值)');
     dailyByStore = data.dailyByStore || {};
     lyByStore = data.lyByStore || {};
     top5ByStore = data.top5ByStore || {};
@@ -1383,7 +1377,7 @@ function renderStoreDetail() {
   renderStoreTop5(code);
 }
 
-// 渲染單店 TOP 5
+// 渲染單店 TOP 5(v25:隱藏銷售金額欄)
 function renderStoreTop5(code) {
   const container = $('storeTop5');
   if (!container) return;
@@ -1395,102 +1389,100 @@ function renderStoreTop5(code) {
   // 按排名排序
   items.sort((a, b) => (a.rank || 99) - (b.rank || 99));
   const medals = ['🥇', '🥈', '🥉', '4', '5'];
-  let html = '<table style="max-width:900px"><thead><tr>' +
+  // ⭐ v25 需求 3: 隱藏「銷售金額」欄(因為是推算值不精準)
+  let html = '<table style="max-width:700px"><thead><tr>' +
     '<th style="width:60px">排名</th>' +
     '<th>商品名稱</th>' +
-    '<th style="width:90px">銷售件數</th>' +
-    '<th style="width:120px">銷售金額</th>' +
+    '<th style="width:120px">銷售件數</th>' +
     '</tr></thead><tbody>';
   items.forEach((it, i) => {
     const medal = medals[i] || (i + 1);
     html += `<tr>
       <td class="col-center" style="font-size:16px">${medal}</td>
       <td class="col-txt">${it.name}</td>
-      <td>${(it.qty || 0).toLocaleString()}</td>
-      <td>${(it.amt || 0).toLocaleString()}</td>
+      <td><strong>${(it.qty || 0).toLocaleString()}</strong></td>
     </tr>`;
   });
   html += '</tbody></table>';
   container.innerHTML = html;
 }
 
-// 渲染全公司熱銷 TOP 10
+// 渲染全公司熱銷 TOP 10(v25:分 OUTLET / 一般組,按件數排序)
 function renderGlobalTop10() {
-  // 1. 從原有的 records 判斷哪些店是 OUTLET
-  const isOutlet = {};
-  if (typeof records !== 'undefined') {
-    records.forEach(r => {
-      isOutlet[r.倉庫編號] = (r.販售店 === 'OUTLET');
+  const container = $('globalTop10');
+  if (!container) return;
+  
+  // 找 OUTLET 店代號
+  const OUTLET_CODES = ['AS51', 'AS63', 'AT08'];
+  
+  // 分組:一般門市 / OUTLET 各自彙總
+  const generalMap = {};   // 一般門市
+  const outletMap = {};    // OUTLET
+  
+  Object.keys(top5ByStore).forEach(code => {
+    const isOutlet = OUTLET_CODES.indexOf(code) >= 0;
+    const targetMap = isOutlet ? outletMap : generalMap;
+    
+    top5ByStore[code].forEach(item => {
+      if (!targetMap[item.name]) {
+        targetMap[item.name] = { qty: 0, amt: 0, stores: 0 };
+      }
+      targetMap[item.name].qty += (item.qty || 0);
+      targetMap[item.name].amt += (item.amt || 0);
+      targetMap[item.name].stores += 1;
     });
+  });
+  
+  // 排序取前 10(v25 改:按「件數」由多到少)
+  function rankTop10(productMap) {
+    return Object.entries(productMap)
+      .map(([name, v]) => ({ name, ...v }))
+      .sort((a, b) => b.qty - a.qty)   // v25: 按件數!
+      .slice(0, 10);
   }
-
-  // 2. 將 top5ByStore 的商品分組並加總
-  const outletItems = {};
-  const otherItems = {};
-
-  if (typeof top5ByStore !== 'undefined') {
-    for (const code in top5ByStore) {
-      const items = top5ByStore[code];
-      const targetObj = isOutlet[code] ? outletItems : otherItems;
-
-      items.forEach(item => {
-        if (!targetObj[item.name]) {
-          targetObj[item.name] = { name: item.name, qty: 0, amt: 0 };
-        }
-        targetObj[item.name].qty += (Number(item.qty) || 0);
-        targetObj[item.name].amt += (Number(item.amt) || 0);
-      });
-    }
+  
+  const generalRanked = rankTop10(generalMap);
+  const outletRanked = rankTop10(outletMap);
+  
+  if (generalRanked.length === 0 && outletRanked.length === 0) {
+    container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">尚未取得 TOP 5 資料,請執行一鍵更新</p>';
+    return;
   }
-
-  // 3. 轉為陣列，並嚴格按照「銷售數量 (qty)」由大到小排序
-  const top10OutletData = Object.values(outletItems)
-    .sort((a, b) => b.qty - a.qty || b.amt - a.amt)
-    .slice(0, 10);
-
-  const top10OthersData = Object.values(otherItems)
-    .sort((a, b) => b.qty - a.qty || b.amt - a.amt)
-    .slice(0, 10);
-
-
-  // ===== 4. 畫出 OUTLET TOP 10 =====
-  let outletHtml = '';
-  if (top10OutletData.length > 0) {
-    top10OutletData.forEach((item, index) => {
-      outletHtml += `
-        <tr style="border-bottom: 1px solid #ddd;">
-          <td style="padding: 8px;">${index + 1}</td>
-          <td style="padding: 8px; text-align: left;">${item.name}</td>
-          <td style="padding: 8px;">${item.qty}</td>
-          <td style="padding: 8px;">$${item.amt.toLocaleString()}</td>
-        </tr>
-      `;
+  
+  // 渲染:一般組 + OUTLET 組 兩個獨立表格
+  const medals = ['🥇', '🥈', '🥉'];
+  
+  function renderTable(ranked, title, badgeColor) {
+    if (ranked.length === 0) return '';
+    let html = '<h3 style="margin-top:20px;color:' + badgeColor + ';display:flex;align-items:center;gap:8px">' +
+      '<span style="background:' + badgeColor + ';color:white;padding:2px 12px;border-radius:12px;font-size:14px">' + title + '</span>' +
+      '<span style="color:#94a3b8;font-size:14px;font-weight:normal">共 ' + ranked.length + ' 項</span></h3>';
+    html += '<table><thead><tr>' +
+      '<th style="width:60px">排名</th>' +
+      '<th>商品名稱</th>' +
+      '<th style="width:80px">上榜店數</th>' +
+      '<th style="width:100px">總銷售件數</th>' +
+      '<th style="width:120px">總銷售金額</th>' +
+      '</tr></thead><tbody>';
+    ranked.forEach((p, i) => {
+      const m = medals[i] || (i + 1);
+      html += `<tr>
+        <td class="col-center" style="font-size:16px">${m}</td>
+        <td class="col-txt">${p.name}</td>
+        <td>${p.stores} 店</td>
+        <td><strong>${p.qty.toLocaleString()}</strong></td>
+        <td>${p.amt > 0 ? p.amt.toLocaleString() : '—'}</td>
+      </tr>`;
     });
-  } else {
-    outletHtml = '<tr><td colspan="4" style="padding: 10px;">目前無資料</td></tr>';
+    html += '</tbody></table>';
+    return html;
   }
-  const outletBody = document.getElementById('outlet-top10-body');
-  if (outletBody) outletBody.innerHTML = outletHtml;
-
-
-  // ===== 5. 畫出 其他門市 TOP 10 =====
-  let othersHtml = '';
-  if (top10OthersData.length > 0) {
-    top10OthersData.forEach((item, index) => {
-      othersHtml += `
-        <tr style="border-bottom: 1px solid #ddd;">
-          <td style="padding: 8px;">${index + 1}</td>
-          <td style="padding: 8px; text-align: left;">${item.name}</td>
-          <td style="padding: 8px;">${item.qty}</td>
-          <td style="padding: 8px;">$${item.amt.toLocaleString()}</td>
-        </tr>
-      `;
-    });
-  } else {
-    othersHtml = '<tr><td colspan="4" style="padding: 10px;">目前無資料</td></tr>';
-  }
-  const othersBody = document.getElementById('others-top10-body');
-  if (othersBody) othersBody.innerHTML = othersHtml;
+  
+  let html = '';
+  html += renderTable(generalRanked, '🏬 一般門市', '#2563eb');
+  html += renderTable(outletRanked, '🛍️ OUTLET 三店', '#f59e0b');
+  
+  container.innerHTML = html;
 }
 
 // ============ 達成率排名 ============

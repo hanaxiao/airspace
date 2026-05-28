@@ -711,14 +711,20 @@ function applyEvent(i){
   const ev=currentEvents[i];
   if(!ev)return;
   S.brandDiscount=ev.discount||"";
-  S.brandSpecial=ev.fullContent && !ev.discount ? ev.fullContent.slice(0,80) : "";
+  // brandSpecial 只存「折扣/滿額之外的額外說明」,不存整段原文
+  // 避免整段活動公告文字被塞進話術
+  if(ev.tiers.length > 0 || ev.discount){
+    // 已有結構化折扣資訊,brandSpecial 留空
+    S.brandSpecial = "";
+  } else {
+    // 沒有折扣也沒有滿額時,才用精簡版原文作為說明(最多 40 字)
+    const sp = (ev.fullContent||"").replace(/\[image:[^\]]*\]/gi,'').replace(/\s+/g,' ').trim();
+    S.brandSpecial = sp.length > 40 ? sp.slice(0,40)+"…" : sp;
+  }
   if(ev.tiers&&ev.tiers.length>0){
     S.tiers=ev.tiers.map(t=>({threshold:String(t.threshold||""),cashOff:String(t.cashOff||""),giftName:String(t.giftName||"")}));
   }else{
     S.tiers=[{threshold:"",cashOff:"",giftName:""}];
-  }
-  if(ev.fullContent && (ev.discount || ev.tiers.length > 0)){
-    S.brandSpecial = ev.fullContent;
   }
   render();
 }
@@ -772,7 +778,17 @@ function buildScripts(c){
     if(t.giftName)line+=" 贈"+t.giftName;
     brandLines.push(line);
   });
-  if(S.brandSpecial)brandLines.push(S.brandSpecial);
+  // brandSpecial 只取前 30 字的精簡摘要,不把整段活動原文丟進話術
+  if(S.brandSpecial){
+    const sp = S.brandSpecial.replace(/\[image:[^\]]*\]/gi,'').replace(/\s+/g,' ').trim();
+    // 判斷是否已包含在 brandLines 裡(避免重複)
+    const alreadyCovered = brandLines.some(l => sp.includes(l.replace(/[全館滿$折贈]/g,'')));
+    if(!alreadyCovered && sp.length > 0){
+      // 只取前 30 字當簡短說明
+      const shortSp = sp.length > 30 ? sp.slice(0,30)+'…' : sp;
+      brandLines.push(shortSp);
+    }
+  }
   const brandAllText=brandLines.join("、");
   const deptLines=[];
   if(S.hasDept){

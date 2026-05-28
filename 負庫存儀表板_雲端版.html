@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AIR SPACE｜門市負庫存儀表板</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
@@ -325,8 +326,10 @@
 </div>
 
 <script>
-// ============ 設定區（部署時要改）============
-const API_URL = '請貼上_Apps_Script_部署網址';
+// ============ 設定區 ============
+// API_URL 從 config.js 讀取，不在這個檔案裡設定
+// 如需修改 API 網址，請改 config.js
+const API_URL = window.API_URL || '';
 
 // ============ 品牌設定 ============
 const BRAND_ORDER = ['AS','CA','OL','A PLUS','PLUS'];
@@ -356,6 +359,13 @@ const focusMgr = urlParams.get('mgr') || '';
 async function loadData(force = false) {
   $('dashContent').innerHTML = '<div class="spinner"></div><div>正在載入最新資料...</div>';
   $('errorBox').innerHTML = '';
+
+  // 防呆：config.js 沒設定好
+  if (!API_URL) {
+    $('errorBox').innerHTML = '<div class="error">⚠️ 找不到 API 設定<br>請確認 GitHub 上有 config.js 檔案，且裡面有設定 window.API_URL</div>';
+    $('dashContent').innerHTML = '';
+    return;
+  }
 
   try {
     const url = API_URL + (force ? '?t=' + Date.now() : '');

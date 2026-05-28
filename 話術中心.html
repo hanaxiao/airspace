@@ -540,8 +540,19 @@ async function loadEvents(){
   }
   LOADING=false;if(CURRENT_TAB==="gen")render();
 }
+function getSortedCurrentEvents(){
+  return EVENTS.filter(isCurrent).slice().sort((a,b)=>{
+    if(a.dateKind === "longterm" && b.dateKind !== "longterm") return 1;
+    if(b.dateKind === "longterm" && a.dateKind !== "longterm") return -1;
+    if(a.startDate && b.startDate) return b.startDate - a.startDate;
+    if(a.startDate) return -1;
+    if(b.startDate) return 1;
+    return 0;
+  });
+}
+
 function applyEvent(i){
-  const currentEvents=EVENTS.filter(isCurrent);
+  const currentEvents=getSortedCurrentEvents();
   const ev=currentEvents[i];
   if(!ev)return;
   S.brandDiscount=ev.discount||"";
@@ -551,7 +562,6 @@ function applyEvent(i){
   }else{
     S.tiers=[{threshold:"",cashOff:"",giftName:""}];
   }
-  // 把整段內容當成 brandSpecial 的備註,讓使用者能看到完整活動描述
   if(ev.fullContent && (ev.discount || ev.tiers.length > 0)){
     S.brandSpecial = ev.fullContent;
   }
@@ -835,14 +845,20 @@ function step1(){
 
 function step2(){
   const th=S.tiers.map((t,i)=>'<div class="tier-card"><div class="tier-header"><span class="tier-label">第 '+(i+1)+' 組門檻</span>'+(S.tiers.length>1?'<button class="tier-remove" onclick="rmTier('+i+')">✕ 移除</button>':'')+'</div><div class="tier-grid"><div><label>滿額 $</label><input type="number" placeholder="3000" value="'+t.threshold+'" onchange="S.tiers['+i+'].threshold=this.value;updateCalc()"></div><div><label>現抵 $</label><input type="number" placeholder="200" value="'+t.cashOff+'" onchange="S.tiers['+i+'].cashOff=this.value;updateCalc()"></div><div><label>贈品</label><input type="text" placeholder="提袋" value="'+t.giftName+'" onchange="S.tiers['+i+'].giftName=this.value"></div></div></div>').join("");
-  const currentEvents=EVENTS.filter(isCurrent);
+  // 排序:最近開始的優先(無 startDate 例如長期優惠排最後),取最新 3 檔當預設,其餘折疊
+  const allCurrent = getSortedCurrentEvents();
+  if(typeof S.showAllEvents === "undefined") S.showAllEvents = false;
+  const currentEvents = S.showAllEvents ? allCurrent : allCurrent.slice(0, 3);
+  const hiddenCount = allCurrent.length - currentEvents.length;
   const upcomingEvents=EVENTS.filter(isUpcoming);
   let eventsHtml="";
   if(LOADING){eventsHtml='<div style="font-size:.92rem;color:#9ca3af;padding:6px 0">讀取中...</div>';}
   else if(LOAD_ERROR){eventsHtml='<div style="font-size:.92rem;color:#ef4444;margin-bottom:8px;padding:8px 10px;background:#fef2f2;border-radius:6px">⚠️ '+LOAD_ERROR+'</div>';}
-  else if(currentEvents.length===0){eventsHtml='<div style="font-size:.92rem;color:#9ca3af;padding:6px 0">目前無當期活動,請手動輸入</div>';}
+  else if(allCurrent.length===0){eventsHtml='<div style="font-size:.92rem;color:#9ca3af;padding:6px 0">目前無當期活動,請手動輸入</div>';}
   else{
     eventsHtml=currentEvents.map((ev,i)=>{
+      // 找出原始 index (因為 applyEvent 用的是 allCurrent 中的位置)
+      const origIdx = allCurrent.indexOf(ev);
       const typeColor = ev.type === "長期優惠" ? "#10b981" : (ev.status === "延長" || ev.status === "再次調整" ? "#f97316" : "#c97090");
       let summaryParts = [];
       if(ev.discount) summaryParts.push(ev.discount);
@@ -855,7 +871,7 @@ function step2(){
         }).join("、"));
       }
       const summary = summaryParts.join(" + ") || ev.fullContent.slice(0, 50);
-      return '<button class="event-btn" onclick="applyEvent('+i+')">'+
+      return '<button class="event-btn" onclick="applyEvent('+origIdx+')">'+
         '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap"><span style="font-size:.8rem;background:'+typeColor+';color:white;padding:2px 8px;border-radius:999px;font-weight:600">'+ev.type+'</span><span style="font-size:.8rem;color:#6b7280">'+ev.status+'</span><span style="font-size:.85rem;color:#374151;font-weight:600">📅 '+ev.rangeStr+'</span></div>'+
         '<div style="font-size:.95rem;color:#374151;line-height:1.4">'+ev.fullContent+'</div>'+
         (summary && summary !== ev.fullContent ? '<div style="font-size:.85rem;color:#c97090;margin-top:3px;font-weight:600">🎯 自動解析: '+summary+'</div>' : '')+
@@ -863,6 +879,14 @@ function step2(){
         (ev.note && ev.note !== "—" ? '<div style="font-size:.78rem;color:#f97316;font-weight:400;margin-top:2px;line-height:1.4">ℹ️ '+ev.note.slice(0, 100)+(ev.note.length > 100 ? '…' : '')+'</div>' : '')+
         '</button>';
     }).join("");
+    // 展開/收合按鈕
+    if(allCurrent.length > 3){
+      if(!S.showAllEvents){
+        eventsHtml += '<button onclick="S.showAllEvents=true;render()" style="width:100%;margin-top:6px;padding:10px;background:white;border:1.5px dashed #c97090;color:#c97090;border-radius:8px;cursor:pointer;font-size:.92rem;font-weight:600">▼ 查看全部 '+allCurrent.length+' 檔活動(還有 '+hiddenCount+' 檔)</button>';
+      } else {
+        eventsHtml += '<button onclick="S.showAllEvents=false;render()" style="width:100%;margin-top:6px;padding:10px;background:#f9fafb;border:1.5px solid #e5e7eb;color:#6b7280;border-radius:8px;cursor:pointer;font-size:.92rem;font-weight:600">▲ 收合,只顯示最新 3 檔</button>';
+      }
+    }
   }
   if(upcomingEvents.length>0){
     eventsHtml+='<div style="font-size:.88rem;color:#9ca3af;margin-top:10px;margin-bottom:4px">📅 即將開始(14天內)</div>';
@@ -873,7 +897,7 @@ function step2(){
     '<div style="background:#f5e0e8;border-radius:12px;padding:12px 14px;margin-bottom:14px"><div style="font-size:.92rem;color:#c97090">目前選擇</div><div style="font-weight:600;color:#c97090;font-size:1.08rem">'+S.region+' / '+S.store+'</div></div>'+
     '<div class="brand-box">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="sub-title" style="margin-bottom:0">✨ 品牌自有活動</div><button onclick="loadEvents()" style="font-size:.85rem;color:#c97090;background:white;border:1px solid #c97090;padding:4px 12px;border-radius:6px;cursor:pointer">🔄 重新讀取</button></div>'+
-    '<div class="template-section"><label>🔖 當期品牌活動(從 Google Sheets 自動讀取,共 '+currentEvents.length+' 檔)</label>'+eventsHtml+'</div>'+
+    '<div class="template-section"><label>🔖 當期品牌活動(從 Google Sheets 自動讀取,共 '+allCurrent.length+' 檔)</label>'+eventsHtml+'</div>'+
     '<div class="mt4"><label>折扣內容(如:88折、2件85折)</label><input type="text" placeholder="例:88折" value="'+S.brandDiscount+'" onchange="S.brandDiscount=this.value;updateCalc()"></div>'+
     '<div class="mt8"><div class="tier-label-row"><label style="margin:0;font-weight:600">滿額優惠(可新增多組,疊加計算)</label><button class="add-tier-btn" onclick="addTier()">＋ 新增</button></div>'+th+'</div>'+
     '<div class="mt8"><label>特定商品活動(選填)</label><input type="text" placeholder="例:指定外套買一送一" value="'+S.brandSpecial+'" onchange="S.brandSpecial=this.value"></div>'+

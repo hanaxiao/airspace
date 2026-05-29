@@ -440,6 +440,10 @@
           <button class="filter-chip" data-mode="mgr" onclick="setEmailMode('mgr')">👤 寄給對應主管</button>
           <button class="filter-chip" data-mode="all" onclick="setEmailMode('all')">🌐 寄全店</button>
         </div>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#374151;cursor:pointer">
+          <input type="checkbox" id="ccMgrCheck" checked onchange="rebuildEmailContent()" style="cursor:pointer">
+          <span>同時寄給對應主管（會 CC 主管）</span>
+        </label>
       </div>
 
       <div style="margin-bottom:12px">
@@ -447,6 +451,11 @@
         <textarea id="emailTo" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;min-height:50px" placeholder="自動帶入"></textarea>
         <div style="font-size:11px;color:#9ca3af;margin-top:2px">多個 email 用逗號分隔。沒有 email 對應的會列在下方提示</div>
         <div id="emailMissing" style="font-size:11px;color:#dc2626;margin-top:4px"></div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">CC 副本（可手動修改）</label>
+        <textarea id="emailCc" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;min-height:40px" placeholder="留空表示無 CC"></textarea>
       </div>
 
       <div style="margin-bottom:12px">
@@ -1231,8 +1240,10 @@ window.setEmailMode = function(mode) {
 function rebuildEmailContent() {
   const procDate = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
   let toEmails = [];
+  let ccEmails = [];
   let targetStoreIds = [];
   let missing = [];
+  let ccMissing = [];
   let titleSuffix = '';
 
   if (currentEmailMode === 'store') {
@@ -1269,11 +1280,30 @@ function rebuildEmailContent() {
     titleSuffix = `(全店 ${targetStoreIds.length} 家)`;
   }
 
+  // 處理「同時寄主管」CC 邏輯（只在 store 或 all 模式下生效，mgr 模式本來就只寄主管）
+  const ccMgrEl = $('ccMgrCheck');
+  const ccMgrChecked = ccMgrEl && ccMgrEl.checked;
+  if (ccMgrChecked && currentEmailMode !== 'mgr') {
+    // 從目標店推導出相關主管，加進 CC
+    const mgrSet = new Set();
+    targetStoreIds.forEach(id => {
+      const s = STORE_MAP[id];
+      if (s) mgrSet.add(s.mgr);
+    });
+    mgrSet.forEach(m => {
+      const e = emailList.主管 && emailList.主管[m];
+      if (e && e.email) ccEmails.push(e.email);
+      else ccMissing.push('主管:'+m);
+    });
+  }
+
   $('emailTo').value = [...new Set(toEmails)].join(', ');
+  $('emailCc').value = [...new Set(ccEmails)].join(', ');
 
   // 缺 email 提示
-  if (missing.length) {
-    $('emailMissing').innerHTML = `⚠️ 以下 ${missing.length} 個對象沒有 email：${missing.slice(0,10).join('、')}${missing.length>10?` 等 ${missing.length} 個`:''}（請在「Email清單」分頁補上）`;
+  const allMissing = [...missing, ...ccMissing];
+  if (allMissing.length) {
+    $('emailMissing').innerHTML = `⚠️ 以下 ${allMissing.length} 個對象沒有 email：${allMissing.slice(0,10).join('、')}${allMissing.length>10?` 等 ${allMissing.length} 個`:''}（請在「Email清單」分頁補上）`;
   } else {
     $('emailMissing').innerHTML = '';
   }
@@ -1356,6 +1386,7 @@ function buildEmailHtml(storeIds, mode) {
 
 window.sendEmail = async function() {
   const to = $('emailTo').value.trim();
+  const cc = $('emailCc').value.trim();
   const subject = $('emailSubject').value.trim();
   const htmlBody = $('emailBody').value;
   const statusBox = $('emailStatus');
@@ -1376,7 +1407,8 @@ window.sendEmail = async function() {
     return;
   }
 
-  if (!confirm(`確定要寄信給：\n${to}\n\n主旨：${subject}\n\n（CC 給你自己）`)) return;
+  const ccText = cc ? `\nCC：${cc}` : '';
+  if (!confirm(`確定要寄信給：\n${to}${ccText}\n\n主旨：${subject}\n\n（會自動再 CC 給你自己留底）`)) return;
 
   btn.disabled = true;
   btn.textContent = '⏳ 寄送中...';
@@ -1388,11 +1420,11 @@ window.sendEmail = async function() {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
-      mode: 'no-cors',  // Apps Script doPost 需要這樣繞 CORS
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         to: to,
-        cc: '',  // CC 給自己由 Apps Script 自動處理（用 Session.getActiveUser）
+        cc: cc,           // CC 從畫面送過去
         subject: subject,
         htmlBody: htmlBody
       })

@@ -1439,90 +1439,93 @@ function renderStoreSummaryPreview(storeIds) {
     $('emailStoreSummaryPreview').innerHTML = '<span style="color:#9ca3af">無門市</span>';
     return;
   }
-  // 計算各店摘要
-  const rows = [];
-  storeIds.forEach(id => {
-    const items = negData.filter(r => r.倉庫編號===id);
-    const total = items.reduce((s,r) => s + Number(r.庫存數量), 0);
-    const s = STORE_MAP[id];
-    rows.push({
-      id, name: s?s.name:'', mgr: s?s.mgr:'-',
-      count: items.length, total
-    });
-  });
-  // 按負庫存重的排在前
-  rows.sort((a,b) => a.total - b.total);
-
-  let html = `<table style="width:100%;border-collapse:collapse;font-size:11px">
-    <thead><tr style="background:#f3f4f6">
-      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:left">店代號</th>
-      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:left">店名</th>
-      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:left">主管</th>
-      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">筆數</th>
-      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">負庫存</th>
-    </tr></thead><tbody>`;
-  rows.forEach(r => {
-    html += `<tr>
-      <td style="border:1px solid #e5e7eb;padding:3px 6px"><strong>${r.id}</strong></td>
-      <td style="border:1px solid #e5e7eb;padding:3px 6px">${r.name}</td>
-      <td style="border:1px solid #e5e7eb;padding:3px 6px">${r.mgr}</td>
-      <td style="border:1px solid #e5e7eb;padding:3px 6px;text-align:right">${r.count}</td>
-      <td style="border:1px solid #e5e7eb;padding:3px 6px;text-align:right;color:#dc2626;font-weight:600">${r.total}</td>
-    </tr>`;
-  });
-  const grandCount = rows.reduce((s,r) => s+r.count, 0);
-  const grandTotal = rows.reduce((s,r) => s+r.total, 0);
-  html += `<tr style="background:#f9fafb;font-weight:600">
-    <td colspan="3" style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">合計</td>
-    <td style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">${grandCount}</td>
-    <td style="border:1px solid #d1d5db;padding:3px 6px;text-align:right;color:#dc2626">${grandTotal}</td>
-  </tr>`;
-  html += `</tbody></table>`;
-  $('emailStoreSummaryPreview').innerHTML = html;
+  // 直接用寄信時用的同一個函式（保證預覽 = 實寄）
+  $('emailStoreSummaryPreview').innerHTML = buildStoreSummaryHtml(storeIds);
 }
 
-// 寄信時，本文後面要黏的店清單摘要 HTML
+// 寄信時，本文後面要黏的店清單摘要 HTML（按主管分組）
 function buildStoreSummaryHtml(storeIds) {
   if (!storeIds.length) return '';
-  const rows = [];
+
+  // 算每店資料、按主管分組
+  const groups = {};
   storeIds.forEach(id => {
     const items = negData.filter(r => r.倉庫編號===id);
     const total = items.reduce((s,r) => s + Number(r.庫存數量), 0);
     const s = STORE_MAP[id];
-    rows.push({ id, name: s?s.name:'', mgr: s?s.mgr:'-', count: items.length, total });
+    const mgr = s ? s.mgr : '未對應';
+    if (!groups[mgr]) groups[mgr] = [];
+    groups[mgr].push({
+      id, name: s?s.name:'', count: items.length, total
+    });
   });
-  rows.sort((a,b) => a.total - b.total);
+  // 每組內按負庫存重→輕排序
+  Object.keys(groups).forEach(m => {
+    groups[m].sort((a,b) => a.total - b.total);
+  });
+  // 主管按 MGR_ORDER 排序
+  const mgrList = Object.keys(groups).sort((a,b) => {
+    const ia = MGR_ORDER.indexOf(a); const ib = MGR_ORDER.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
 
   const procDate = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
   const fileName = meta['資料來源檔名'] || '';
 
   let html = `<div style="margin-top:20px;font-family:Arial,'Microsoft JhengHei',sans-serif;font-size:12px;color:#333">
-  <div style="font-weight:600;margin-bottom:6px;color:#1e3a5f">📋 涉及門市清單（${rows.length} 間 ｜ 資料日期 ${procDate}）</div>
-  <table style="border-collapse:collapse;font-size:11px">
-    <thead><tr style="background:#1e3a5f;color:white">
-      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:left">店代號</th>
-      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:left">店名</th>
-      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:left">主管</th>
-      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:right">筆數</th>
-      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:right">負庫存</th>
-    </tr></thead><tbody>`;
-  rows.forEach(r => {
-    html += `<tr>
-      <td style="border:1px solid #d1d5db;padding:4px 8px"><strong>${r.id}</strong></td>
-      <td style="border:1px solid #d1d5db;padding:4px 8px">${r.name}</td>
-      <td style="border:1px solid #d1d5db;padding:4px 8px">${r.mgr}</td>
-      <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right">${r.count}</td>
-      <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right;color:#dc2626;font-weight:600">${r.total}</td>
-    </tr>`;
+  <div style="font-weight:600;margin-bottom:8px;color:#1e3a5f;font-size:14px">📋 涉及門市清單（${storeIds.length} 間 ｜ 資料日期 ${procDate}）</div>
+  <table style="border-collapse:collapse;font-size:11px;width:auto;min-width:500px">
+    <thead>
+      <tr style="background:#1e3a5f;color:white">
+        <th style="border:1px solid #1e3a5f;padding:5px 10px;text-align:left">主管 / 店代號</th>
+        <th style="border:1px solid #1e3a5f;padding:5px 10px;text-align:left">店名</th>
+        <th style="border:1px solid #1e3a5f;padding:5px 10px;text-align:right">筆數</th>
+        <th style="border:1px solid #1e3a5f;padding:5px 10px;text-align:right">負庫存</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  let grandCount = 0;
+  let grandTotal = 0;
+
+  mgrList.forEach(m => {
+    const stores = groups[m];
+    const subCount = stores.reduce((s,x) => s + x.count, 0);
+    const subTotal = stores.reduce((s,x) => s + x.total, 0);
+    grandCount += subCount;
+    grandTotal += subTotal;
+
+    // 主管標題列（橫跨整行的群組標題）
+    html += `
+      <tr style="background:#fef3c7">
+        <td colspan="4" style="border:1px solid #d1d5db;padding:5px 10px;font-weight:700;color:#92400e">
+          👤 ${m} ｜ ${stores.length} 店 ｜ ${subCount} 筆 ｜ 負庫存 <span style="color:#dc2626">${subTotal}</span>
+        </td>
+      </tr>`;
+
+    // 該主管的店列表
+    stores.forEach(s => {
+      html += `<tr>
+        <td style="border:1px solid #e5e7eb;padding:4px 10px;padding-left:24px"><strong>${s.id}</strong></td>
+        <td style="border:1px solid #e5e7eb;padding:4px 10px">${s.name}</td>
+        <td style="border:1px solid #e5e7eb;padding:4px 10px;text-align:right">${s.count}</td>
+        <td style="border:1px solid #e5e7eb;padding:4px 10px;text-align:right;color:#dc2626;font-weight:600">${s.total}</td>
+      </tr>`;
+    });
   });
-  const grandCount = rows.reduce((s,r) => s+r.count, 0);
-  const grandTotal = rows.reduce((s,r) => s+r.total, 0);
-  html += `<tr style="background:#fef3c7;font-weight:600">
-    <td colspan="3" style="border:1px solid #d1d5db;padding:4px 8px;text-align:right">合計</td>
-    <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right">${grandCount}</td>
-    <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right;color:#dc2626">${grandTotal}</td>
-  </tr>`;
-  html += `</tbody></table>
+
+  // 總計列
+  html += `
+      <tr style="background:#1e3a5f;color:white;font-weight:700">
+        <td colspan="2" style="border:1px solid #1e3a5f;padding:6px 10px;text-align:right">總計</td>
+        <td style="border:1px solid #1e3a5f;padding:6px 10px;text-align:right">${grandCount}</td>
+        <td style="border:1px solid #1e3a5f;padding:6px 10px;text-align:right">${grandTotal}</td>
+      </tr>
+    </tbody>
+  </table>
   <p style="margin-top:14px;color:#9ca3af;font-size:10px">
     📄 資料來源：${fileName} ｜ 此信由 AIR SPACE 負庫存儀表板自動產生
   </p>

@@ -273,6 +273,77 @@
   #printHeader h2 { font-size: 18px; margin-bottom: 4px; }
   #printHeader .sub { font-size: 12px; color: #555; margin-bottom: 10px; }
   #printHeader .sub strong { color: #000; }
+
+  /* === 對話框 === */
+  .overlay {
+    display: none;
+    position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5); z-index: 1000;
+    align-items: center; justify-content: center;
+    padding: 12px;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: white; border-radius: 12px;
+    width: 100%; max-width: 600px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .modal-header {
+    padding: 12px 18px; border-bottom: 1px solid #e5e7eb;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 15px; font-weight: 600; color: #1e3a5f;
+  }
+  .modal-close {
+    background: transparent; border: none; cursor: pointer;
+    font-size: 18px; color: #6b7280;
+  }
+  .modal-body {
+    padding: 14px 18px; overflow-y: auto; flex: 1;
+  }
+  .modal-footer {
+    padding: 10px 18px; border-top: 1px solid #e5e7eb;
+    display: flex; gap: 8px; justify-content: flex-end;
+  }
+
+  /* 選店 picker */
+  .picker-mgr-block { margin-bottom: 14px; }
+  .picker-mgr-title {
+    font-size: 12px; font-weight: 600; color: #1e3a5f;
+    margin-bottom: 6px; padding: 5px 10px;
+    background: #f3f4f6; border-radius: 4px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .picker-stores {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 5px;
+  }
+  .picker-store {
+    padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 5px;
+    cursor: pointer; font-size: 12px; display: flex; align-items: center;
+    gap: 6px; transition: all 0.15s;
+  }
+  .picker-store:hover { background: #f9fafb; }
+  .picker-store.selected {
+    background: #dbeafe; border-color: #1e3a5f; color: #1e3a5f; font-weight: 500;
+  }
+  .picker-store input[type=checkbox] { margin: 0; cursor: pointer; }
+  .picker-store .store-neg {
+    margin-left: auto; color: #dc2626; font-weight: 600; font-size: 11px;
+  }
+  .picker-store.no-neg { opacity: 0.45; }
+  .picker-store.no-neg .store-neg { color: #9ca3af; }
+
+  /* 已選店 chip */
+  .selected-chip {
+    background: #dbeafe; color: #1e3a5f; padding: 4px 6px 4px 10px;
+    border-radius: 12px; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .selected-chip button {
+    background: transparent; border: none; cursor: pointer;
+    color: #1e3a5f; padding: 0; font-size: 14px; line-height: 1;
+  }
 </style>
 </head>
 <body>
@@ -308,19 +379,93 @@
 
 <div class="panel" id="panel-pivot">
   <div class="pivot-control">
-    <label>店代號：</label>
-    <select id="storeSelect">
-      <option value="">-- 請選擇 --</option>
-    </select>
+    <label>選店：</label>
+    <button class="action-btn" id="btnPickStore" onclick="openStorePicker()" style="background:#1e3a5f;color:white">🏪 選擇門市 <span id="pickCount" style="background:rgba(255,255,255,0.25);padding:1px 8px;border-radius:10px;margin-left:4px;font-size:11px">0</span></button>
+    <button class="action-btn" id="btnClearStore" onclick="clearStores()" style="background:#e5e7eb;color:#374151">清除</button>
     <span class="summary-chip" id="storeSummary"></span>
     <button class="action-btn excel" id="btnExcel" onclick="downloadExcel()" disabled>📥 下載 Excel</button>
     <button class="action-btn print" id="btnPrint" onclick="window.print()" disabled>🖨️ 列印 / 存 PDF</button>
+    <button class="action-btn" id="btnEmail" onclick="openEmailDialog()" disabled style="background:#dc2626;color:white">✉️ 寄信通知</button>
   </div>
 
-  <!-- 列印用標題（平時隱藏，只在列印時顯示）-->
+  <!-- 已選店 chips -->
+  <div id="selectedStoreChips" style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap"></div>
+
+  <!-- 列印用標題 -->
   <div id="printHeader"></div>
 
   <div id="pivotContent"></div>
+</div>
+
+<!-- 選店對話框 -->
+<div id="storePickerOverlay" class="overlay" onclick="if(event.target===this)closeStorePicker()">
+  <div class="modal">
+    <div class="modal-header">
+      <span>🏪 選擇門市（可複選）</span>
+      <button class="modal-close" onclick="closeStorePicker()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="storeSearchInput" placeholder="搜尋店代號或店名..."
+          oninput="filterStorePicker()" style="flex:1;min-width:180px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:13px">
+        <button class="filter-chip" onclick="selectAllInPicker()">✓ 全選顯示中</button>
+        <button class="filter-chip" onclick="deselectAllInPicker()">取消全選</button>
+      </div>
+      <div id="mgrQuickPicks" style="margin-bottom:10px;display:flex;gap:4px;flex-wrap:wrap"></div>
+      <div id="storePickerList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeStorePicker()" style="background:#e5e7eb;color:#374151">取消</button>
+      <button class="action-btn" onclick="confirmStorePicker()" style="background:#1e3a5f;color:white">確定 (<span id="pickerSelectedCount">0</span> 店)</button>
+    </div>
+  </div>
+</div>
+
+<!-- 寄信對話框 -->
+<div id="emailDialogOverlay" class="overlay" onclick="if(event.target===this)closeEmailDialog()">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <span>✉️ 寄送負庫存通知信</span>
+      <button class="modal-close" onclick="closeEmailDialog()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#fef3c7;color:#92400e;padding:10px;border-radius:6px;font-size:12px;margin-bottom:12px">
+        ⚠️ 信件會從你的 Google 帳號寄出，並 CC 給你自己留存紀錄
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">收件對象</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="filter-chip" data-mode="store" onclick="setEmailMode('store')">📍 寄給已選門市</button>
+          <button class="filter-chip" data-mode="mgr" onclick="setEmailMode('mgr')">👤 寄給對應主管</button>
+          <button class="filter-chip" data-mode="all" onclick="setEmailMode('all')">🌐 寄全店</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">收件人 (To，可手動修改)</label>
+        <textarea id="emailTo" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;min-height:50px" placeholder="自動帶入"></textarea>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px">多個 email 用逗號分隔。沒有 email 對應的會列在下方提示</div>
+        <div id="emailMissing" style="font-size:11px;color:#dc2626;margin-top:4px"></div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">主旨</label>
+        <input type="text" id="emailSubject" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:13px">
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">內文（可修改、支援 HTML）</label>
+        <textarea id="emailBody" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:11px;min-height:240px;line-height:1.6"></textarea>
+      </div>
+
+      <div id="emailStatus" style="display:none;padding:10px;border-radius:6px;font-size:12px;margin-top:8px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeEmailDialog()" style="background:#e5e7eb;color:#374151">取消</button>
+      <button class="action-btn" id="btnSendEmail" onclick="sendEmail()" style="background:#dc2626;color:white">📨 確認寄出</button>
+    </div>
+  </div>
 </div>
 
 </div>
@@ -347,7 +492,11 @@ let STORE_MAP = {};
 let MGR_ORDER = [];
 let negData = [];
 let meta = {};
+let emailList = { 主管: {}, 門市: {} };
 let currentMgrFilter = 'all';
+let selectedStores = [];       // 多選的店列表
+let tempPickerSelection = [];  // 對話框內暫存的選擇
+let currentEmailMode = 'store';
 
 const $ = id => document.getElementById(id);
 
@@ -377,6 +526,7 @@ async function loadData(force = false) {
     MGR_ORDER = data.mgrOrder;
     negData = data.negData;
     meta = data.meta || {};
+    emailList = data.emailList || { 主管: {}, 門市: {} };
 
     negData.forEach(r => {
       const s = STORE_MAP[r.倉庫編號];
@@ -392,9 +542,8 @@ async function loadData(force = false) {
 
     if (focusStore && STORE_MAP[focusStore]) {
       switchTab('pivot');
-      $('storeSelect').value = focusStore;
-      renderStoreDetail(focusStore);
-      renderPivotOptions();
+      selectedStores = [focusStore];
+      renderSelectedStores();
     } else if (focusMgr) {
       switchTab('manager');
       currentMgrFilter = focusMgr;
@@ -685,224 +834,584 @@ window.setMgrFilter = function(m) {
 
 window.jumpToStore = function(id) {
   switchTab('pivot');
-  $('storeSelect').value = id;
-  renderStoreDetail(id);
+  selectedStores = [id];
+  renderSelectedStores();
 };
 
-// ============ Pivot ============
+// ============ Pivot：複選版 ============
 function renderPivotOptions() {
-  const storesWithNeg = [...new Set(negData.map(r => r.倉庫編號))].sort();
-  const sel = $('storeSelect');
-  sel.innerHTML = '<option value="">-- 請選擇 --</option>' +
-    storesWithNeg.map(id => {
-      const s = STORE_MAP[id];
-      const total = negData.filter(r => r.倉庫編號===id).reduce((sm,r) => sm + Number(r.庫存數量), 0);
-      return `<option value="${id}">${id} ${s?s.name:''} (${s?s.mgr:'-'}) ｜ ${total}</option>`;
-    }).join('');
-  sel.onchange = e => renderStoreDetail(e.target.value);
-  if (!sel.value) renderStoreDetail('');
+  // 初始化時沒有預選，但要重新渲染按鈕
+  renderSelectedStores();
 }
 
-function renderStoreDetail(id) {
-  const c = $('pivotContent');
-  const sm = $('storeSummary');
+// 渲染已選店的 chips、明細、按鈕狀態
+function renderSelectedStores() {
+  const chipsDiv = $('selectedStoreChips');
+  const pickCountEl = $('pickCount');
   const btnExcel = $('btnExcel');
   const btnPrint = $('btnPrint');
-  const printHeader = $('printHeader');
+  const btnEmail = $('btnEmail');
+  const sm = $('storeSummary');
 
-  if (!id) {
-    c.innerHTML = '<div class="empty">請從上方選擇店代號</div>';
+  pickCountEl.textContent = selectedStores.length;
+
+  // 渲染 chips
+  if (selectedStores.length === 0) {
+    chipsDiv.innerHTML = '';
+    $('pivotContent').innerHTML = '<div class="empty">請點上方「🏪 選擇門市」開始</div>';
     sm.textContent = '';
     btnExcel.disabled = true;
     btnPrint.disabled = true;
-    printHeader.innerHTML = '';
+    btnEmail.disabled = true;
+    $('printHeader').innerHTML = '';
     return;
   }
-  const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
-    // 款號 A→Z，同款再顏色、尺寸
-    const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
-    if (k1 !== 0) return k1;
-    const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
-    if (c1 !== 0) return c1;
-    return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
-  });
-  const s = STORE_MAP[id];
-  const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
-  sm.textContent = `${rows.length} 筆 ｜ 總計 ${total} ｜ ${s?s.mgr:'-'}`;
 
-  // 啟用按鈕
+  chipsDiv.innerHTML = selectedStores.map(id => {
+    const s = STORE_MAP[id];
+    return `<span class="selected-chip">${id} ${s?s.name:''}<button onclick="removeStore('${id}')">✕</button></span>`;
+  }).join('');
+
   btnExcel.disabled = false;
   btnPrint.disabled = false;
+  btnEmail.disabled = false;
 
-  // 設定列印標題
+  renderMultiStoreDetail();
+}
+
+window.removeStore = function(id) {
+  selectedStores = selectedStores.filter(x => x !== id);
+  renderSelectedStores();
+};
+
+window.clearStores = function() {
+  selectedStores = [];
+  renderSelectedStores();
+};
+
+function renderMultiStoreDetail() {
+  const c = $('pivotContent');
+  const sm = $('storeSummary');
+  const printHeader = $('printHeader');
+
+  // 全部相關 rows
+  const allRows = negData.filter(r => selectedStores.includes(r.倉庫編號));
+  const totalAll = allRows.reduce((s,r) => s + Number(r.庫存數量), 0);
+  sm.textContent = `${selectedStores.length} 店 ｜ ${allRows.length} 筆 ｜ 總計 ${totalAll}`;
+
+  // 列印標題
   const fileName = meta['資料來源檔名'] || '';
   const procTime = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
   printHeader.innerHTML = `
-    <h2>${id} ${s?s.name:''} - 負庫存明細</h2>
+    <h2>負庫存明細 (${selectedStores.length} 店)</h2>
     <div class="sub">
-      區主管：<strong>${s?s.mgr:'-'}</strong> ｜
-      負庫存筆數：<strong>${rows.length}</strong> 筆 ｜
-      總負庫存：<strong>${total}</strong> ｜
-      資料日期：${procTime} ｜
-      檔案：${fileName}
+      門市：<strong>${selectedStores.join(', ')}</strong> ｜
+      負庫存筆數：<strong>${allRows.length}</strong> 筆 ｜
+      總負庫存：<strong>${totalAll}</strong> ｜
+      資料日期：${procTime}
     </div>
   `;
 
-  // 按品牌分組
-  const byBrand = {};
-  rows.forEach(r => {
-    const k = r.品牌 || '未分類';
-    if (!byBrand[k]) byBrand[k] = [];
-    byBrand[k].push(r);
-  });
-  const brandList = Object.keys(byBrand).sort(sortBrand);
-
+  // 每店一個區塊
   let html = '';
-  brandList.forEach(brand => {
-    const brandRows = byBrand[brand];
-    const brandTotal = brandRows.reduce((s,r) => s + Number(r.庫存數量), 0);
-    const color = BRAND_COLOR[brand] || '#6b7280';
+  selectedStores.forEach(id => {
+    const rows = negData.filter(r => r.倉庫編號 === id).sort((a,b) => {
+      const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
+      if (k1 !== 0) return k1;
+      const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
+      if (c1 !== 0) return c1;
+      return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
+    });
+    const s = STORE_MAP[id];
+    const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
 
-    html += `
-      <div class="brand-section">
+    // 店標題
+    html += `<div style="background:#1e3a5f;color:white;padding:10px 14px;border-radius:10px 10px 0 0;margin-top:14px;display:flex;justify-content:space-between;align-items:center;page-break-before:auto">
+      <div style="font-size:15px;font-weight:600">🏪 ${id} ${s?s.name:''}</div>
+      <div style="font-size:12px;background:rgba(255,255,255,0.2);padding:2px 10px;border-radius:10px">${rows.length} 筆 · ${total} ｜ ${s?s.mgr:'-'}</div>
+    </div>`;
+
+    if (!rows.length) {
+      html += `<div style="background:white;padding:14px;border-radius:0 0 10px 10px;text-align:center;color:#9ca3af;font-size:13px;margin-bottom:10px">本店本週無負庫存 🎉</div>`;
+      return;
+    }
+
+    // 按品牌分組
+    const byBrand = {};
+    rows.forEach(r => {
+      const k = r.品牌 || '未分類';
+      if (!byBrand[k]) byBrand[k] = [];
+      byBrand[k].push(r);
+    });
+    const brandList = Object.keys(byBrand).sort(sortBrand);
+
+    html += `<div style="background:white;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:10px">`;
+    brandList.forEach(brand => {
+      const brandRows = byBrand[brand];
+      const brandTotal = brandRows.reduce((s,r) => s + Number(r.庫存數量), 0);
+      const color = BRAND_COLOR[brand] || '#6b7280';
+
+      html += `<div class="brand-section" style="margin:0;border-radius:0;box-shadow:none;border-bottom:1px solid #e5e7eb">
         <div class="brand-section-header" style="background:${color}">
           <div class="brand-section-title">🏷️ ${brand}</div>
           <div class="brand-section-badge">${brandRows.length} 筆 · ${brandTotal}</div>
         </div>`;
 
-    // 桌面表格
-    html += `<table class="detail" style="box-shadow:none;border-radius:0">
-      <thead><tr>
-        <th>商品編號</th><th>款號</th><th>商品名稱</th><th>顏色</th><th>尺寸</th>
-        <th>大分類</th><th>季節</th><th style="text-align:right">負庫存</th>
-      </tr></thead><tbody>`;
-    brandRows.forEach(r => {
-      html += `<tr>
-        <td>${r.商品編號}</td><td>${r.款號||''}</td><td>${r.商品名稱||''}</td>
-        <td>${r.顏色||''}</td><td>${r.商品尺寸||''}</td>
-        <td>${r.大分類||''}</td><td>${r.季節||''}</td>
-        <td class="qty">${r.庫存數量}</td>
-      </tr>`;
-    });
-    html += `</tbody></table>`;
+      // 桌面表格
+      html += `<table class="detail" style="box-shadow:none;border-radius:0">
+        <thead><tr>
+          <th>商品編號</th><th>款號</th><th>商品名稱</th><th>顏色</th><th>尺寸</th>
+          <th>大分類</th><th>季節</th><th style="text-align:right">負庫存</th>
+        </tr></thead><tbody>`;
+      brandRows.forEach(r => {
+        html += `<tr>
+          <td>${r.商品編號}</td><td>${r.款號||''}</td><td>${r.商品名稱||''}</td>
+          <td>${r.顏色||''}</td><td>${r.商品尺寸||''}</td>
+          <td>${r.大分類||''}</td><td>${r.季節||''}</td>
+          <td class="qty">${r.庫存數量}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
 
-    // 手機卡片
-    html += `<div style="padding:8px">`;
-    brandRows.forEach(r => {
-      html += `<div class="detail-card" style="box-shadow:none;border:1px solid #f3f4f6">
-        <div class="detail-main">
-          <div class="detail-name">${r.商品名稱||r.商品編號}</div>
-          <div class="detail-meta">
-            <span>📦 ${r.款號||''}</span>
-            <span>🎨 ${r.顏色||''}</span>
-            <span>📏 ${r.商品尺寸||''}</span>
+      // 手機卡片
+      html += `<div style="padding:8px">`;
+      brandRows.forEach(r => {
+        html += `<div class="detail-card" style="box-shadow:none;border:1px solid #f3f4f6">
+          <div class="detail-main">
+            <div class="detail-name">${r.商品名稱||r.商品編號}</div>
+            <div class="detail-meta">
+              <span>📦 ${r.款號||''}</span>
+              <span>🎨 ${r.顏色||''}</span>
+              <span>📏 ${r.商品尺寸||''}</span>
+            </div>
+            <div class="detail-meta" style="margin-top:3px">
+              <span>${r.大分類||''}</span>
+              <span>${r.季節||''}</span>
+            </div>
           </div>
-          <div class="detail-meta" style="margin-top:3px">
-            <span>${r.大分類||''}</span>
-            <span>${r.季節||''}</span>
-          </div>
-        </div>
-        <div class="detail-qty">${r.庫存數量}</div>
-      </div>`;
+          <div class="detail-qty">${r.庫存數量}</div>
+        </div>`;
+      });
+      html += `</div>`;
+      html += `</div>`;
     });
-    html += `</div>`;
     html += `</div>`;
   });
 
   c.innerHTML = html;
 }
 
-// ============ 下載 Excel ============
-function downloadExcel() {
-  const id = $('storeSelect').value;
-  if (!id) return;
+// ============ 選店對話框 ============
+window.openStorePicker = function() {
+  tempPickerSelection = [...selectedStores];
+  $('storeSearchInput').value = '';
+  renderStorePickerList();
+  renderMgrQuickPicks();
+  $('storePickerOverlay').classList.add('show');
+};
 
-  const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
-    const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
-    if (k1 !== 0) return k1;
-    const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
-    if (c1 !== 0) return c1;
-    return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
+window.closeStorePicker = function() {
+  $('storePickerOverlay').classList.remove('show');
+};
+
+window.confirmStorePicker = function() {
+  selectedStores = [...tempPickerSelection].sort();
+  closeStorePicker();
+  renderSelectedStores();
+};
+
+function renderMgrQuickPicks() {
+  const mgrs = [...new Set(Object.values(STORE_MAP).map(s => s.mgr))].sort(sortMgr);
+  let html = '<small style="color:#6b7280;font-size:11px;margin-right:4px">快選主管：</small>';
+  mgrs.forEach(m => {
+    html += `<button class="filter-chip" onclick="pickByMgr('${m}')">${m}</button>`;
   });
-  const s = STORE_MAP[id];
-  const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
+  $('mgrQuickPicks').innerHTML = html;
+}
 
-  // 按品牌分組
-  const byBrand = {};
-  rows.forEach(r => {
-    const k = r.品牌 || '未分類';
-    if (!byBrand[k]) byBrand[k] = [];
-    byBrand[k].push(r);
+window.pickByMgr = function(mgr) {
+  // 把該主管轄下所有「有負庫存」的店加入暫存
+  const targetStores = Object.entries(STORE_MAP)
+    .filter(([id, s]) => s.mgr === mgr)
+    .map(([id]) => id);
+  const negStoresSet = new Set(negData.map(r => r.倉庫編號));
+  targetStores.forEach(id => {
+    if (negStoresSet.has(id) && !tempPickerSelection.includes(id)) {
+      tempPickerSelection.push(id);
+    }
   });
-  const brandList = Object.keys(byBrand).sort(sortBrand);
+  renderStorePickerList();
+};
 
-  // 組成 AOA (Array of Arrays)，依品牌分區塊
-  const aoa = [];
-  // 標題列
-  aoa.push([`${id} ${s?s.name:''} 負庫存明細`]);
-  aoa.push([`區主管：${s?s.mgr:'-'}    筆數：${rows.length}    總負庫存：${total}    資料日期：${meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : ''}`]);
-  aoa.push([]);  // 空行
+function renderStorePickerList() {
+  const search = $('storeSearchInput').value.trim().toLowerCase();
+  const storeNeg = {};
+  negData.forEach(r => {
+    storeNeg[r.倉庫編號] = (storeNeg[r.倉庫編號]||0) + Number(r.庫存數量);
+  });
 
-  brandList.forEach(brand => {
-    const brandRows = byBrand[brand];
-    const brandTotal = brandRows.reduce((s,r) => s + Number(r.庫存數量), 0);
-    // 品牌標題
-    aoa.push([`【${brand}】 ${brandRows.length} 筆 · 負庫存 ${brandTotal}`]);
-    // 欄位標題
-    aoa.push(['商品編號','款號','商品名稱','顏色','尺寸','大分類','季節','負庫存']);
-    // 資料
-    brandRows.forEach(r => {
-      aoa.push([
-        r.商品編號 || '',
-        r.款號 || '',
-        r.商品名稱 || '',
-        r.顏色 || '',
-        r.商品尺寸 || '',
-        r.大分類 || '',
-        r.季節 || '',
-        Number(r.庫存數量)
-      ]);
+  // 按主管分組
+  const groups = {};
+  Object.entries(STORE_MAP).forEach(([id, s]) => {
+    if (search && !id.toLowerCase().includes(search) && !s.name.toLowerCase().includes(search)) return;
+    if (!groups[s.mgr]) groups[s.mgr] = [];
+    groups[s.mgr].push({ id, ...s, neg: storeNeg[id] || 0 });
+  });
+  const mgrList = Object.keys(groups).sort(sortMgr);
+
+  let html = '';
+  mgrList.forEach(m => {
+    groups[m].sort((a,b) => a.neg - b.neg);  // 負最重的先
+    html += `<div class="picker-mgr-block">
+      <div class="picker-mgr-title">
+        ${m} <small>${groups[m].length} 店</small>
+      </div>
+      <div class="picker-stores">`;
+    groups[m].forEach(s => {
+      const isSelected = tempPickerSelection.includes(s.id);
+      const hasNeg = s.neg < 0;
+      html += `<label class="picker-store ${isSelected?'selected':''} ${hasNeg?'':'no-neg'}">
+        <input type="checkbox" ${isSelected?'checked':''} onchange="togglePickerStore('${s.id}', this.checked)">
+        <span>${s.id}</span>
+        <span style="color:#6b7280;font-size:11px">${s.name}</span>
+        <span class="store-neg">${hasNeg?s.neg:'0'}</span>
+      </label>`;
     });
-    aoa.push([]);  // 品牌間空一行
+    html += `</div></div>`;
   });
 
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  $('storePickerList').innerHTML = html;
+  $('pickerSelectedCount').textContent = tempPickerSelection.length;
+}
 
-  // 設定欄寬
-  ws['!cols'] = [
-    { wch: 13 }, // 商品編號
-    { wch: 12 }, // 款號
-    { wch: 36 }, // 商品名稱
-    { wch: 8 },  // 顏色
-    { wch: 6 },  // 尺寸
-    { wch: 8 },  // 大分類
-    { wch: 6 },  // 季節
-    { wch: 8 }   // 負庫存
-  ];
+window.togglePickerStore = function(id, checked) {
+  if (checked) {
+    if (!tempPickerSelection.includes(id)) tempPickerSelection.push(id);
+  } else {
+    tempPickerSelection = tempPickerSelection.filter(x => x !== id);
+  }
+  $('pickerSelectedCount').textContent = tempPickerSelection.length;
+  // 即時更新樣式（不重渲整個 list，更順暢）
+  document.querySelectorAll('.picker-store').forEach(el => {
+    const cb = el.querySelector('input');
+    if (cb && cb.onchange.toString().includes(id)) {
+      el.classList.toggle('selected', checked);
+    }
+  });
+};
 
-  // 合併標題列
-  ws['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }
-  ];
+window.filterStorePicker = function() {
+  renderStorePickerList();
+};
 
-  // 列印設定（A4、橫向、自動縮放）
-  ws['!pageSetup'] = {
-    orientation: 'portrait',
-    paperSize: 9,           // 9 = A4
-    fitToWidth: 1,
-    fitToHeight: 0          // 自動延伸頁數
-  };
-  ws['!margins'] = { left: 0.5, right: 0.5, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 };
+window.selectAllInPicker = function() {
+  // 把目前 list 中顯示的店都加入
+  document.querySelectorAll('#storePickerList .picker-store').forEach(el => {
+    const cb = el.querySelector('input');
+    if (cb && !cb.checked) {
+      cb.checked = true;
+      const m = cb.onchange.toString().match(/togglePickerStore\('([^']+)'/);
+      if (m) tempPickerSelection.push(m[1]);
+    }
+  });
+  tempPickerSelection = [...new Set(tempPickerSelection)];
+  renderStorePickerList();
+};
 
+window.deselectAllInPicker = function() {
+  tempPickerSelection = [];
+  renderStorePickerList();
+};
+
+// ============ 下載 Excel（多店版） ============
+function downloadExcel() {
+  if (!selectedStores.length) return;
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, id);
-
-  // 檔名加日期方便辨識
   const dateStr = meta['資料來源檔名'] ? meta['資料來源檔名'].replace(/[^0-9]/g,'').slice(0,4) : '';
-  const fname = `負庫存明細_${id}_${s?s.name:''}${dateStr?'_'+dateStr:''}.xlsx`;
+  const procDate = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
+
+  selectedStores.forEach(id => {
+    const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
+      const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
+      if (k1 !== 0) return k1;
+      const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
+      if (c1 !== 0) return c1;
+      return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
+    });
+    const s = STORE_MAP[id];
+    const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
+
+    // 按品牌分組
+    const byBrand = {};
+    rows.forEach(r => {
+      const k = r.品牌 || '未分類';
+      if (!byBrand[k]) byBrand[k] = [];
+      byBrand[k].push(r);
+    });
+    const brandList = Object.keys(byBrand).sort(sortBrand);
+
+    const aoa = [];
+    aoa.push([`${id} ${s?s.name:''} 負庫存明細`]);
+    aoa.push([`區主管：${s?s.mgr:'-'}    筆數：${rows.length}    總負庫存：${total}    資料日期：${procDate}`]);
+    aoa.push([]);
+
+    if (!rows.length) {
+      aoa.push(['本店本週無負庫存 🎉']);
+    } else {
+      brandList.forEach(brand => {
+        const brandRows = byBrand[brand];
+        const brandTotal = brandRows.reduce((s,r) => s + Number(r.庫存數量), 0);
+        aoa.push([`【${brand}】 ${brandRows.length} 筆 · 負庫存 ${brandTotal}`]);
+        aoa.push(['商品編號','款號','商品名稱','顏色','尺寸','大分類','季節','負庫存']);
+        brandRows.forEach(r => {
+          aoa.push([
+            r.商品編號 || '', r.款號 || '', r.商品名稱 || '',
+            r.顏色 || '', r.商品尺寸 || '',
+            r.大分類 || '', r.季節 || '',
+            Number(r.庫存數量)
+          ]);
+        });
+        aoa.push([]);
+      });
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [
+      { wch: 13 }, { wch: 12 }, { wch: 36 }, { wch: 8 },
+      { wch: 6 }, { wch: 8 }, { wch: 6 }, { wch: 8 }
+    ];
+    ws['!merges'] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }
+    ];
+    ws['!pageSetup'] = { orientation: 'portrait', paperSize: 9, fitToWidth: 1, fitToHeight: 0 };
+    ws['!margins'] = { left: 0.5, right: 0.5, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 };
+
+    XLSX.utils.book_append_sheet(wb, ws, id);
+  });
+
+  // 檔名
+  let fname;
+  if (selectedStores.length === 1) {
+    const id = selectedStores[0];
+    const s = STORE_MAP[id];
+    fname = `負庫存明細_${id}_${s?s.name:''}${dateStr?'_'+dateStr:''}.xlsx`;
+  } else {
+    fname = `負庫存明細_${selectedStores.length}店${dateStr?'_'+dateStr:''}.xlsx`;
+  }
   XLSX.writeFile(wb, fname);
 }
+
+// ============ 寄信 ============
+window.openEmailDialog = function() {
+  if (!selectedStores.length) return;
+  $('emailDialogOverlay').classList.add('show');
+  // 預設模式：寄給已選門市
+  setEmailMode('store');
+  // 重置狀態訊息
+  $('emailStatus').style.display = 'none';
+  $('btnSendEmail').disabled = false;
+  $('btnSendEmail').textContent = '📨 確認寄出';
+};
+
+window.closeEmailDialog = function() {
+  $('emailDialogOverlay').classList.remove('show');
+};
+
+window.setEmailMode = function(mode) {
+  currentEmailMode = mode;
+  // 更新按鈕樣式
+  document.querySelectorAll('#emailDialogOverlay [data-mode]').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  // 重組收件人與內容
+  rebuildEmailContent();
+};
+
+function rebuildEmailContent() {
+  const procDate = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
+  let toEmails = [];
+  let targetStoreIds = [];
+  let missing = [];
+  let titleSuffix = '';
+
+  if (currentEmailMode === 'store') {
+    // 寄給已選門市
+    targetStoreIds = selectedStores;
+    selectedStores.forEach(id => {
+      const e = emailList.門市 && emailList.門市[id];
+      if (e && e.email) toEmails.push(e.email);
+      else missing.push(id);
+    });
+    titleSuffix = `(${selectedStores.length} 店)`;
+  } else if (currentEmailMode === 'mgr') {
+    // 寄給已選店的對應主管
+    targetStoreIds = selectedStores;
+    const mgrSet = new Set();
+    selectedStores.forEach(id => {
+      const s = STORE_MAP[id];
+      if (s) mgrSet.add(s.mgr);
+    });
+    mgrSet.forEach(m => {
+      const e = emailList.主管 && emailList.主管[m];
+      if (e && e.email) toEmails.push(e.email);
+      else missing.push('主管:'+m);
+    });
+    titleSuffix = `(寄主管：${[...mgrSet].join('、')})`;
+  } else if (currentEmailMode === 'all') {
+    // 寄全店（所有有負庫存的店）
+    targetStoreIds = [...new Set(negData.map(r => r.倉庫編號))];
+    targetStoreIds.forEach(id => {
+      const e = emailList.門市 && emailList.門市[id];
+      if (e && e.email) toEmails.push(e.email);
+      else missing.push(id);
+    });
+    titleSuffix = `(全店 ${targetStoreIds.length} 家)`;
+  }
+
+  $('emailTo').value = [...new Set(toEmails)].join(', ');
+
+  // 缺 email 提示
+  if (missing.length) {
+    $('emailMissing').innerHTML = `⚠️ 以下 ${missing.length} 個對象沒有 email：${missing.slice(0,10).join('、')}${missing.length>10?` 等 ${missing.length} 個`:''}（請在「Email清單」分頁補上）`;
+  } else {
+    $('emailMissing').innerHTML = '';
+  }
+
+  // 主旨
+  $('emailSubject').value = `【AIR SPACE】${procDate} 負庫存明細通知 ${titleSuffix}`;
+
+  // 內文
+  $('emailBody').value = buildEmailHtml(targetStoreIds, currentEmailMode);
+}
+
+function buildEmailHtml(storeIds, mode) {
+  const procDate = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
+  const fileName = meta['資料來源檔名'] || '';
+
+  let html = `<div style="font-family:Arial,'Microsoft JhengHei',sans-serif;font-size:13px;color:#333;line-height:1.6;max-width:800px">
+<p>各位好：</p>
+<p>附上本週 (${procDate}) 負庫存明細，請依照下方各店狀況進行盤點與調貨處理。</p>`;
+
+  let grandTotal = 0;
+  let grandCount = 0;
+
+  storeIds.forEach(id => {
+    const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
+      const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
+      if (k1 !== 0) return k1;
+      const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
+      if (c1 !== 0) return c1;
+      return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
+    });
+    const s = STORE_MAP[id];
+    const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
+    grandTotal += total;
+    grandCount += rows.length;
+
+    html += `<div style="margin-top:20px;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
+      <div style="background:#1e3a5f;color:white;padding:8px 12px;font-weight:600">
+        🏪 ${id} ${s?s.name:''} ${s?'｜主管：'+s.mgr:''} ｜ ${rows.length} 筆 ｜ 負庫存 ${total}
+      </div>`;
+
+    if (!rows.length) {
+      html += `<div style="padding:10px;text-align:center;color:#16a34a">✅ 本店本週無負庫存</div>`;
+    } else {
+      html += `<table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:#f3f4f6">
+          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">款號</th>
+          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">商品名稱</th>
+          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">顏色</th>
+          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:center">尺寸</th>
+          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">品牌</th>
+          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:right">負庫存</th>
+        </tr></thead><tbody>`;
+      rows.forEach(r => {
+        html += `<tr>
+          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.款號||''}</td>
+          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.商品名稱||''}</td>
+          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.顏色||''}</td>
+          <td style="border:1px solid #e5e7eb;padding:4px 6px;text-align:center">${r.商品尺寸||''}</td>
+          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.品牌||''}</td>
+          <td style="border:1px solid #e5e7eb;padding:4px 6px;text-align:right;color:#dc2626;font-weight:600">${r.庫存數量}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    html += `</div>`;
+  });
+
+  html += `<div style="margin-top:18px;padding:10px;background:#f3f4f6;border-radius:6px;font-size:12px">
+    📊 合計：<strong>${storeIds.length}</strong> 店 ｜ <strong>${grandCount}</strong> 筆 ｜ 總負庫存 <strong style="color:#dc2626">${grandTotal}</strong>
+    <br>📄 資料來源：${fileName}
+  </div>
+  <p style="margin-top:20px;color:#6b7280;font-size:11px">
+    此信由 AIR SPACE 負庫存儀表板自動產生<br>
+    儀表板網址：<a href="${window.location.href.split('?')[0]}">${window.location.href.split('?')[0]}</a>
+  </p>
+</div>`;
+
+  return html;
+}
+
+window.sendEmail = async function() {
+  const to = $('emailTo').value.trim();
+  const subject = $('emailSubject').value.trim();
+  const htmlBody = $('emailBody').value;
+  const statusBox = $('emailStatus');
+  const btn = $('btnSendEmail');
+
+  if (!to) {
+    statusBox.style.display = 'block';
+    statusBox.style.background = '#fee2e2';
+    statusBox.style.color = '#991b1b';
+    statusBox.innerHTML = '❌ 收件人不能空白';
+    return;
+  }
+  if (!subject) {
+    statusBox.style.display = 'block';
+    statusBox.style.background = '#fee2e2';
+    statusBox.style.color = '#991b1b';
+    statusBox.innerHTML = '❌ 主旨不能空白';
+    return;
+  }
+
+  if (!confirm(`確定要寄信給：\n${to}\n\n主旨：${subject}\n\n（CC 給你自己）`)) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ 寄送中...';
+  statusBox.style.display = 'block';
+  statusBox.style.background = '#dbeafe';
+  statusBox.style.color = '#1e40af';
+  statusBox.innerHTML = '⏳ 正在透過 Apps Script 寄送...';
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors',  // Apps Script doPost 需要這樣繞 CORS
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        to: to,
+        cc: '',  // CC 給自己由 Apps Script 自動處理（用 Session.getActiveUser）
+        subject: subject,
+        htmlBody: htmlBody
+      })
+    });
+
+    // no-cors 模式下無法讀回應內容，所以假定成功
+    statusBox.style.background = '#dcfce7';
+    statusBox.style.color = '#166534';
+    statusBox.innerHTML = '✅ 寄送指令已送出！請到 Gmail「寄件備份」確認是否寄出成功';
+    btn.textContent = '✅ 已寄出';
+    setTimeout(() => closeEmailDialog(), 3000);
+  } catch (err) {
+    statusBox.style.background = '#fee2e2';
+    statusBox.style.color = '#991b1b';
+    statusBox.innerHTML = '❌ 寄送失敗：' + err.message;
+    btn.disabled = false;
+    btn.textContent = '📨 重試';
+  }
+};
 
 // ============ 啟動 ============
 loadData();

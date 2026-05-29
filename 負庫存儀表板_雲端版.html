@@ -344,6 +344,21 @@
     background: transparent; border: none; cursor: pointer;
     color: #1e3a5f; padding: 0; font-size: 14px; line-height: 1;
   }
+
+  /* CC 主管 checkbox */
+  .cc-mgr-item {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 8px; background: white;
+    border: 1px solid #e5e7eb; border-radius: 12px;
+    font-size: 11px; cursor: pointer; user-select: none;
+    transition: all 0.15s;
+  }
+  .cc-mgr-item:hover { background: #f3f4f6; }
+  .cc-mgr-item.checked {
+    background: #1e3a5f; color: white; border-color: #1e3a5f;
+  }
+  .cc-mgr-item input { margin: 0; cursor: pointer; }
+  .cc-mgr-item.checked input { accent-color: white; }
 </style>
 </head>
 <body>
@@ -430,42 +445,56 @@
     </div>
     <div class="modal-body">
       <div style="background:#fef3c7;color:#92400e;padding:10px;border-radius:6px;font-size:12px;margin-bottom:12px">
-        ⚠️ 信件會從你的 Google 帳號寄出，並 CC 給你自己留存紀錄
+        ⚠️ 信件會從你的 Google 帳號寄出，並自動 CC 給你自己留存紀錄
       </div>
 
       <div style="margin-bottom:14px">
         <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">收件對象</label>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="filter-chip" data-mode="store" onclick="setEmailMode('store')">📍 寄給已選門市</button>
-          <button class="filter-chip" data-mode="mgr" onclick="setEmailMode('mgr')">👤 寄給對應主管</button>
           <button class="filter-chip" data-mode="all" onclick="setEmailMode('all')">🌐 寄全店</button>
         </div>
-        <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#374151;cursor:pointer">
-          <input type="checkbox" id="ccMgrCheck" checked onchange="rebuildEmailContent()" style="cursor:pointer">
-          <span>同時寄給對應主管（會 CC 主管）</span>
-        </label>
       </div>
 
       <div style="margin-bottom:12px">
         <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">收件人 (To，可手動修改)</label>
         <textarea id="emailTo" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;min-height:50px" placeholder="自動帶入"></textarea>
-        <div style="font-size:11px;color:#9ca3af;margin-top:2px">多個 email 用逗號分隔。沒有 email 對應的會列在下方提示</div>
         <div id="emailMissing" style="font-size:11px;color:#dc2626;margin-top:4px"></div>
       </div>
 
       <div style="margin-bottom:12px">
-        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">CC 副本（可手動修改）</label>
-        <textarea id="emailCc" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;min-height:40px" placeholder="留空表示無 CC"></textarea>
+        <label style="font-size:12px;color:#6b7280;display:flex;justify-content:space-between;margin-bottom:6px">
+          <span>CC 主管／其他人</span>
+          <span>
+            <button onclick="ccSelectAllMgrs()" style="background:#dbeafe;color:#1e3a5f;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:inherit">✓ 全選主管</button>
+            <button onclick="ccSelectRelevantMgrs()" style="background:#dcfce7;color:#166534;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:inherit;margin-left:4px">✓ 只選相關主管</button>
+            <button onclick="ccClearAllMgrs()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:inherit;margin-left:4px">清空</button>
+          </span>
+        </label>
+        <div id="ccMgrChecklist" style="display:flex;flex-wrap:wrap;gap:5px;padding:8px;border:1px solid #e5e7eb;border-radius:6px;background:#fafafa;margin-bottom:6px;max-height:120px;overflow-y:auto"></div>
+        <textarea id="emailCc" oninput="syncCcFromText()" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;min-height:40px" placeholder="留空表示無 CC（自動帶入勾選的主管 email，也可以手動輸入其他 email）"></textarea>
       </div>
 
       <div style="margin-bottom:12px">
-        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">主旨</label>
-        <input type="text" id="emailSubject" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:13px">
+        <label style="font-size:12px;color:#6b7280;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span>範本</span>
+          <select id="emailTemplateSelect" onchange="applyTemplate()" style="font-size:12px;padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;font-family:inherit">
+            <option value="">-- 選擇範本 --</option>
+          </select>
+        </label>
+        <input type="text" id="emailSubject" placeholder="主旨" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:13px;margin-bottom:8px">
+        <textarea id="emailBody" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:12px;min-height:140px;line-height:1.6" placeholder="內文"></textarea>
+        <div style="font-size:11px;color:#9ca3af;margin-top:4px">
+          可用變數：<code style="background:#f3f4f6;padding:1px 4px;border-radius:3px">{date}</code>
+          <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px">{store_count}</code>
+          <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px">{total}</code>
+          <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px">{file}</code>
+        </div>
       </div>
 
       <div style="margin-bottom:12px">
-        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">內文（可修改、支援 HTML）</label>
-        <textarea id="emailBody" style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:11px;min-height:240px;line-height:1.6"></textarea>
+        <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">📋 信件下方會附上以下店清單摘要</label>
+        <div id="emailStoreSummaryPreview" style="border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fafafa;font-size:11px;max-height:160px;overflow-y:auto"></div>
       </div>
 
       <div id="emailStatus" style="display:none;padding:10px;border-radius:6px;font-size:12px;margin-top:8px"></div>
@@ -502,10 +531,12 @@ let MGR_ORDER = [];
 let negData = [];
 let meta = {};
 let emailList = { 主管: {}, 門市: {} };
+let templates = [];
 let currentMgrFilter = 'all';
 let selectedStores = [];       // 多選的店列表
 let tempPickerSelection = [];  // 對話框內暫存的選擇
 let currentEmailMode = 'store';
+let ccSelectedMgrs = new Set(); // 寄信對話框內已勾的主管
 
 const $ = id => document.getElementById(id);
 
@@ -536,6 +567,7 @@ async function loadData(force = false) {
     negData = data.negData;
     meta = data.meta || {};
     emailList = data.emailList || { 主管: {}, 門市: {} };
+    templates = data.templates || [];
 
     negData.forEach(r => {
       const s = STORE_MAP[r.倉庫編號];
@@ -1215,12 +1247,17 @@ function downloadExcel() {
 window.openEmailDialog = function() {
   if (!selectedStores.length) return;
   $('emailDialogOverlay').classList.add('show');
-  // 預設模式：寄給已選門市
-  setEmailMode('store');
   // 重置狀態訊息
   $('emailStatus').style.display = 'none';
   $('btnSendEmail').disabled = false;
   $('btnSendEmail').textContent = '📨 確認寄出';
+  // 渲染 CC 主管 checkbox 清單
+  ccSelectedMgrs = new Set();
+  renderCcMgrChecklist();
+  // 載入範本下拉
+  loadTemplateOptions();
+  // 預設模式：寄給已選門市
+  setEmailMode('store');
 };
 
 window.closeEmailDialog = function() {
@@ -1233,162 +1270,278 @@ window.setEmailMode = function(mode) {
   document.querySelectorAll('#emailDialogOverlay [data-mode]').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === mode);
   });
-  // 重組收件人與內容
   rebuildEmailContent();
 };
 
-function rebuildEmailContent() {
+// 渲染 CC 主管的勾選清單（所有 Email清單裡是「主管」的人都會出現）
+function renderCcMgrChecklist() {
+  const list = emailList.主管 || {};
+  const mgrs = Object.keys(list);
+  if (!mgrs.length) {
+    $('ccMgrChecklist').innerHTML = '<span style="color:#9ca3af;font-size:11px">尚未在 Email清單分頁建立主管</span>';
+    return;
+  }
+  // 排序：先用 MGR_ORDER 內建順序，剩下的按 a-z
+  mgrs.sort((a,b) => {
+    const ia = MGR_ORDER.indexOf(a); const ib = MGR_ORDER.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+  let html = '';
+  mgrs.forEach(m => {
+    const e = list[m];
+    const checked = ccSelectedMgrs.has(m);
+    html += `<label class="cc-mgr-item ${checked?'checked':''}" data-mgr="${m}">
+      <input type="checkbox" ${checked?'checked':''} onchange="toggleCcMgr('${m}', this.checked)">
+      ${m}
+    </label>`;
+  });
+  $('ccMgrChecklist').innerHTML = html;
+}
+
+window.toggleCcMgr = function(mgr, checked) {
+  if (checked) ccSelectedMgrs.add(mgr);
+  else ccSelectedMgrs.delete(mgr);
+  // 樣式
+  const el = document.querySelector(`.cc-mgr-item[data-mgr="${mgr}"]`);
+  if (el) el.classList.toggle('checked', checked);
+  rebuildCcText();
+};
+
+window.ccSelectAllMgrs = function() {
+  Object.keys(emailList.主管 || {}).forEach(m => ccSelectedMgrs.add(m));
+  renderCcMgrChecklist();
+  rebuildCcText();
+};
+
+window.ccSelectRelevantMgrs = function() {
+  // 只勾「已選店相關的主管」
+  ccSelectedMgrs = new Set();
+  const targetIds = currentEmailMode === 'all'
+    ? [...new Set(negData.map(r => r.倉庫編號))]
+    : selectedStores;
+  targetIds.forEach(id => {
+    const s = STORE_MAP[id];
+    if (s && emailList.主管 && emailList.主管[s.mgr]) ccSelectedMgrs.add(s.mgr);
+  });
+  renderCcMgrChecklist();
+  rebuildCcText();
+};
+
+window.ccClearAllMgrs = function() {
+  ccSelectedMgrs = new Set();
+  renderCcMgrChecklist();
+  rebuildCcText();
+};
+
+function rebuildCcText() {
+  // 由 ccSelectedMgrs 反推到 textarea
+  const emails = [];
+  ccSelectedMgrs.forEach(m => {
+    const e = emailList.主管 && emailList.主管[m];
+    if (e && e.email) emails.push(e.email);
+  });
+  $('emailCc').value = [...new Set(emails)].join(', ');
+}
+
+// 使用者手動編輯 CC textarea 時不去動 checkbox（保持自由度）
+window.syncCcFromText = function() {
+  // 不做 anything；使用者手動編 CC 時不要強制反映到 checkbox
+};
+
+// 載入範本下拉
+function loadTemplateOptions() {
+  const sel = $('emailTemplateSelect');
+  let opt = '<option value="">-- 選擇範本 --</option>';
+  templates.forEach((t, i) => {
+    opt += `<option value="${i}">${t.name}</option>`;
+  });
+  sel.innerHTML = opt;
+  // 預設用第一個
+  if (templates.length > 0) {
+    sel.value = '0';
+  }
+}
+
+// 套用範本
+window.applyTemplate = function() {
+  const idx = $('emailTemplateSelect').value;
+  if (idx === '' || !templates[idx]) {
+    // 用空白模板
+    $('emailSubject').value = renderTemplate('【AIR SPACE】{date} 負庫存明細通知 ({store_count} 店)');
+    $('emailBody').value = renderTemplate('DEAR,\n\n附檔為各店的負庫存明細，請確認原因。\n如有負庫存需調帳請提供給區主管。');
+    return;
+  }
+  const t = templates[idx];
+  $('emailSubject').value = renderTemplate(t.subject);
+  $('emailBody').value = renderTemplate(t.body);
+};
+
+// 變數替換
+function renderTemplate(text) {
+  if (!text) return '';
   const procDate = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
+  const targetIds = currentEmailMode === 'all'
+    ? [...new Set(negData.map(r => r.倉庫編號))]
+    : selectedStores;
+  const allRows = negData.filter(r => targetIds.includes(r.倉庫編號));
+  const total = allRows.reduce((s,r) => s + Number(r.庫存數量), 0);
+  const fileName = meta['資料來源檔名'] || '';
+
+  return text
+    .replace(/\{date\}/g, procDate)
+    .replace(/\{store_count\}/g, targetIds.length)
+    .replace(/\{total\}/g, total)
+    .replace(/\{file\}/g, fileName);
+}
+
+function rebuildEmailContent() {
   let toEmails = [];
-  let ccEmails = [];
   let targetStoreIds = [];
   let missing = [];
-  let ccMissing = [];
-  let titleSuffix = '';
 
   if (currentEmailMode === 'store') {
-    // 寄給已選門市
     targetStoreIds = selectedStores;
     selectedStores.forEach(id => {
       const e = emailList.門市 && emailList.門市[id];
       if (e && e.email) toEmails.push(e.email);
       else missing.push(id);
     });
-    titleSuffix = `(${selectedStores.length} 店)`;
-  } else if (currentEmailMode === 'mgr') {
-    // 寄給已選店的對應主管
-    targetStoreIds = selectedStores;
-    const mgrSet = new Set();
-    selectedStores.forEach(id => {
-      const s = STORE_MAP[id];
-      if (s) mgrSet.add(s.mgr);
-    });
-    mgrSet.forEach(m => {
-      const e = emailList.主管 && emailList.主管[m];
-      if (e && e.email) toEmails.push(e.email);
-      else missing.push('主管:'+m);
-    });
-    titleSuffix = `(寄主管：${[...mgrSet].join('、')})`;
   } else if (currentEmailMode === 'all') {
-    // 寄全店（所有有負庫存的店）
     targetStoreIds = [...new Set(negData.map(r => r.倉庫編號))];
     targetStoreIds.forEach(id => {
       const e = emailList.門市 && emailList.門市[id];
       if (e && e.email) toEmails.push(e.email);
       else missing.push(id);
     });
-    titleSuffix = `(全店 ${targetStoreIds.length} 家)`;
-  }
-
-  // 處理「同時寄主管」CC 邏輯（只在 store 或 all 模式下生效，mgr 模式本來就只寄主管）
-  const ccMgrEl = $('ccMgrCheck');
-  const ccMgrChecked = ccMgrEl && ccMgrEl.checked;
-  if (ccMgrChecked && currentEmailMode !== 'mgr') {
-    // 從目標店推導出相關主管，加進 CC
-    const mgrSet = new Set();
-    targetStoreIds.forEach(id => {
-      const s = STORE_MAP[id];
-      if (s) mgrSet.add(s.mgr);
-    });
-    mgrSet.forEach(m => {
-      const e = emailList.主管 && emailList.主管[m];
-      if (e && e.email) ccEmails.push(e.email);
-      else ccMissing.push('主管:'+m);
-    });
   }
 
   $('emailTo').value = [...new Set(toEmails)].join(', ');
-  $('emailCc').value = [...new Set(ccEmails)].join(', ');
 
-  // 缺 email 提示
-  const allMissing = [...missing, ...ccMissing];
-  if (allMissing.length) {
-    $('emailMissing').innerHTML = `⚠️ 以下 ${allMissing.length} 個對象沒有 email：${allMissing.slice(0,10).join('、')}${allMissing.length>10?` 等 ${allMissing.length} 個`:''}（請在「Email清單」分頁補上）`;
+  if (missing.length) {
+    $('emailMissing').innerHTML = `⚠️ 以下 ${missing.length} 間門市沒有 email：${missing.slice(0,10).join('、')}${missing.length>10?` 等 ${missing.length} 間`:''}（請在「Email清單」分頁補上）`;
   } else {
     $('emailMissing').innerHTML = '';
   }
 
-  // 主旨
-  $('emailSubject').value = `【AIR SPACE】${procDate} 負庫存明細通知 ${titleSuffix}`;
+  // 套範本（預設第一個或空白）
+  applyTemplate();
 
-  // 內文
-  $('emailBody').value = buildEmailHtml(targetStoreIds, currentEmailMode);
+  // 渲染店清單預覽
+  renderStoreSummaryPreview(targetStoreIds);
 }
 
-function buildEmailHtml(storeIds, mode) {
+// 預覽用：店清單摘要（這也是寄出去 email 的附加區塊）
+function renderStoreSummaryPreview(storeIds) {
+  if (!storeIds.length) {
+    $('emailStoreSummaryPreview').innerHTML = '<span style="color:#9ca3af">無門市</span>';
+    return;
+  }
+  // 計算各店摘要
+  const rows = [];
+  storeIds.forEach(id => {
+    const items = negData.filter(r => r.倉庫編號===id);
+    const total = items.reduce((s,r) => s + Number(r.庫存數量), 0);
+    const s = STORE_MAP[id];
+    rows.push({
+      id, name: s?s.name:'', mgr: s?s.mgr:'-',
+      count: items.length, total
+    });
+  });
+  // 按負庫存重的排在前
+  rows.sort((a,b) => a.total - b.total);
+
+  let html = `<table style="width:100%;border-collapse:collapse;font-size:11px">
+    <thead><tr style="background:#f3f4f6">
+      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:left">店代號</th>
+      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:left">店名</th>
+      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:left">主管</th>
+      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">筆數</th>
+      <th style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">負庫存</th>
+    </tr></thead><tbody>`;
+  rows.forEach(r => {
+    html += `<tr>
+      <td style="border:1px solid #e5e7eb;padding:3px 6px"><strong>${r.id}</strong></td>
+      <td style="border:1px solid #e5e7eb;padding:3px 6px">${r.name}</td>
+      <td style="border:1px solid #e5e7eb;padding:3px 6px">${r.mgr}</td>
+      <td style="border:1px solid #e5e7eb;padding:3px 6px;text-align:right">${r.count}</td>
+      <td style="border:1px solid #e5e7eb;padding:3px 6px;text-align:right;color:#dc2626;font-weight:600">${r.total}</td>
+    </tr>`;
+  });
+  const grandCount = rows.reduce((s,r) => s+r.count, 0);
+  const grandTotal = rows.reduce((s,r) => s+r.total, 0);
+  html += `<tr style="background:#f9fafb;font-weight:600">
+    <td colspan="3" style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">合計</td>
+    <td style="border:1px solid #d1d5db;padding:3px 6px;text-align:right">${grandCount}</td>
+    <td style="border:1px solid #d1d5db;padding:3px 6px;text-align:right;color:#dc2626">${grandTotal}</td>
+  </tr>`;
+  html += `</tbody></table>`;
+  $('emailStoreSummaryPreview').innerHTML = html;
+}
+
+// 寄信時，本文後面要黏的店清單摘要 HTML
+function buildStoreSummaryHtml(storeIds) {
+  if (!storeIds.length) return '';
+  const rows = [];
+  storeIds.forEach(id => {
+    const items = negData.filter(r => r.倉庫編號===id);
+    const total = items.reduce((s,r) => s + Number(r.庫存數量), 0);
+    const s = STORE_MAP[id];
+    rows.push({ id, name: s?s.name:'', mgr: s?s.mgr:'-', count: items.length, total });
+  });
+  rows.sort((a,b) => a.total - b.total);
+
   const procDate = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleDateString('zh-TW') : '';
   const fileName = meta['資料來源檔名'] || '';
 
-  let html = `<div style="font-family:Arial,'Microsoft JhengHei',sans-serif;font-size:13px;color:#333;line-height:1.6;max-width:800px">
-<p>各位好：</p>
-<p>附上本週 (${procDate}) 負庫存明細，請依照下方各店狀況進行盤點與調貨處理。</p>`;
-
-  let grandTotal = 0;
-  let grandCount = 0;
-
-  storeIds.forEach(id => {
-    const rows = negData.filter(r => r.倉庫編號===id).sort((a,b) => {
-      const k1 = String(a.款號||'').localeCompare(String(b.款號||''));
-      if (k1 !== 0) return k1;
-      const c1 = String(a.顏色||'').localeCompare(String(b.顏色||''));
-      if (c1 !== 0) return c1;
-      return String(a.商品尺寸||'').localeCompare(String(b.商品尺寸||''));
-    });
-    const s = STORE_MAP[id];
-    const total = rows.reduce((sm,r) => sm + Number(r.庫存數量), 0);
-    grandTotal += total;
-    grandCount += rows.length;
-
-    html += `<div style="margin-top:20px;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-      <div style="background:#1e3a5f;color:white;padding:8px 12px;font-weight:600">
-        🏪 ${id} ${s?s.name:''} ${s?'｜主管：'+s.mgr:''} ｜ ${rows.length} 筆 ｜ 負庫存 ${total}
-      </div>`;
-
-    if (!rows.length) {
-      html += `<div style="padding:10px;text-align:center;color:#16a34a">✅ 本店本週無負庫存</div>`;
-    } else {
-      html += `<table style="width:100%;border-collapse:collapse;font-size:11px">
-        <thead><tr style="background:#f3f4f6">
-          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">款號</th>
-          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">商品名稱</th>
-          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">顏色</th>
-          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:center">尺寸</th>
-          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:left">品牌</th>
-          <th style="border:1px solid #d1d5db;padding:4px 6px;text-align:right">負庫存</th>
-        </tr></thead><tbody>`;
-      rows.forEach(r => {
-        html += `<tr>
-          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.款號||''}</td>
-          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.商品名稱||''}</td>
-          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.顏色||''}</td>
-          <td style="border:1px solid #e5e7eb;padding:4px 6px;text-align:center">${r.商品尺寸||''}</td>
-          <td style="border:1px solid #e5e7eb;padding:4px 6px">${r.品牌||''}</td>
-          <td style="border:1px solid #e5e7eb;padding:4px 6px;text-align:right;color:#dc2626;font-weight:600">${r.庫存數量}</td>
-        </tr>`;
-      });
-      html += `</tbody></table>`;
-    }
-    html += `</div>`;
+  let html = `<div style="margin-top:20px;font-family:Arial,'Microsoft JhengHei',sans-serif;font-size:12px;color:#333">
+  <div style="font-weight:600;margin-bottom:6px;color:#1e3a5f">📋 涉及門市清單（${rows.length} 間 ｜ 資料日期 ${procDate}）</div>
+  <table style="border-collapse:collapse;font-size:11px">
+    <thead><tr style="background:#1e3a5f;color:white">
+      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:left">店代號</th>
+      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:left">店名</th>
+      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:left">主管</th>
+      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:right">筆數</th>
+      <th style="border:1px solid #1e3a5f;padding:4px 8px;text-align:right">負庫存</th>
+    </tr></thead><tbody>`;
+  rows.forEach(r => {
+    html += `<tr>
+      <td style="border:1px solid #d1d5db;padding:4px 8px"><strong>${r.id}</strong></td>
+      <td style="border:1px solid #d1d5db;padding:4px 8px">${r.name}</td>
+      <td style="border:1px solid #d1d5db;padding:4px 8px">${r.mgr}</td>
+      <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right">${r.count}</td>
+      <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right;color:#dc2626;font-weight:600">${r.total}</td>
+    </tr>`;
   });
-
-  html += `<div style="margin-top:18px;padding:10px;background:#f3f4f6;border-radius:6px;font-size:12px">
-    📊 合計：<strong>${storeIds.length}</strong> 店 ｜ <strong>${grandCount}</strong> 筆 ｜ 總負庫存 <strong style="color:#dc2626">${grandTotal}</strong>
-    <br>📄 資料來源：${fileName}
-  </div>
-  <p style="margin-top:20px;color:#6b7280;font-size:11px">
+  const grandCount = rows.reduce((s,r) => s+r.count, 0);
+  const grandTotal = rows.reduce((s,r) => s+r.total, 0);
+  html += `<tr style="background:#fef3c7;font-weight:600">
+    <td colspan="3" style="border:1px solid #d1d5db;padding:4px 8px;text-align:right">合計</td>
+    <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right">${grandCount}</td>
+    <td style="border:1px solid #d1d5db;padding:4px 8px;text-align:right;color:#dc2626">${grandTotal}</td>
+  </tr>`;
+  html += `</tbody></table>
+  <p style="margin-top:14px;color:#6b7280;font-size:10px">
+    📄 資料來源：${fileName}<br>
     此信由 AIR SPACE 負庫存儀表板自動產生<br>
     儀表板網址：<a href="${window.location.href.split('?')[0]}">${window.location.href.split('?')[0]}</a>
   </p>
 </div>`;
-
   return html;
+}
+
+function buildEmailHtml(storeIds, mode) {
+  // 已被新版的 buildStoreSummaryHtml 取代，這個函式保留空殼避免有其他地方意外呼叫
+  return '';
 }
 
 window.sendEmail = async function() {
   const to = $('emailTo').value.trim();
   const cc = $('emailCc').value.trim();
   const subject = $('emailSubject').value.trim();
-  const htmlBody = $('emailBody').value;
+  let bodyText = $('emailBody').value;
   const statusBox = $('emailStatus');
   const btn = $('btnSendEmail');
 
@@ -1407,6 +1560,21 @@ window.sendEmail = async function() {
     return;
   }
 
+  // 組合內文：文字內文 + 店清單摘要
+  const targetIds = currentEmailMode === 'all'
+    ? [...new Set(negData.map(r => r.倉庫編號))]
+    : selectedStores;
+  // 把純文字內文轉成 HTML 段落（換行轉 <br>）
+  const bodyHtml = bodyText.split('\n').map(line => {
+    if (line.trim() === '') return '<br>';
+    return `<p style="margin:6px 0">${line}</p>`;
+  }).join('');
+  const summaryHtml = buildStoreSummaryHtml(targetIds);
+  const fullHtml = `<div style="font-family:Arial,'Microsoft JhengHei',sans-serif;font-size:13px;color:#333;line-height:1.6;max-width:800px">
+${bodyHtml}
+${summaryHtml}
+</div>`;
+
   const ccText = cc ? `\nCC：${cc}` : '';
   if (!confirm(`確定要寄信給：\n${to}${ccText}\n\n主旨：${subject}\n\n（會自動再 CC 給你自己留底）`)) return;
 
@@ -1424,13 +1592,12 @@ window.sendEmail = async function() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         to: to,
-        cc: cc,           // CC 從畫面送過去
+        cc: cc,
         subject: subject,
-        htmlBody: htmlBody
+        htmlBody: fullHtml
       })
     });
 
-    // no-cors 模式下無法讀回應內容，所以假定成功
     statusBox.style.background = '#dcfce7';
     statusBox.style.color = '#166534';
     statusBox.innerHTML = '✅ 寄送指令已送出！請到 Gmail「寄件備份」確認是否寄出成功';

@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <!--
-  AIR SPACE 業績儀表板 v25 (2026/5/28)
+  AIR SPACE 業績儀表板 v26 (2026/6/1)
+  v26 新增:
+    需求 1: 月份切換下拉(5月/6月)
+    需求 2: 週分析新分頁(選週次+對比去年)
+    需求 3: 達成排名「佐伊」修復(ZOE_TEAM 聚合)
+    需求 5: TOP10 金額顯示
+  v25 既有:TOP10 分組、TOP5 隱金額、AS62 修復、MTD≤0 排除
   改善:
     需求 1: 全門市 TOP10 排序+加金額顯示
     需求 2: TOP10 分 OUTLET / 一般兩組
@@ -381,7 +387,10 @@
     <h1 id="title">📊 AIR SPACE 業績儀表板</h1>
     <div class="meta" id="metaBar">載入中...</div>
   </div>
-  <div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <select id="monthPicker" onchange="onMonthChange()" style="padding:7px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.95);color:#1e293b;font-size:14px;font-weight:600;cursor:pointer">
+      <option value="">載入中...</option>
+    </select>
     <button class="secondary" onclick="downloadExcel()">📥 下載 Excel</button>
   </div>
 </div>
@@ -394,6 +403,7 @@
     <div class="tab" data-tab="manager">👥 主管彙總</div>
     <div class="tab" data-tab="store">🏪 單店明細</div>
     <div class="tab" data-tab="ranking">📈 達成率排名</div>
+    <div class="tab" data-tab="week">📅 週分析</div>
   </div>
 
   <!-- 總覽 -->
@@ -482,6 +492,25 @@
     </div>
     <div class="card">
       <div id="rankTable"></div>
+    </div>
+  </div>
+
+  <!-- 週分析 -->
+  <div class="panel" id="panel-week">
+    <div class="controls">
+      <label>選擇週次:</label>
+      <select id="weekPicker" onchange="renderWeek()">
+        <option value="">全部週次</option>
+      </select>
+      <label style="margin-left:10px">
+        <input type="checkbox" id="weekCompareLY" onchange="renderWeek()" style="vertical-align:middle">
+        對比去年同期
+      </label>
+    </div>
+    <div class="card">
+      <h2>📅 全公司週業績</h2>
+      <div id="weekChart" style="margin:16px 0"></div>
+      <div id="weekTable"></div>
     </div>
   </div>
 </div>
@@ -619,10 +648,17 @@ let dailyByStore = {};
   let totalMonthTarget = 0;         // 全公司月總目標
 let meta = {};
 
+// ⭐ v26 多月份 + 週分析全域變數
+let currentMonth = '';
+let availableMonths = [];
+let weekData = [];
+let lyWeekData = [];
+let outletCodes = ['AS51', 'AS63', 'AT08'];
+
 const $ = id => document.getElementById(id);
 
 // ============ 載入資料 ============
-async function loadData() {
+async function loadData(reqMonth) {
   // 守衛:未登入時不執行
   if (!checkLogin()) {
     showLogin();
@@ -634,13 +670,21 @@ async function loadData() {
   const focusStore = params.get('store');
 
   try {
-    const url = API_URL + (API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+    let url = API_URL + (API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+    // ⭐ v26: 帶月份參數
+    if (reqMonth) url += '&month=' + reqMonth;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
     STORE_MAP = data.storeMap;
     MGR_ORDER = data.mgrOrder;
+    // ⭐ v26 多月份 + 週分析
+    currentMonth = data.currentMonth || '';
+    availableMonths = data.availableMonths || [];
+    weekData = data.weekData || [];
+    lyWeekData = data.lyWeekData || [];
+    outletCodes = data.outletCodes || ['AS51', 'AS63', 'AT08'];
     // ⭐ v25 需求 6: 排除 MTD <= 0 的店(未開幕店)
     // ⭐ v25 需求 5: 修 AS62 等 IP 店 bug — 確保所有 records 有預設值
     records = (data.records || [])
@@ -655,7 +699,7 @@ async function loadData() {
         門市型態: r.門市型態 || '其他',
         級別: r.級別 || '其他'
       }));
-    console.log('v25: 載入 ' + records.length + ' 家店(已排除 MTD<=0,fallback 預設值)');
+    console.log('v26: 載入 ' + records.length + ' 家店, 月份=' + currentMonth);
     dailyByStore = data.dailyByStore || {};
     lyByStore = data.lyByStore || {};
     top5ByStore = data.top5ByStore || {};
@@ -665,6 +709,8 @@ async function loadData() {
     meta = data.meta || {};
 
     renderMeta();
+    renderMonthPicker();   // ⭐ v26: 填月份下拉
+    renderWeekPicker();    // ⭐ v26: 填週次下拉
     $('tabsBar').style.display = 'flex';
     setupTabs();
     populateSelects();
@@ -684,11 +730,110 @@ async function loadData() {
     renderManager();
     renderGlobalTop10();
       renderRanking();
+      renderWeek();    // ⭐ v26
     }
   } catch (err) {
     $('errorBox').innerHTML = '<div class="error">❌ 載入失敗:' + err.message +
       '<br>請檢查 API_URL 是否正確、或重新部署 Apps Script</div>';
   }
+}
+
+// ⭐ v26: 填月份下拉
+function renderMonthPicker() {
+  const sel = $('monthPicker');
+  if (!sel) return;
+  sel.innerHTML = '';
+  availableMonths.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.value;
+    opt.text = m.label;
+    if (m.value === currentMonth) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+// ⭐ v26: 切換月份(重新載入該月資料)
+function onMonthChange() {
+  const m = $('monthPicker').value;
+  if (m && m !== currentMonth) {
+    loadData(m);
+  }
+}
+
+// ⭐ v26: 填週次下拉
+function renderWeekPicker() {
+  const sel = $('weekPicker');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">全部週次</option>';
+  weekData.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w.week;
+    opt.text = w.week;
+    sel.appendChild(opt);
+  });
+}
+
+// ⭐ v26: 渲染週分析
+function renderWeek() {
+  const tableDiv = $('weekTable');
+  const chartDiv = $('weekChart');
+  if (!tableDiv) return;
+  
+  const selWeek = $('weekPicker') ? $('weekPicker').value : '';
+  const compareLY = $('weekCompareLY') ? $('weekCompareLY').checked : false;
+  
+  // 過濾要顯示的週次
+  let rows = weekData;
+  if (selWeek) rows = weekData.filter(w => w.week === selWeek);
+  
+  if (rows.length === 0) {
+    tableDiv.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">尚無週分析資料</p>';
+    chartDiv.innerHTML = '';
+    return;
+  }
+  
+  // LY 對照表
+  const lyMap = {};
+  lyWeekData.forEach(w => { lyMap[w.week] = w.amt; });
+  
+  // 表格
+  let html = '<table><thead><tr><th>週次</th><th>全公司業績</th>';
+  if (compareLY) html += '<th>去年同期</th><th>成長率</th>';
+  html += '</tr></thead><tbody>';
+  rows.forEach(w => {
+    html += '<tr><td class="col-center" style="font-weight:600">' + w.week + '</td>';
+    html += '<td><strong>' + (w.amt || 0).toLocaleString() + '</strong></td>';
+    if (compareLY) {
+      const ly = lyMap[w.week] || 0;
+      html += '<td>' + (ly > 0 ? ly.toLocaleString() : '—') + '</td>';
+      if (ly > 0) {
+        const gr = (w.amt / ly - 1) * 100;
+        const color = gr >= 0 ? '#16a34a' : '#dc2626';
+        html += '<td style="color:' + color + ';font-weight:600">' + (gr >= 0 ? '+' : '') + gr.toFixed(1) + '%</td>';
+      } else {
+        html += '<td>—</td>';
+      }
+    }
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  tableDiv.innerHTML = html;
+  
+  // 簡單長條圖(用 div 寬度,不依賴 chart.js 避免出錯)
+  const maxAmt = Math.max(...rows.map(w => w.amt || 0), 1);
+  let barHtml = '<div style="display:flex;flex-direction:column;gap:8px">';
+  rows.forEach(w => {
+    const pct = ((w.amt || 0) / maxAmt * 100).toFixed(1);
+    barHtml += '<div style="display:flex;align-items:center;gap:10px">' +
+      '<span style="width:50px;font-weight:600;font-size:13px">' + w.week + '</span>' +
+      '<div style="flex:1;background:#e2e8f0;border-radius:6px;height:24px;position:relative">' +
+      '<div style="width:' + pct + '%;background:linear-gradient(90deg,#3b82f6,#2563eb);height:100%;border-radius:6px"></div>' +
+      '</div>' +
+      '<span style="width:110px;text-align:right;font-size:13px">' + (w.amt || 0).toLocaleString() + '</span>' +
+      '</div>';
+  });
+  barHtml += '</div>';
+  chartDiv.innerHTML = barHtml;
 }
 
 function renderMeta() {
@@ -812,6 +957,8 @@ function switchTab(name) {
   document.querySelectorAll('.panel').forEach(p => {
     p.classList.toggle('active', p.id === 'panel-' + name);
   });
+  // ⭐ v26: 切到週分析時渲染
+  if (name === 'week') renderWeek();
 }
 
 // ============ 立即更新按鈕 ============
@@ -1490,7 +1637,12 @@ function renderRanking() {
   const sortBy = $('rankBy').value;
   const fm = $('rankMgrFilter').value;
   let list = records.slice();
-  if (fm) list = list.filter(r => r.主管 === fm);
+  // ⭐ v26 需求 3: 佐伊 = ZOE_TEAM 聚合(不是單一主管)
+  if (fm === '佐伊') {
+    list = list.filter(r => ZOE_TEAM.includes(r.主管));
+  } else if (fm) {
+    list = list.filter(r => r.主管 === fm);
+  }
   list.sort((a, b) => {
     switch (sortBy) {
       case 'rate_asc': return (a.達成率 || 0) - (b.達成率 || 0);

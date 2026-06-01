@@ -1046,7 +1046,7 @@ function rateClass(r) {
 // ============ 總覽 ============
 function renderDashboard() {
   const total = records.reduce((acc, r) => {
-    acc.LY += r.LY || 0;
+   acc.LY += r.LY整月 || r.LY || 0;
     acc.CM += r.CM目標 || 0;
     acc.MTD += r.MTD || 0;
     acc.LM += r.LM銷售 || 0;
@@ -1083,7 +1083,7 @@ function renderDashboard() {
     const k2 = r.縣市;
     if (!byChannel[k1]) byChannel[k1] = {};
     if (!byChannel[k1][k2]) byChannel[k1][k2] = { LY: 0, CM: 0, MTD: 0, count: 0 };
-    byChannel[k1][k2].LY += r.LY || 0;
+    byChannel[k1][k2].LY += r.LY整月 || r.LY || 0;
     byChannel[k1][k2].CM += r.CM目標 || 0;
     byChannel[k1][k2].MTD += r.MTD || 0;
     byChannel[k1][k2].count += 1;

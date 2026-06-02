@@ -135,7 +135,11 @@
     display: grid; grid-template-columns: 1fr auto; gap: 8px;
   }
   .detail-main { font-size: 13px; }
-  .detail-name { font-weight: 600; color: #1e3a5f; margin-bottom: 4px; }
+  .detail-style {
+    font-size: 18px; font-weight: 700; color: #1e3a5f;
+    margin-bottom: 4px; letter-spacing: 0.3px;
+  }
+  .detail-name { font-size: 12px; color: #6b7280; margin-bottom: 5px; line-height: 1.4; }
   .detail-meta { font-size: 11px; color: #6b7280; }
   .detail-meta span { margin-right: 8px; }
   .detail-qty {
@@ -1019,13 +1023,11 @@ function renderMultiStoreDetail() {
       brandRows.forEach(r => {
         html += `<div class="detail-card" style="box-shadow:none;border:1px solid #f3f4f6">
           <div class="detail-main">
+            <div class="detail-style">${r.款號||'（無款號）'}</div>
             <div class="detail-name">${r.商品名稱||r.商品編號}</div>
             <div class="detail-meta">
-              <span>📦 ${r.款號||''}</span>
               <span>🎨 ${r.顏色||''}</span>
               <span>📏 ${r.商品尺寸||''}</span>
-            </div>
-            <div class="detail-meta" style="margin-top:3px">
               <span>${r.大分類||''}</span>
               <span>${r.季節||''}</span>
             </div>

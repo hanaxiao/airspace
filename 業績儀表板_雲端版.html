@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <!--
-  AIR SPACE 業績儀表板 v26 (2026/6/1)
+  AIR SPACE 業績儀表板 v27 (2026/6/2)
+  v27 新增:
+    需求 2: 應達成率顯示修復(fallback)
+    需求 3: TOP10 拉金額,各店 TOP5 加款號
+    需求 4: 主管彙總 6 維度全部複選(checkbox)
+  v26 既有:月份切換、週分析、佐伊修復
   v26 新增:
     需求 1: 月份切換下拉(5月/6月)
     需求 2: 週分析新分頁(選週次+對比去年)
@@ -347,6 +352,38 @@
     .topbar h1 { font-size: 16px; }
     th, td { padding: 6px 4px; font-size: 11px; }
   }
+
+/* ⭐ v27 複選篩選器樣式 */
+.filter-multi-v27 {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 16px; padding: 12px; background: #f8fafc;
+  border-radius: 10px; border: 1px solid #e2e8f0;
+}
+.filter-group {
+  background: white; border: 1px solid #cbd5e1; border-radius: 8px;
+  min-width: 130px; max-width: 200px; flex: 1 1 130px; font-size: 13px;
+}
+.filter-group summary {
+  padding: 8px 10px; cursor: pointer; user-select: none;
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(180deg, #ffffff, #f1f5f9);
+  border-radius: 7px; font-weight: 500;
+}
+.filter-group[open] summary { background: #e0f2fe; border-bottom: 1px solid #cbd5e1; border-radius: 7px 7px 0 0; }
+.filter-selected-count {
+  font-size: 12px; color: #2563eb; font-weight: 600;
+  background: #dbeafe; padding: 2px 8px; border-radius: 12px;
+}
+.checkbox-list {
+  max-height: 200px; overflow-y: auto; padding: 6px 8px;
+}
+.checkbox-list label {
+  display: block; padding: 4px 6px; cursor: pointer;
+  border-radius: 4px; font-size: 13px;
+}
+.checkbox-list label:hover { background: #f1f5f9; }
+.checkbox-list input[type="checkbox"] { margin-right: 6px; vertical-align: middle; }
+
 </style>
 </head>
 <body>
@@ -422,40 +459,28 @@
     </div>
   </div>
 
-  <!-- 主管彙總 -->
+  <!-- 主管彙總 (v27: 6 維度複選) -->
   <div class="panel" id="panel-manager">
-    <div class="controls filter-multi">
-      <div class="fg"><label>主管</label>
-        <select id="mgrFilter" onchange="applyFilters()">
-          <option value="">全部</option>
-        </select>
-      </div>
-      <div class="fg"><label>區域</label>
-        <select id="areaFilter" onchange="applyFilters()">
-          <option value="">全部</option>
-        </select>
-      </div>
-      <div class="fg"><label>縣市</label>
-        <select id="cityFilter" onchange="applyFilters()">
-          <option value="">全部</option>
-        </select>
-      </div>
-      <div class="fg"><label>級別</label>
-        <select id="lvlFilter" onchange="applyFilters()">
-          <option value="">全部</option>
-        </select>
-      </div>
-      <div class="fg"><label>通路</label>
-        <select id="chFilter" onchange="applyFilters()">
-          <option value="">全部</option>
-        </select>
-      </div>
-      <div class="fg"><label>販售店</label>
-        <select id="shopFilter" onchange="applyFilters()">
-          <option value="">全部</option>
-        </select>
-      </div>
-      <button class="filter-clear-btn" onclick="clearAllFilters()">清除</button>
+    <div class="filter-multi-v27">
+      <details open class="filter-group"><summary><b>主管</b><span class="filter-selected-count" id="cnt_mgrFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_mgrFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>區域</b><span class="filter-selected-count" id="cnt_areaFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_areaFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>縣市</b><span class="filter-selected-count" id="cnt_cityFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_cityFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>級別</b><span class="filter-selected-count" id="cnt_lvlFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_lvlFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>通路</b><span class="filter-selected-count" id="cnt_chFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_chFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>販售店</b><span class="filter-selected-count" id="cnt_shopFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_shopFilter"></div>
+      </details>
+      <button class="filter-clear-btn" onclick="clearAllFilters()" style="height:fit-content;align-self:flex-start;margin-top:4px">🔄 清除全部</button>
     </div>
     <div id="mgrCards" class="mgr-grid"></div>
     <div class="card" style="margin-top:14px">
@@ -518,7 +543,7 @@
 <script>
 // ============ 設定 ============
 // 部署 Apps Script 後填入 Web App URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbyerK_cmcsuqo2OeCZCcZVa5UZITCCzFhcq_uf61FtVNq4tQJbhy-FkClplcDTdPnKahA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyEMZdyDcsCi9pC5fZxY6XoZPi3t0YrQIlikObf97IBLpGxIg0UeFeE6jjG-R1hA2B87A/exec';
 
 // ============ 登入驗證設定 ============
 // ⚠️ 修改這裡可換密碼/網域
@@ -862,9 +887,10 @@ function populateSelects() {
     });
   });
   
-  // 多維度篩選下拉內容填充
+  // ⭐ v27 多維度篩選改 checkbox 群組(複選)
   const CITY_ORDER = ['台北', '新北', '桃園', '新竹', '台中', '嘉義', '台南', '高雄'];
   const FILTERS_CONFIG = [
+    { id: 'mgrFilter', field: '主管', order: MGR_ORDER, special: 'zoe' },
     { id: 'areaFilter', field: '轄區' },
     { id: 'cityFilter', field: '縣市', order: CITY_ORDER },
     { id: 'lvlFilter', field: '級別' },
@@ -872,9 +898,9 @@ function populateSelects() {
     { id: 'shopFilter', field: '販售店' }
   ];
   FILTERS_CONFIG.forEach(cfg => {
-    const sel = document.getElementById(cfg.id);
-    if (!sel) return;
-    const vals = [...new Set(records.map(r => r[cfg.field]).filter(v => v))];
+    const container = document.getElementById('cb_' + cfg.id);
+    if (!container) return;
+    let vals = [...new Set(records.map(r => r[cfg.field]).filter(v => v))];
     let sorted;
     if (cfg.order) {
       sorted = cfg.order.filter(v => vals.includes(v));
@@ -882,28 +908,66 @@ function populateSelects() {
     } else {
       sorted = vals.sort();
     }
+    // 主管欄要加佐伊(北區彙總)
+    if (cfg.special === 'zoe') {
+      sorted = ['佐伊'].concat(sorted);
+    }
+    container.innerHTML = '';
     sorted.forEach(v => {
-      const opt = document.createElement('option');
-      opt.value = v; opt.text = v;
-      sel.appendChild(opt);
+      const label = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = v;
+      cb.dataset.filter = cfg.id;
+      cb.onchange = applyFilters;
+      label.appendChild(cb);
+      const span = document.createElement('span');
+      span.textContent = (cfg.special === 'zoe' && v === '佐伊') ? '佐伊 (北區彙總)' : v;
+      label.appendChild(span);
+      container.appendChild(label);
     });
   });
   populateStoreSelect();
-
 }
 
-// 套用所有篩選
+// ⭐ v27: 取得篩選器目前的複選值
+function getFilterValues(id) {
+  const container = document.getElementById('cb_' + id);
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('input[type=\"checkbox\"]:checked')).map(cb => cb.value);
+}
+
+// ⭐ v27: 更新「已選 N」計數標籤
+function updateFilterCount(id) {
+  const cnt = document.getElementById('cnt_' + id);
+  if (!cnt) return;
+  const vals = getFilterValues(id);
+  if (vals.length === 0) {
+    cnt.textContent = '全部';
+    cnt.style.background = '#dbeafe';
+    cnt.style.color = '#2563eb';
+  } else {
+    cnt.textContent = '已選 ' + vals.length;
+    cnt.style.background = '#fef3c7';
+    cnt.style.color = '#b45309';
+  }
+}
+
+// ⭐ v27 套用所有篩選(更新計數 + 重新渲染)
 function applyFilters() {
+  ['mgrFilter', 'areaFilter', 'cityFilter', 'lvlFilter', 'chFilter', 'shopFilter'].forEach(updateFilterCount);
   renderManager();
 }
 
-// 清除所有篩選
+// ⭐ v27 清除所有篩選(取消所有 checkbox)
 function clearAllFilters() {
   ['mgrFilter', 'areaFilter', 'cityFilter', 'lvlFilter', 'chFilter', 'shopFilter'].forEach(id => {
-    const s = document.getElementById(id);
-    if (s) s.value = '';
+    const container = document.getElementById('cb_' + id);
+    if (container) {
+      container.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => cb.checked = false);
+    }
   });
-  renderManager();
+  applyFilters();
 }
 
 // 填入門市下拉(分組顯示:依主管,從 records 直接讀)
@@ -977,7 +1041,7 @@ async function refreshData() {
   
   try {
     // 呼叫 Apps Script Web App 的 processAll
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbyerK_cmcsuqo2OeCZCcZVa5UZITCCzFhcq_uf61FtVNq4tQJbhy-FkClplcDTdPnKahA/exec';
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbyEMZdyDcsCi9pC5fZxY6XoZPi3t0YrQIlikObf97IBLpGxIg0UeFeE6jjG-R1hA2B87A/exec?action=refresh';
     const response = await fetch(apiUrl, { method: 'GET' });
     
     if (!response.ok) throw new Error('更新失敗');
@@ -1046,14 +1110,25 @@ function rateClass(r) {
 // ============ 總覽 ============
 function renderDashboard() {
   const total = records.reduce((acc, r) => {
-   acc.LY += r.LY整月 || r.LY || 0;
+    acc.LY += r.LY || 0;
     acc.CM += r.CM目標 || 0;
     acc.MTD += r.MTD || 0;
     acc.LM += r.LM銷售 || 0;
     return acc;
   }, { LY: 0, CM: 0, MTD: 0, LM: 0 });
   const rate = total.CM > 0 ? total.MTD / total.CM : 0;
-  const exp = Number(meta['應達成率']) || 0;
+  // ⭐ v27 應達成率 fallback
+  let exp = Number(meta['應達成率']) || 0;
+  if (!exp || isNaN(exp)) {
+    const today = new Date();
+    const yyyymm = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+    if (currentMonth === yyyymm) {
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      exp = today.getDate() / daysInMonth;
+    } else if (currentMonth && currentMonth < yyyymm) {
+      exp = 1;
+    }
+  }
   const ly_gr = total.LY > 0 ? total.MTD / total.LY - 1 : 0;
   const lm_gr = total.LM > 0 ? total.MTD / total.LM - 1 : 0;
 
@@ -1083,7 +1158,7 @@ function renderDashboard() {
     const k2 = r.縣市;
     if (!byChannel[k1]) byChannel[k1] = {};
     if (!byChannel[k1][k2]) byChannel[k1][k2] = { LY: 0, CM: 0, MTD: 0, count: 0 };
-    byChannel[k1][k2].LY += r.LY整月 || r.LY || 0;
+    byChannel[k1][k2].LY += r.LY || 0;
     byChannel[k1][k2].CM += r.CM目標 || 0;
     byChannel[k1][k2].MTD += r.MTD || 0;
     byChannel[k1][k2].count += 1;
@@ -1166,31 +1241,36 @@ function renderDashboard() {
 const ZOE_TEAM = ['律廷', '含含', '樺樺', 'RIISA'];
 
 function renderManager() {
-  const filterM = $('mgrFilter').value;
-  const filterA = ($('areaFilter') || {}).value || '';
-  const filterC = ($('cityFilter') || {}).value || '';
-  const filterL = ($('lvlFilter') || {}).value || '';
-  const filterCh = ($('chFilter') || {}).value || '';
-  const filterShop = ($('shopFilter') || {}).value || '';
+  // ⭐ v27 複選邏輯:每個維度可選多個值(OR),維度之間 AND
+  const filterMs = getFilterValues('mgrFilter');
+  const filterAs = getFilterValues('areaFilter');
+  const filterCs = getFilterValues('cityFilter');
+  const filterLs = getFilterValues('lvlFilter');
+  const filterChs = getFilterValues('chFilter');
+  const filterShops = getFilterValues('shopFilter');
+  
+  // 「佐伊」展開成 ZOE_TEAM 4 位
+  const expandedMgrs = filterMs.includes('佐伊')
+    ? Array.from(new Set(filterMs.filter(m => m !== '佐伊').concat(ZOE_TEAM)))
+    : filterMs;
+  const useMgrFilter = filterMs.length > 0;
   
   const byMgr = {};
   records.forEach(r => {
-    // 主管篩選(佐伊特殊處理)
-    if (filterM && filterM !== '佐伊' && r.主管 !== filterM) return;
-    if (filterM === '佐伊' && !ZOE_TEAM.includes(r.主管)) return;
-    // 其他篩選
-    if (filterA && r.轄區 !== filterA) return;
-    if (filterC && r.縣市 !== filterC) return;
-    if (filterL && r.級別 !== filterL) return;
-    if (filterCh && r.門市型態 !== filterCh) return;
-    if (filterShop && r.販售店 !== filterShop) return;
+    // 各維度 OR(空陣列 = 不篩選)
+    if (useMgrFilter && !expandedMgrs.includes(r.主管)) return;
+    if (filterAs.length && !filterAs.includes(r.轄區)) return;
+    if (filterCs.length && !filterCs.includes(r.縣市)) return;
+    if (filterLs.length && !filterLs.includes(r.級別)) return;
+    if (filterChs.length && !filterChs.includes(r.門市型態)) return;
+    if (filterShops.length && !filterShops.includes(r.販售店)) return;
     
     if (!byMgr[r.主管]) byMgr[r.主管] = [];
     byMgr[r.主管].push(r);
   });
   
-  // 加入佐伊群組(聚合 ZOE_TEAM 的店,但不重複,只是加總顯示用)
-  if (!filterM || filterM === '佐伊') {
+  // ⭐ v27: 加入佐伊群組(只在沒選主管,或選了佐伊時顯示)
+  if (filterMs.length === 0 || filterMs.includes('佐伊')) {
     const zoeStores = [];
     ZOE_TEAM.forEach(m => {
       if (byMgr[m]) zoeStores.push(...byMgr[m]);
@@ -1533,19 +1613,21 @@ function renderStoreTop5(code) {
     container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">這家店暫無 TOP 5 商品資料</p>';
     return;
   }
-  // 按排名排序
   items.sort((a, b) => (a.rank || 99) - (b.rank || 99));
   const medals = ['🥇', '🥈', '🥉', '4', '5'];
-  // ⭐ v25 需求 3: 隱藏「銷售金額」欄(因為是推算值不精準)
-  let html = '<table style="max-width:700px"><thead><tr>' +
+  // ⭐ v27 需求 3: 排名 / 款號 / 商品名稱 / 銷售件數(無金額)
+  let html = '<table style="max-width:800px"><thead><tr>' +
     '<th style="width:60px">排名</th>' +
+    '<th style="width:100px">款號</th>' +
     '<th>商品名稱</th>' +
     '<th style="width:120px">銷售件數</th>' +
     '</tr></thead><tbody>';
   items.forEach((it, i) => {
     const medal = medals[i] || (i + 1);
+    const style = it.styleCode || '—';
     html += `<tr>
       <td class="col-center" style="font-size:16px">${medal}</td>
+      <td class="col-center" style="font-family:monospace;font-size:13px">${style}</td>
       <td class="col-txt">${it.name}</td>
       <td><strong>${(it.qty || 0).toLocaleString()}</strong></td>
     </tr>`;
@@ -1566,25 +1648,25 @@ function renderGlobalTop10() {
   const generalMap = {};   // 一般門市
   const outletMap = {};    // OUTLET
   
+  // ⭐ v27: 按「款號 + 名稱」聚合(同款號 = 同商品),記錄款號
   Object.keys(top5ByStore).forEach(code => {
     const isOutlet = OUTLET_CODES.indexOf(code) >= 0;
     const targetMap = isOutlet ? outletMap : generalMap;
     
     top5ByStore[code].forEach(item => {
-      if (!targetMap[item.name]) {
-        targetMap[item.name] = { qty: 0, amt: 0, stores: 0 };
+      // 用 款號+名稱 當 key(優先款號,fallback 名稱)
+      const key = (item.styleCode && item.styleCode.trim()) ? item.styleCode.trim() : item.name;
+      if (!targetMap[key]) {
+        targetMap[key] = { styleCode: item.styleCode || '', name: item.name, qty: 0, stores: 0 };
       }
-      targetMap[item.name].qty += (item.qty || 0);
-      targetMap[item.name].amt += (item.amt || 0);
-      targetMap[item.name].stores += 1;
+      targetMap[key].qty += (item.qty || 0);
+      targetMap[key].stores += 1;
     });
   });
   
-  // 排序取前 10(v25 改:按「件數」由多到少)
   function rankTop10(productMap) {
-    return Object.entries(productMap)
-      .map(([name, v]) => ({ name, ...v }))
-      .sort((a, b) => b.qty - a.qty)   // v25: 按件數!
+    return Object.values(productMap)
+      .sort((a, b) => b.qty - a.qty)
       .slice(0, 10);
   }
   
@@ -1599,6 +1681,7 @@ function renderGlobalTop10() {
   // 渲染:一般組 + OUTLET 組 兩個獨立表格
   const medals = ['🥇', '🥈', '🥉'];
   
+  // ⭐ v27 需求 3: 拉掉銷售金額,加款號(排名/款號/商品名稱/上榜店數/銷售件數)
   function renderTable(ranked, title, badgeColor) {
     if (ranked.length === 0) return '';
     let html = '<h3 style="margin-top:20px;color:' + badgeColor + ';display:flex;align-items:center;gap:8px">' +
@@ -1606,19 +1689,20 @@ function renderGlobalTop10() {
       '<span style="color:#94a3b8;font-size:14px;font-weight:normal">共 ' + ranked.length + ' 項</span></h3>';
     html += '<table><thead><tr>' +
       '<th style="width:60px">排名</th>' +
+      '<th style="width:100px">款號</th>' +
       '<th>商品名稱</th>' +
       '<th style="width:80px">上榜店數</th>' +
       '<th style="width:100px">總銷售件數</th>' +
-      '<th style="width:120px">總銷售金額</th>' +
       '</tr></thead><tbody>';
     ranked.forEach((p, i) => {
       const m = medals[i] || (i + 1);
+      const style = p.styleCode || '—';
       html += `<tr>
         <td class="col-center" style="font-size:16px">${m}</td>
+        <td class="col-center" style="font-family:monospace;font-size:13px">${style}</td>
         <td class="col-txt">${p.name}</td>
         <td>${p.stores} 店</td>
         <td><strong>${p.qty.toLocaleString()}</strong></td>
-        <td>${p.amt > 0 ? p.amt.toLocaleString() : '—'}</td>
       </tr>`;
     });
     html += '</tbody></table>';

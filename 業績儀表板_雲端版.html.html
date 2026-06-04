@@ -1355,7 +1355,7 @@ function renderManager() {
     '</tr></thead><tbody>';
   mgrs.forEach(m => {
     // 詳細表中跳過佐伊群組(避免跟原 4 位主管重複列出明細)
-    if (m === '佐伊' && !filterM) return;
+     if (m === '佐伊' && !filterMs.includes('佐伊')) return;
     const list = byMgr[m].sort((a, b) => (a.達成率 || 0) - (b.達成率 || 0));
     list.forEach((r, i) => {
       html += `<tr>
@@ -1392,7 +1392,7 @@ function renderManager() {
   });
   html += '</tbody></table>';
   $('mgrTable').innerHTML = html;
-  $('mgrTableTitle').innerText = filterM ? `${filterM} 詳細明細` : '所有主管明細';
+ $('mgrTableTitle').innerText = filterMs.length === 1 ? `${filterMs[0]} 詳細明細` : filterMs.length > 1 ? `${filterMs.length} 位主管 詳細明細` : '所有主管明細';
 }
 
 function filterByMgr(m) {

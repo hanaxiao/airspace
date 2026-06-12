@@ -1844,9 +1844,19 @@ function rygClassByRate(rate) {
   return 'ryg-green';
 }
 function pctRYG(v, type) {
-  // 數字 → 帶 RYG 樣式的百分比 HTML
   if (v === null || v === undefined || v === '' || isNaN(v)) return '<span style="color:#94a3b8">—</span>';
-  const cls = type === 'rate' ? rygClassByRate(v) : rygClassByGR(v);
+  let cls;
+  if (type === 'rate') {
+    // ⭐ 達成率用「同進度比較」:店家達成率 vs 全公司應達成率
+    const exp = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
+                  ? cumulativeDailyTarget / totalMonthTarget : 1.0;
+    const diff = v - exp;
+    if (diff < -0.10) cls = 'ryg-red';        // 落後超過 10%
+    else if (diff < 0) cls = 'ryg-yellow';     // 略落後
+    else cls = 'ryg-green';                    // 達到/超前
+  } else {
+    cls = rygClassByGR(v);
+  }
   const sign = v > 0 ? '+' : '';
   return `<span class="ryg-cell ${cls}">${sign}${(v * 100).toFixed(1)}%</span>`;
 }

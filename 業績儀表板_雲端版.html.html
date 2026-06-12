@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <!--
-  AIR SPACE 業績儀表板 v27 (2026/6/2)
+  AIR SPACE 業績儀表板 v28 (2026/6/8)
+  v28 新增:
+    需求 1: RYG 顏色標示(LY_GR/LM_GR/達成率/差異)
+    需求 2: 應達成率改用「累計日總目標 / 月總目標」新算法
+    搭配:後端 Code v25_v5 必要(回傳 cumulativeDailyTarget)
+  
+  v27 (2026/6/2)
   v27 新增:
     需求 2: 應達成率顯示修復(fallback)
     需求 3: TOP10 拉金額,各店 TOP5 加款號
@@ -23,7 +29,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIR SPACE 業績儀表板</title>
+<title>AIR SPACE 業績儀表板 v28</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; }
@@ -384,6 +390,16 @@
 .checkbox-list label:hover { background: #f1f5f9; }
 .checkbox-list input[type="checkbox"] { margin-right: 6px; vertical-align: middle; }
 
+
+/* ⭐ v28 RYG 顏色標示 */
+.ryg-red    { background: #fee2e2 !important; color: #b91c1c !important; font-weight: 600; }
+.ryg-yellow { background: #fef3c7 !important; color: #b45309 !important; font-weight: 600; }
+.ryg-green  { background: #d1fae5 !important; color: #047857 !important; font-weight: 600; }
+.ryg-cell { padding: 2px 6px; border-radius: 4px; display: inline-block; }
+.kpi-card.ryg-red    { background: linear-gradient(135deg, #fee2e2, #fecaca); }
+.kpi-card.ryg-yellow { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+.kpi-card.ryg-green  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+
 </style>
 </head>
 <body>
@@ -543,7 +559,7 @@
 <script>
 // ============ 設定 ============
 // 部署 Apps Script 後填入 Web App URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbyerK_cmcsuqo2OeCZCcZVa5UZITCCzFhcq_uf61FtVNq4tQJbhy-FkClplcDTdPnKahA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyEMZdyDcsCi9pC5fZxY6XoZPi3t0YrQIlikObf97IBLpGxIg0UeFeE6jjG-R1hA2B87A/exec';
 
 // ============ 登入驗證設定 ============
 // ⚠️ 修改這裡可換密碼/網域
@@ -1101,7 +1117,10 @@ function pct(n) {
 function rateClass(r) {
   if (r === null || r === undefined || isNaN(r)) return '';
   // 對比應達成率
-  const exp = Number(meta['應達成率']) || 0.5;
+  // ⭐ v28: 應達成率改用累計日目標算法
+  const cumDT = Number(data.cumulativeDailyTarget) || 0;
+  const totMT = Number(data.totalMonthTarget) || 0;
+  const exp = totMT > 0 ? cumDT / totMT : (Number(meta['應達成率']) || 0.5);
   if (r >= exp) return 'rate-good';
   if (r >= exp * 0.85) return 'rate-warn';
   return 'rate-bad';
@@ -1117,16 +1136,24 @@ function renderDashboard() {
     return acc;
   }, { LY: 0, CM: 0, MTD: 0, LM: 0 });
   const rate = total.CM > 0 ? total.MTD / total.CM : 0;
-  // ⭐ v27 應達成率 fallback
-  let exp = Number(meta['應達成率']) || 0;
-  if (!exp || isNaN(exp)) {
-    const today = new Date();
-    const yyyymm = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
-    if (currentMonth === yyyymm) {
-      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-      exp = today.getDate() / daysInMonth;
-    } else if (currentMonth && currentMonth < yyyymm) {
-      exp = 1;
+  // ⭐ v28: 應達成率 = 累計日總目標 ÷ 月總目標
+  const cumDailyTarget = Number(data.cumulativeDailyTarget) || 0;
+  const totalMT = Number(data.totalMonthTarget) || 0;
+  let exp = 0;
+  if (totalMT > 0 && cumDailyTarget > 0) {
+    exp = cumDailyTarget / totalMT;
+  } else {
+    // fallback: 用天數比例
+    exp = Number(meta['應達成率']) || 0;
+    if (!exp || isNaN(exp)) {
+      const today = new Date();
+      const yyyymm = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+      if (currentMonth === yyyymm) {
+        const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+        exp = today.getDate() / daysInMonth;
+      } else if (currentMonth && currentMonth < yyyymm) {
+        exp = 1;
+      }
     }
   }
   const ly_gr = total.LY > 0 ? total.MTD / total.LY - 1 : 0;
@@ -1141,7 +1168,7 @@ function renderDashboard() {
       <div class="kpi-value">${fmt(total.MTD)}</div></div>
     <div class="kpi"><div class="kpi-label">達成率</div>
       <div class="kpi-value ${rateClass(rate)}">${pct(rate)}</div>
-      <div class="kpi-sub">應達成 ${pct(exp)} (差${pct(rate - exp)})</div></div>
+      <div class="kpi-sub">應達成 ${pct(exp)} (差 ${pctRYG(rate - exp, 'gr')})</div></div>
     <div class="kpi"><div class="kpi-label">LY 同期</div>
       <div class="kpi-value">${fmt(total.LY)}</div>
       <div class="kpi-sub">YoY ${pct(ly_gr)}</div></div>
@@ -1367,9 +1394,9 @@ function renderManager() {
         <td>${fmt(r.LY)}</td>
         <td>${fmt(r.CM目標)}</td>
         <td>${fmt(r.MTD)}</td>
-        <td class="${rateClass(r.達成率)}">${pct(r.達成率)}</td>
-        <td>${pct(r.LY_GR)}</td>
-        <td>${pct(r.LM_GR)}</td>
+        <td>${pctRYG(r.達成率, 'rate')}</td>
+        <td>${pctRYG(r.LY_GR, 'gr')}</td>
+        <td>${pctRYG(r.LM_GR, 'gr')}</td>
       </tr>`;
     });
     // 小計
@@ -1446,16 +1473,17 @@ function renderStoreDetail() {
           <div class="kpi-value">${fmt(r.MTD)}</div></div>
         <div class="kpi"><div class="kpi-label">達成率</div>
           <div class="kpi-value ${rateClass(r.達成率)}">${pct(r.達成率)}</div>
+          <div style="margin-top:4px">${pctRYG(r.達成率, 'rate')}</div>
           <div class="kpi-sub">應 ${pct(exp)}</div></div>
         <div class="kpi"><div class="kpi-label">月底預估</div>
           <div class="kpi-value">${fmt(projMtd)}</div>
           <div class="kpi-sub">預估達成 ${pct(projRate)}</div></div>
         <div class="kpi"><div class="kpi-label">LY 同期</div>
           <div class="kpi-value">${fmt(r.LY)}</div>
-          <div class="kpi-sub">YoY ${pct(r.LY_GR)}</div></div>
+          <div class="kpi-sub">YoY ${pctRYG(r.LY_GR, 'gr')}</div></div>
         <div class="kpi"><div class="kpi-label">LM 同期</div>
           <div class="kpi-value">${fmt(r.LM銷售)}</div>
-          <div class="kpi-sub">MoM ${pct(r.LM_GR)}</div></div>
+          <div class="kpi-sub">MoM ${pctRYG(r.LM_GR, 'gr')}</div></div>
       </div>
     </div>
     <div class="card">
@@ -1760,9 +1788,9 @@ function renderRanking() {
       <td class="col-center">${r.級別}</td>
       <td>${fmt(r.CM目標)}</td>
       <td>${fmt(r.MTD)}</td>
-      <td class="${rateClass(r.達成率)}">${pct(r.達成率)}</td>
-      <td>${pct(r.LY_GR)}</td>
-      <td>${pct(r.LM_GR)}</td>
+      <td>${pctRYG(r.達成率, 'rate')}</td>
+      <td>${pctRYG(r.LY_GR, 'gr')}</td>
+      <td>${pctRYG(r.LM_GR, 'gr')}</td>
     </tr>`;
   });
   html += '</tbody></table>';
@@ -1795,6 +1823,30 @@ function downloadExcel() {
   a.download = `業績_${meta['月份'] || ''}_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+
+// ⭐ v28: RYG 顏色判斷工具函式
+function rygClassByGR(gr) {
+  // 適用 LY_GR / LM_GR / 相差(差異)
+  if (gr === null || gr === undefined || gr === '' || isNaN(gr)) return '';
+  if (gr < -0.10) return 'ryg-red';
+  if (gr < 0) return 'ryg-yellow';
+  return 'ryg-green';
+}
+function rygClassByRate(rate) {
+  // 適用 達成率
+  if (rate === null || rate === undefined || rate === '' || isNaN(rate)) return '';
+  if (rate < 0.80) return 'ryg-red';
+  if (rate < 1.00) return 'ryg-yellow';
+  return 'ryg-green';
+}
+function pctRYG(v, type) {
+  // 數字 → 帶 RYG 樣式的百分比 HTML
+  if (v === null || v === undefined || v === '' || isNaN(v)) return '<span style="color:#94a3b8">—</span>';
+  const cls = type === 'rate' ? rygClassByRate(v) : rygClassByGR(v);
+  const sign = v > 0 ? '+' : '';
+  return `<span class="ryg-cell ${cls}">${sign}${(v * 100).toFixed(1)}%</span>`;
 }
 
 // ============ 啟動 ============

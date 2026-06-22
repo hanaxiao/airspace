@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<!--
+  AIR SPACE 業績儀表板 v29 (2026/6/12)
+  v29 新增:
+    需求 1: TOP10/TOP5 標題加「周銷」
+    需求 2: OUTLET 上榜店數去重(用 Set 計算)
+    需求 3: 達成率排名加 RYG 動態說明條
+  
+  v28 (2026/6/8)
+  v28 新增:
+    需求 1: RYG 顏色標示(LY_GR/LM_GR/達成率/差異)
+    需求 2: 應達成率改用「累計日總目標 / 月總目標」新算法
+    搭配:後端 Code v25_v5 必要(回傳 cumulativeDailyTarget)
+  
+  v27 (2026/6/2)
+  v27 新增:
+    需求 2: 應達成率顯示修復(fallback)
+    需求 3: TOP10 拉金額,各店 TOP5 加款號
+    需求 4: 主管彙總 6 維度全部複選(checkbox)
+  v26 既有:月份切換、週分析、佐伊修復
+  v26 新增:
+    需求 1: 月份切換下拉(5月/6月)
+    需求 2: 週分析新分頁(選週次+對比去年)
+    需求 3: 達成排名「佐伊」修復(ZOE_TEAM 聚合)
+    需求 5: TOP10 金額顯示
+  v25 既有:TOP10 分組、TOP5 隱金額、AS62 修復、MTD≤0 排除
+  改善:
+    需求 1: 全門市 TOP10 排序+加金額顯示
+    需求 2: TOP10 分 OUTLET / 一般兩組
+    需求 3: 各門市 TOP5 隱藏銷售金額(只看件數)
+    需求 5: 修 AS62 IP 店等空欄位 bug
+    需求 6: 排除 MTD<=0 的未開幕店
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIR SPACE 業績儀表板 v28</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, "Microsoft JhengHei", "微軟正黑體", sans-serif;
+    background: #f5f7fa; color: #1e293b;
+  }
+  .topbar {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+    color: white; padding: 16px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .topbar h1 { margin: 0; font-size: 20px; font-weight: 700; }
+  .meta { font-size: 12px; opacity: 0.85; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap;
+    background: white; padding: 6px; border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .tab {
+    padding: 10px 18px; cursor: pointer; border-radius: 7px;
+    font-size: 14px; font-weight: 600; transition: all 0.15s;
+    color: #64748b;
+  }
+  .tab:hover { background: #f1f5f9; }
+  .tab.active { background: #1e3a5f; color: white; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card {
+    background: white; border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px;
+  }
+  .card h2 {
+    margin: 0 0 16px 0; font-size: 16px; color: #1e3a5f;
+    padding-bottom: 10px; border-bottom: 2px solid #e2e8f0;
+  }
+  /* KPI 卡 */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  .kpi {
+    padding: 14px; border-radius: 10px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-left: 4px solid #2c5282;
+  }
+  .kpi-label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+  .kpi-value { font-size: 22px; font-weight: 700; color: #1e3a5f; }
+  .kpi-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  /* 主管彙總卡片 */
+  .mgr-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .mgr-card {
+    background: white; border-radius: 10px; padding: 16px;
+    border-top: 4px solid #2c5282;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    cursor: pointer; transition: transform 0.12s;
+  }
+  .mgr-card-zoe {
+    border-top: 4px solid #7c3aed;
+    background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  }
+  .mgr-card-zoe .mgr-name::after {
+    content: " 👑";
+    font-size: 14px;
+  }
+  
+  /* 立即更新按鈕 */
+  .refresh-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 999;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .refresh-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(30, 58, 95, 0.4);
+  }
+  .refresh-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .refresh-btn .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .refresh-toast {
+    position: fixed;
+    top: 72px;
+    right: 16px;
+    z-index: 998;
+    background: white;
+    border-left: 4px solid #10b981;
+    padding: 12px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    font-size: 13px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .refresh-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .refresh-toast.error {
+    border-left-color: #ef4444;
+  }
+  
+  /* 多維度篩選樣式 */
+  .filter-multi { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .filter-multi .fg { display: flex; flex-direction: column; gap: 3px; }
+  .filter-multi .fg label { font-size: 11px; color: #64748b; font-weight: 500; }
+  .filter-multi .fg select {
+    padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 6px;
+    font-size: 13px; min-width: 90px; background: white;
+  }
+  .filter-clear-btn {
+    padding: 6px 12px; background: #f1f5f9; border: 1px solid #cbd5e1;
+    border-radius: 6px; cursor: pointer; font-size: 12px; color: #475569;
+    transition: all 0.15s;
+  }
+  .filter-clear-btn:hover { background: #e2e8f0; color: #1e293b; }
+  
+  /* 登入畫面 */
+  .login-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #3b82f6 100%);
+    z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Microsoft JhengHei', sans-serif;
+  }
+  .login-card {
+    background: white;
+    padding: 40px 50px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 380px;
+    max-width: 90%;
+  }
+  .login-logo {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .login-logo .icon { font-size: 48px; }
+  .login-title {
+    text-align: center;
+    font-size: 22px;
+    color: #1e3a5f;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .login-subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .login-field { margin-bottom: 14px; }
+  .login-field label {
+    display: block;
+    font-size: 12px;
+    color: #475569;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .login-field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
+  .login-field input:focus {
+    outline: none;
+    border-color: #3b82f6;
+  }
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: transform 0.1s;
+  }
+  .login-btn:hover { transform: translateY(-1px); }
+  .login-btn:active { transform: translateY(0); }
+  .login-error {
+    color: #dc2626;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+  .login-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #94a3b8;
+    font-size: 11px;
+  }
+  .mgr-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .mgr-card-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .mgr-name { font-size: 18px; font-weight: 700; color: #1e3a5f; }
+  .mgr-stores { font-size: 12px; color: #64748b; }
+  .progress-bar {
+    height: 8px; background: #e2e8f0; border-radius: 4px;
+    overflow: hidden; margin: 10px 0;
+  }
+  .progress-fill {
+    height: 100%; transition: width 0.3s;
+    background: linear-gradient(90deg, #10b981, #059669);
+  }
+  .progress-fill.warn { background: linear-gradient(90deg, #f59e0b, #d97706); }
+  .progress-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
+  .mgr-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .mgr-stat { font-size: 12px; }
+  .mgr-stat-label { color: #94a3b8; }
+  .mgr-stat-value { font-weight: 600; }
+  /* 表格 */
+  table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    background: white; border-radius: 8px; overflow: hidden;
+    table-layout: auto;
+  }
+  th, td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+  }
+  th {
+    background: #1e3a5f; color: white;
+    font-weight: 600; text-align: center;
+    position: sticky; top: 0; z-index: 1;
+  }
+  /* 所有 td 預設靠右(數字優先) */
+  td { text-align: right; }
+  /* 但凡有 .txt class 的就靠左 */
+  td.txt { text-align: left; }
+  /* 文字類欄位(店號、店名、主管、轄區、縣市、通路、販售店、支線、級別、星期) */
+  .col-txt { text-align: left !important; }
+  .col-center { text-align: center !important; }
+  tr:hover td { background: #f8fafc; }
+  td.subtotal { background: #f1f5f9; font-weight: 700; }
+  tr.subtotal-row td { background: #f1f5f9; font-weight: 700; }
+  tr.grand-row td { background: #fff7ed; font-weight: 700; }
+  /* 達成率著色 */
+  .rate-good { color: #059669; font-weight: 700; }
+  .rate-warn { color: #d97706; font-weight: 700; }
+  .rate-bad { color: #dc2626; font-weight: 700; }
+  /* 控制列 */
+  .controls {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  select, input, button {
+    font-family: inherit; font-size: 14px;
+    padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 7px;
+    background: white;
+  }
+  select:focus, input:focus { outline: 2px solid #2c5282; outline-offset: -1px; }
+  button.primary {
+    background: #2c5282; color: white; border: none;
+    cursor: pointer; font-weight: 600;
+  }
+  button.primary:hover { background: #1e3a5f; }
+  button.secondary {
+    background: #f1f5f9; color: #1e3a5f; border: none;
+    cursor: pointer; font-weight: 600;
+  }
+  /* 錯誤訊息 */
+  .error {
+    background: #fef2f2; color: #991b1b; padding: 14px;
+    border-radius: 7px; border-left: 4px solid #dc2626;
+    margin: 16px 0;
+  }
+  .loading {
+    text-align: center; padding: 40px; color: #64748b;
+  }
+  /* 趨勢圖容器 */
+  .chart-container {
+    position: relative; height: 280px; margin-top: 12px;
+  }
+  /* 響應式 */
+  @media (max-width: 640px) {
+    .kpi-value { font-size: 18px; }
+    .container { padding: 8px; }
+    .topbar h1 { font-size: 16px; }
+    th, td { padding: 6px 4px; font-size: 11px; }
+  }
+
+/* ⭐ v27 複選篩選器樣式 */
+.filter-multi-v27 {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 16px; padding: 12px; background: #f8fafc;
+  border-radius: 10px; border: 1px solid #e2e8f0;
+}
+.filter-group {
+  background: white; border: 1px solid #cbd5e1; border-radius: 8px;
+  min-width: 130px; max-width: 200px; flex: 1 1 130px; font-size: 13px;
+}
+.filter-group summary {
+  padding: 8px 10px; cursor: pointer; user-select: none;
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(180deg, #ffffff, #f1f5f9);
+  border-radius: 7px; font-weight: 500;
+}
+.filter-group[open] summary { background: #e0f2fe; border-bottom: 1px solid #cbd5e1; border-radius: 7px 7px 0 0; }
+.filter-selected-count {
+  font-size: 12px; color: #2563eb; font-weight: 600;
+  background: #dbeafe; padding: 2px 8px; border-radius: 12px;
+}
+.checkbox-list {
+  max-height: 200px; overflow-y: auto; padding: 6px 8px;
+}
+.checkbox-list label {
+  display: block; padding: 4px 6px; cursor: pointer;
+  border-radius: 4px; font-size: 13px;
+}
+.checkbox-list label:hover { background: #f1f5f9; }
+.checkbox-list input[type="checkbox"] { margin-right: 6px; vertical-align: middle; }
+
+
+/* ⭐ v28 RYG 顏色標示 */
+.ryg-red    { background: #fee2e2 !important; color: #b91c1c !important; font-weight: 600; }
+.ryg-yellow { background: #fef3c7 !important; color: #b45309 !important; font-weight: 600; }
+.ryg-green  { background: #d1fae5 !important; color: #047857 !important; font-weight: 600; }
+.ryg-cell { padding: 2px 6px; border-radius: 4px; display: inline-block; }
+.kpi-card.ryg-red    { background: linear-gradient(135deg, #fee2e2, #fecaca); }
+.kpi-card.ryg-yellow { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+.kpi-card.ryg-green  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+
+</style>
+</head>
+<body>
+
+<!-- 登入畫面 -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-logo"><span class="icon">🔐</span></div>
+    <div class="login-title">AIR SPACE 業績儀表板</div>
+    <div class="login-subtitle">請使用公司電郵登入</div>
+    
+    <div class="login-field">
+      <label>公司電郵</label>
+      <input type="email" id="loginEmail" placeholder="your@airspaceonline.com" autocomplete="email" />
+    </div>
+    <div class="login-field">
+      <label>密碼</label>
+      <input type="password" id="loginPassword" placeholder="請輸入密碼" autocomplete="current-password" />
+    </div>
+    
+    <button class="login-btn" onclick="doLogin()">登入</button>
+    <div id="loginError" class="login-error"></div>
+    <div class="login-footer">
+      AIR SPACE 業績儀表板系統 · 內部使用
+    </div>
+  </div>
+</div>
+
+<button id="refreshBtn" class="refresh-btn" onclick="refreshData()">
+  <span id="refreshIcon">🔄</span>
+  <span id="refreshText">立即更新</span>
+</button>
+<div id="refreshToast" class="refresh-toast"></div>
+
+
+<div class="topbar">
+  <div>
+    <h1 id="title">📊 AIR SPACE 業績儀表板</h1>
+    <div class="meta" id="metaBar">載入中...</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <select id="monthPicker" onchange="onMonthChange()" style="padding:7px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.95);color:#1e293b;font-size:14px;font-weight:600;cursor:pointer">
+      <option value="">載入中...</option>
+    </select>
+    <button class="secondary" onclick="downloadExcel()">📥 下載 Excel</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="errorBox"></div>
+
+  <div class="tabs" id="tabsBar" style="display:none">
+    <div class="tab active" data-tab="dashboard">🎯 總覽</div>
+    <div class="tab" data-tab="manager">👥 主管彙總</div>
+    <div class="tab" data-tab="store">🏪 單店明細</div>
+    <div class="tab" data-tab="ranking">📈 達成率排名</div>
+    <div class="tab" data-tab="week">📅 週分析</div>
+  </div>
+
+  <!-- 總覽 -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="card">
+      <h2>📌 全店 KPI</h2>
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+    <div class="card">
+      <h2>📊 通路彙總(百貨/街邊)</h2>
+      <div id="channelTable"></div>
+    </div>
+    <div class="card">
+      <h2>🏆 全公司熱銷 TOP 10 商品(各店 TOP 5 加總)</h2>
+      <div id="globalTop10"></div>
+    </div>
+  </div>
+
+  <!-- 主管彙總 (v27: 6 維度複選) -->
+  <div class="panel" id="panel-manager">
+    <div class="filter-multi-v27">
+      <details open class="filter-group"><summary><b>主管</b><span class="filter-selected-count" id="cnt_mgrFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_mgrFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>區域</b><span class="filter-selected-count" id="cnt_areaFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_areaFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>縣市</b><span class="filter-selected-count" id="cnt_cityFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_cityFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>級別</b><span class="filter-selected-count" id="cnt_lvlFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_lvlFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>通路</b><span class="filter-selected-count" id="cnt_chFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_chFilter"></div>
+      </details>
+      <details class="filter-group"><summary><b>販售店</b><span class="filter-selected-count" id="cnt_shopFilter">全部</span></summary>
+        <div class="checkbox-list" id="cb_shopFilter"></div>
+      </details>
+      <button class="filter-clear-btn" onclick="clearAllFilters()" style="height:fit-content;align-self:flex-start;margin-top:4px">🔄 清除全部</button>
+    </div>
+    <div id="mgrCards" class="mgr-grid"></div>
+    <div class="card" style="margin-top:14px">
+      <h2 id="mgrTableTitle">主管明細</h2>
+      <div id="mgrTable"></div>
+    </div>
+  </div>
+
+  <!-- 單店明細 -->
+  <div class="panel" id="panel-store">
+    <div class="controls">
+      <label>選擇門市:</label>
+      <select id="storeSelect" onchange="renderStoreDetail()">
+        <option value="">-- 請選擇 --</option>
+      </select>
+    </div>
+    <div id="storeDetail"></div>
+  </div>
+
+  <!-- 達成率排名 -->
+  <div class="panel" id="panel-ranking">
+    <!-- ⭐ v29: 達成率排名 RYG 動態說明 -->
+    <div id="rankingRygLegend" style="background:linear-gradient(90deg,#fee2e2 0%,#fef3c7 50%,#d1fae5 100%);padding:10px 16px;border-radius:8px;margin-bottom:12px;font-size:13px;line-height:1.6">
+      <strong>📊 達成率 RYG 顏色說明(用「同進度比較」):</strong>
+      <span style="margin-left:8px"><span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-weight:600">🔴 落後</span> 達成率 &lt; <span id="rygThresholdLow">--%</span></span>
+      <span style="margin-left:12px"><span style="background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:4px;font-weight:600">🟡 略落後</span> <span id="rygThresholdMid">--%</span> ~ <span id="rygThresholdHigh">--%</span></span>
+      <span style="margin-left:12px"><span style="background:#d1fae5;color:#047857;padding:2px 8px;border-radius:4px;font-weight:600">🟢 達標</span> &ge; <span id="rygThresholdHigh2">--%</span></span>
+    </div>
+    <div class="controls">
+      <label>排序方式:</label>
+      <select id="rankBy" onchange="renderRanking()">
+        <option value="rate_asc">達成率(低→高,需關注的在最上)</option>
+        <option value="rate_desc">達成率(高→低)</option>
+        <option value="ly_gr_asc">LY 成長率(低→高)</option>
+        <option value="mtd_desc">MTD(高→低)</option>
+      </select>
+      <label style="margin-left:10px">篩選主管:</label>
+      <select id="rankMgrFilter" onchange="renderRanking()">
+        <option value="">全部</option>
+      </select>
+    </div>
+    <div class="card">
+      <div id="rankTable"></div>
+    </div>
+  </div>
+
+  <!-- 週分析 -->
+  <div class="panel" id="panel-week">
+    <div class="controls">
+      <label>選擇週次:</label>
+      <select id="weekPicker" onchange="renderWeek()">
+        <option value="">全部週次</option>
+      </select>
+      <label style="margin-left:10px">
+        <input type="checkbox" id="weekCompareLY" onchange="renderWeek()" style="vertical-align:middle">
+        對比去年同期
+      </label>
+    </div>
+    <div class="card">
+      <h2>📅 全公司週業績</h2>
+      <div id="weekChart" style="margin:16px 0"></div>
+      <div id="weekTable"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ 設定 ============
+// 部署 Apps Script 後填入 Web App URL
+const API_URL = 'https://script.google.com/macros/s/AKfycbyerK_cmcsuqo2OeCZCcZVa5UZITCCzFhcq_uf61FtVNq4tQJbhy-FkClplcDTdPnKahA/exec';
+
+// ============ 登入驗證設定 ============
+// ⚠️ 修改這裡可換密碼/網域
+const AUTH_CONFIG = {
+  PASSWORD: 'Air@2026',                  // 統一密碼(可改)
+  EMAIL_DOMAIN: '@airspaceonline.com',          // 公司電郵結尾(可改)
+  REMEMBER_HOURS: 24                         // 記住幾小時(預設 24 = 1 天)
+};
+
+// 檢查登入狀態
+function checkLogin() {
+  const stored = localStorage.getItem('airspace_auth');
+  if (!stored) return false;
+  try {
+    const data = JSON.parse(stored);
+    const now = Date.now();
+    const ageHours = (now - data.loginTime) / (1000 * 60 * 60);
+    if (ageHours > AUTH_CONFIG.REMEMBER_HOURS) {
+      localStorage.removeItem('airspace_auth');
+      return false;
+    }
+    return data;  // 回傳登入資料 { email, loginTime }
+  } catch (e) {
+    return false;
+  }
+}
+
+// 執行登入
+// 回報登入事件到 Apps Script(背景送,不阻塞 UI)
+function reportLoginEvent(email, type) {
+  try {
+    fetch(API_URL, {
+      method: 'POST',
+      // 不設 Content-Type,讓它變 simple request 避免 CORS preflight
+      body: JSON.stringify({
+        email: email,
+        type: type,
+        userAgent: navigator.userAgent
+      })
+    }).catch(e => console.log('回報失敗(可忽略):', e));
+  } catch (e) {
+    console.log('回報失敗(可忽略):', e);
+  }
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pw = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  
+  // 驗證電郵格式
+  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    err.textContent = '⚠️ 電郵格式不正確';
+    return;
+  }
+  
+  // 驗證公司網域
+  if (!email.endsWith(AUTH_CONFIG.EMAIL_DOMAIN)) {
+    err.textContent = '⚠️ 請使用公司電郵 (' + AUTH_CONFIG.EMAIL_DOMAIN + ')';
+    reportLoginEvent(email, 'wrong_domain');  // 回報非公司電郵
+    return;
+  }
+  
+  // 驗證密碼
+  if (pw !== AUTH_CONFIG.PASSWORD) {
+    err.textContent = '⚠️ 密碼錯誤';
+    reportLoginEvent(email, 'wrong_password');  // 回報密碼錯誤
+    return;
+  }
+  
+  // 登入成功
+  localStorage.setItem('airspace_auth', JSON.stringify({
+    email: email,
+    loginTime: Date.now()
+  }));
+  
+  reportLoginEvent(email, 'login');  // 回報登入成功
+  console.log('登入成功:', email);
+  hideLogin();
+  // 觸發載入資料
+  if (typeof loadData === 'function') loadData();
+}
+
+function hideLogin() {
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+function showLogin() {
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function logout() {
+  localStorage.removeItem('airspace_auth');
+  location.reload();
+}
+
+// 進入頁面時立刻檢查登入狀態
+(function() {
+  const auth = checkLogin();
+  if (auth) {
+    setTimeout(hideLogin, 50);  // 等 DOM 渲染
+    console.log('已登入用戶:', auth.email, '登入時間:', new Date(auth.loginTime).toLocaleString());
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    const pwInput = document.getElementById('loginPassword');
+    const emailInput = document.getElementById('loginEmail');
+    if (pwInput) pwInput.addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+    if (emailInput) emailInput.addEventListener('keypress', e => { if (e.key === 'Enter') {
+      if (emailInput.value) document.getElementById('loginPassword').focus();
+    }});
+  });
+})();
+
+// ============ 全域狀態 ============
+let STORE_MAP = {};
+let MGR_ORDER = [];
+let records = [];
+let dailyByStore = {};
+  let lyByStore = {};
+  let top5ByStore = {};
+  // 動態目標(從 API 讀取,取代寫死的 DAILY_TOTAL_TARGET)
+  let dailyTotalTargets = {};      // { '05-01': 4200000, ... }
+  let storeMonthTargets = {};      // { 'AS04': 1700000, ... }
+  let totalMonthTarget = 0;         // 全公司月總目標
+let cumulativeDailyTarget = 0;    // ⭐ v28 累計日總目標
+let meta = {};
+
+// ⭐ v26 多月份 + 週分析全域變數
+let currentMonth = '';
+let availableMonths = [];
+let weekData = [];
+let lyWeekData = [];
+let outletCodes = ['AS51', 'AS63', 'AT08'];
+
+const $ = id => document.getElementById(id);
+
+// ============ 載入資料 ============
+async function loadData(reqMonth) {
+  // 守衛:未登入時不執行
+  if (!checkLogin()) {
+    showLogin();
+    return;
+  }
+  // 處理 URL 參數
+  const params = new URLSearchParams(window.location.search);
+  const focusMgr = params.get('mgr');
+  const focusStore = params.get('store');
+
+  try {
+    let url = API_URL + (API_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+    // ⭐ v26: 帶月份參數
+    if (reqMonth) url += '&month=' + reqMonth;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    STORE_MAP = data.storeMap;
+    MGR_ORDER = data.mgrOrder;
+    // ⭐ v26 多月份 + 週分析
+    currentMonth = data.currentMonth || '';
+    availableMonths = data.availableMonths || [];
+    weekData = data.weekData || [];
+    lyWeekData = data.lyWeekData || [];
+    outletCodes = data.outletCodes || ['AS51', 'AS63', 'AT08'];
+    // ⭐ v25 需求 6: 排除 MTD <= 0 的店(未開幕店)
+    // ⭐ v25 需求 5: 修 AS62 等 IP 店 bug — 確保所有 records 有預設值
+    records = (data.records || [])
+      .filter(r => (r.MTD || 0) > 0)
+      .map(r => ({
+        ...r,
+        主管: r.主管 || '未指派',
+        轄區: r.轄區 || '其他',
+        縣市: r.縣市 || '其他',
+        販售店: r.販售店 || '其他',
+        販售支線: r.販售支線 || '其他',
+        門市型態: r.門市型態 || '其他',
+        級別: r.級別 || '其他'
+      }));
+    console.log('v26: 載入 ' + records.length + ' 家店, 月份=' + currentMonth);
+    dailyByStore = data.dailyByStore || {};
+    lyByStore = data.lyByStore || {};
+    top5ByStore = data.top5ByStore || {};
+    dailyTotalTargets = data.dailyTotalTargets || {};
+    storeMonthTargets = data.storeMonthTargets || {};
+    totalMonthTarget = data.totalMonthTarget || 0;
+    cumulativeDailyTarget = data.cumulativeDailyTarget || 0;  // ⭐ v28
+    meta = data.meta || {};
+
+    renderMeta();
+    renderMonthPicker();   // ⭐ v26: 填月份下拉
+    renderWeekPicker();    // ⭐ v26: 填週次下拉
+    $('tabsBar').style.display = 'flex';
+    setupTabs();
+    populateSelects();
+
+    // 自動跳轉到指定主管或門市
+    if (focusStore && records.some(r => r.倉庫編號 === focusStore)) {
+      switchTab('store');
+      $('storeSelect').value = focusStore;
+      renderStoreDetail();
+    } else if (focusMgr) {
+      switchTab('manager');
+      $('mgrFilter').value = focusMgr;
+      $('title').innerText = '📊 AIR SPACE 業績儀表板 - ' + focusMgr;
+      renderManager();
+    } else {
+      renderDashboard();
+    renderManager();
+    renderGlobalTop10();
+      renderRanking();
+      renderWeek();    // ⭐ v26
+    }
+  } catch (err) {
+    $('errorBox').innerHTML = '<div class="error">❌ 載入失敗:' + err.message +
+      '<br>請檢查 API_URL 是否正確、或重新部署 Apps Script</div>';
+  }
+}
+
+// ⭐ v26: 填月份下拉
+function renderMonthPicker() {
+  const sel = $('monthPicker');
+  if (!sel) return;
+  sel.innerHTML = '';
+  availableMonths.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.value;
+    opt.text = m.label;
+    if (m.value === currentMonth) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+// ⭐ v26: 切換月份(重新載入該月資料)
+function onMonthChange() {
+  const m = $('monthPicker').value;
+  if (m && m !== currentMonth) {
+    loadData(m);
+  }
+}
+
+// ⭐ v26: 填週次下拉
+function renderWeekPicker() {
+  const sel = $('weekPicker');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">全部週次</option>';
+  weekData.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w.week;
+    opt.text = w.week;
+    sel.appendChild(opt);
+  });
+}
+
+// ⭐ v26: 渲染週分析
+function renderWeek() {
+  const tableDiv = $('weekTable');
+  const chartDiv = $('weekChart');
+  if (!tableDiv) return;
+  
+  const selWeek = $('weekPicker') ? $('weekPicker').value : '';
+  const compareLY = $('weekCompareLY') ? $('weekCompareLY').checked : false;
+  
+  // 過濾要顯示的週次
+  let rows = weekData;
+  if (selWeek) rows = weekData.filter(w => w.week === selWeek);
+  
+  if (rows.length === 0) {
+    tableDiv.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">尚無週分析資料</p>';
+    chartDiv.innerHTML = '';
+    return;
+  }
+  
+  // LY 對照表
+  const lyMap = {};
+  lyWeekData.forEach(w => { lyMap[w.week] = w.amt; });
+  
+  // 表格
+  let html = '<table><thead><tr><th>週次</th><th>全公司業績</th>';
+  if (compareLY) html += '<th>去年同期</th><th>成長率</th>';
+  html += '</tr></thead><tbody>';
+  rows.forEach(w => {
+    html += '<tr><td class="col-center" style="font-weight:600">' + w.week + '</td>';
+    html += '<td><strong>' + (w.amt || 0).toLocaleString() + '</strong></td>';
+    if (compareLY) {
+      const ly = lyMap[w.week] || 0;
+      html += '<td>' + (ly > 0 ? ly.toLocaleString() : '—') + '</td>';
+      if (ly > 0) {
+        const gr = (w.amt / ly - 1) * 100;
+        const color = gr >= 0 ? '#16a34a' : '#dc2626';
+        html += '<td style="color:' + color + ';font-weight:600">' + (gr >= 0 ? '+' : '') + gr.toFixed(1) + '%</td>';
+      } else {
+        html += '<td>—</td>';
+      }
+    }
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  tableDiv.innerHTML = html;
+  
+  // 簡單長條圖(用 div 寬度,不依賴 chart.js 避免出錯)
+  const maxAmt = Math.max(...rows.map(w => w.amt || 0), 1);
+  let barHtml = '<div style="display:flex;flex-direction:column;gap:8px">';
+  rows.forEach(w => {
+    const pct = ((w.amt || 0) / maxAmt * 100).toFixed(1);
+    barHtml += '<div style="display:flex;align-items:center;gap:10px">' +
+      '<span style="width:50px;font-weight:600;font-size:13px">' + w.week + '</span>' +
+      '<div style="flex:1;background:#e2e8f0;border-radius:6px;height:24px;position:relative">' +
+      '<div style="width:' + pct + '%;background:linear-gradient(90deg,#3b82f6,#2563eb);height:100%;border-radius:6px"></div>' +
+      '</div>' +
+      '<span style="width:110px;text-align:right;font-size:13px">' + (w.amt || 0).toLocaleString() + '</span>' +
+      '</div>';
+  });
+  barHtml += '</div>';
+  chartDiv.innerHTML = barHtml;
+}
+
+function renderMeta() {
+  const fileName = meta['資料來源檔名'] || '-';
+  const procTime = meta['處理時間'] ? new Date(meta['處理時間']).toLocaleString('zh-TW') : '-';
+  const month = meta['月份'] || '-';
+  const day = meta['今日是當月第幾天'] || '-';
+  const totalDays = meta['月底總天數'] || '-';
+  $('metaBar').innerHTML =
+    `📅 ${month} | 第 ${day}/${totalDays} 天 | 資料:${fileName} | 更新:${procTime}`;
+}
+
+function populateSelects() {
+  // 主管篩選(佐伊放最前)
+  ['mgrFilter', 'rankMgrFilter'].forEach(id => {
+    const sel = $(id);
+    if (!sel) return;
+    // 佐伊先放(區副理彙總)
+    const optZ = document.createElement('option');
+    optZ.value = '佐伊'; optZ.text = '佐伊 (北區彙總)';
+    sel.appendChild(optZ);
+    MGR_ORDER.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m; opt.text = m;
+      sel.appendChild(opt);
+    });
+  });
+  
+  // ⭐ v27 多維度篩選改 checkbox 群組(複選)
+  const CITY_ORDER = ['台北', '新北', '桃園', '新竹', '台中', '嘉義', '台南', '高雄'];
+  const FILTERS_CONFIG = [
+    { id: 'mgrFilter', field: '主管', order: MGR_ORDER, special: 'zoe' },
+    { id: 'areaFilter', field: '轄區' },
+    { id: 'cityFilter', field: '縣市', order: CITY_ORDER },
+    { id: 'lvlFilter', field: '級別' },
+    { id: 'chFilter', field: '門市型態' },
+    { id: 'shopFilter', field: '販售店' }
+  ];
+  FILTERS_CONFIG.forEach(cfg => {
+    const container = document.getElementById('cb_' + cfg.id);
+    if (!container) return;
+    let vals = [...new Set(records.map(r => r[cfg.field]).filter(v => v))];
+    let sorted;
+    if (cfg.order) {
+      sorted = cfg.order.filter(v => vals.includes(v));
+      vals.forEach(v => { if (!sorted.includes(v)) sorted.push(v); });
+    } else {
+      sorted = vals.sort();
+    }
+    // 主管欄要加佐伊(北區彙總)
+    if (cfg.special === 'zoe') {
+      sorted = ['佐伊'].concat(sorted);
+    }
+    container.innerHTML = '';
+    sorted.forEach(v => {
+      const label = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = v;
+      cb.dataset.filter = cfg.id;
+      cb.onchange = applyFilters;
+      label.appendChild(cb);
+      const span = document.createElement('span');
+      span.textContent = (cfg.special === 'zoe' && v === '佐伊') ? '佐伊 (北區彙總)' : v;
+      label.appendChild(span);
+      container.appendChild(label);
+    });
+  });
+  populateStoreSelect();
+}
+
+// ⭐ v27: 取得篩選器目前的複選值
+function getFilterValues(id) {
+  const container = document.getElementById('cb_' + id);
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('input[type=\"checkbox\"]:checked')).map(cb => cb.value);
+}
+
+// ⭐ v27: 更新「已選 N」計數標籤
+function updateFilterCount(id) {
+  const cnt = document.getElementById('cnt_' + id);
+  if (!cnt) return;
+  const vals = getFilterValues(id);
+  if (vals.length === 0) {
+    cnt.textContent = '全部';
+    cnt.style.background = '#dbeafe';
+    cnt.style.color = '#2563eb';
+  } else {
+    cnt.textContent = '已選 ' + vals.length;
+    cnt.style.background = '#fef3c7';
+    cnt.style.color = '#b45309';
+  }
+}
+
+// ⭐ v27 套用所有篩選(更新計數 + 重新渲染)
+function applyFilters() {
+  ['mgrFilter', 'areaFilter', 'cityFilter', 'lvlFilter', 'chFilter', 'shopFilter'].forEach(updateFilterCount);
+  renderManager();
+}
+
+// ⭐ v27 清除所有篩選(取消所有 checkbox)
+function clearAllFilters() {
+  ['mgrFilter', 'areaFilter', 'cityFilter', 'lvlFilter', 'chFilter', 'shopFilter'].forEach(id => {
+    const container = document.getElementById('cb_' + id);
+    if (container) {
+      container.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => cb.checked = false);
+    }
+  });
+  applyFilters();
+}
+
+// 填入門市下拉(分組顯示:依主管,從 records 直接讀)
+function populateStoreSelect() {
+  const storeSel = $('storeSelect');
+  if (!storeSel) return;
+  // 清空既有 option(保留 -- 請選擇 --)
+  while (storeSel.options.length > 1) storeSel.remove(1);
+  const byMgr = {};
+  records.forEach(r => {
+    const m = r.主管;
+    if (!byMgr[m]) byMgr[m] = [];
+    byMgr[m].push({ code: r.倉庫編號, name: r.倉庫名稱 });
+  });
+  MGR_ORDER.forEach(m => {
+    if (!byMgr[m]) return;
+    const og = document.createElement('optgroup');
+    og.label = m;
+    byMgr[m].forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.code;
+      opt.text = `${s.code} - ${s.name}`;
+      og.appendChild(opt);
+    });
+    storeSel.appendChild(og);
+  });
+  Object.keys(byMgr).forEach(m => {
+    if (MGR_ORDER.includes(m)) return;
+    const og = document.createElement('optgroup');
+    og.label = m;
+    byMgr[m].forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.code;
+      opt.text = `${s.code} - ${s.name}`;
+      og.appendChild(opt);
+    });
+    storeSel.appendChild(og);
+  });
+}
+
+// ============ Tabs ============
+function setupTabs() {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.onclick = () => switchTab(t.dataset.tab);
+  });
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + name);
+  });
+  // ⭐ v26: 切到週分析時渲染
+  if (name === 'week') renderWeek();
+}
+
+// ============ 立即更新按鈕 ============
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  const icon = document.getElementById('refreshIcon');
+  const text = document.getElementById('refreshText');
+  const toast = document.getElementById('refreshToast');
+  
+  // 防止重複點擊
+  if (btn.disabled) return;
+  btn.disabled = true;
+  icon.innerHTML = '<span class="spinner"></span>';
+  text.textContent = '更新中...';
+  toast.classList.remove('show', 'error');
+  
+  try {
+    // 呼叫 Apps Script Web App 的 processAll
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbyEMZdyDcsCi9pC5fZxY6XoZPi3t0YrQIlikObf97IBLpGxIg0UeFeE6jjG-R1hA2B87A/exec?action=refresh';
+    const response = await fetch(apiUrl, { method: 'GET' });
+    
+    if (!response.ok) throw new Error('更新失敗');
+    
+    // 等資料更新完,重新載入頁面(讓網頁去抓最新資料)
+    toast.textContent = '✅ 更新完成,正在重新載入...';
+    toast.classList.add('show');
+    
+    // 1 秒後重新整理頁面
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+    
+  } catch (error) {
+    console.error(error);
+    btn.disabled = false;
+    icon.textContent = '🔄';
+    text.textContent = '立即更新';
+    toast.textContent = '❌ 更新失敗:' + error.message;
+    toast.classList.add('show', 'error');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+}
+
+// ============ 日期 parsing(避免 UTC/local 時區問題) ============
+function parseLocalDate(s) {
+  if (s instanceof Date) return s;
+  let str = String(s || '');
+  // 去掉可能的 leading '
+  if (str.startsWith("'")) str = str.substring(1);
+  // 處理 ISO 8601 含 T 的格式
+  if (str.includes('T')) {
+    // 取前面的日期部分
+    str = str.split('T')[0];
+  }
+  // 處理 "yyyy-MM-dd" 或 "yyyy/MM/dd"
+  const m = str.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+  if (m) {
+    return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+  }
+  // 兜底
+  return new Date(str);
+}
+
+// ============ 數字格式 ============
+function fmt(n, dp = 0) {
+  if (n === null || n === undefined || n === '' || isNaN(n)) return '-';
+  return Number(n).toLocaleString('zh-TW', {
+    minimumFractionDigits: dp, maximumFractionDigits: dp
+  });
+}
+function pct(n) {
+  if (n === null || n === undefined || n === '' || isNaN(n)) return '-';
+  const s = (Number(n) * 100).toFixed(1) + '%';
+  return n >= 0 ? s : s;
+}
+function rateClass(r) {
+  if (r === null || r === undefined || isNaN(r)) return '';
+  // 對比應達成率
+  // ⭐ v28: 應達成率改用累計日目標算法
+  const cumDT = Number(cumulativeDailyTarget) || 0;
+  const totMT = Number(totalMonthTarget) || 0;
+  const exp = totMT > 0 ? cumDT / totMT : (Number(meta['應達成率']) || 0.5);
+  if (r >= exp) return 'rate-good';
+  if (r >= exp * 0.85) return 'rate-warn';
+  return 'rate-bad';
+}
+
+// ============ 總覽 ============
+function renderDashboard() {
+  const total = records.reduce((acc, r) => {
+    acc.LY += r.LY || 0;
+    acc.CM += r.CM目標 || 0;
+    acc.MTD += r.MTD || 0;
+    acc.LM += r.LM銷售 || 0;
+    return acc;
+  }, { LY: 0, CM: 0, MTD: 0, LM: 0 });
+  const rate = total.CM > 0 ? total.MTD / total.CM : 0;
+  // ⭐ v28: 應達成率 = 累計日總目標 ÷ 月總目標
+  const cumDailyTarget = Number(cumulativeDailyTarget) || 0;
+  const totalMT = Number(totalMonthTarget) || 0;
+  let exp = 0;
+  if (totalMT > 0 && cumDailyTarget > 0) {
+    exp = cumDailyTarget / totalMT;
+  } else {
+    // fallback: 用天數比例
+    exp = Number(meta['應達成率']) || 0;
+    if (!exp || isNaN(exp)) {
+      const today = new Date();
+      const yyyymm = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+      if (currentMonth === yyyymm) {
+        const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+        exp = today.getDate() / daysInMonth;
+      } else if (currentMonth && currentMonth < yyyymm) {
+        exp = 1;
+      }
+    }
+  }
+  const ly_gr = total.LY > 0 ? total.MTD / total.LY - 1 : 0;
+  const lm_gr = total.LM > 0 ? total.MTD / total.LM - 1 : 0;
+
+  $('kpiGrid').innerHTML = `
+    <div class="kpi"><div class="kpi-label">總店數</div>
+      <div class="kpi-value">${records.length}</div></div>
+    <div class="kpi"><div class="kpi-label">CM 目標</div>
+      <div class="kpi-value">${fmt(total.CM)}</div></div>
+    <div class="kpi"><div class="kpi-label">MTD 實績</div>
+      <div class="kpi-value">${fmt(total.MTD)}</div></div>
+    <div class="kpi"><div class="kpi-label">達成率</div>
+      <div class="kpi-value ${rateClass(rate)}">${pct(rate)}</div>
+      <div class="kpi-sub">應達成 ${pct(exp)} (差 ${pctRYG(rate - exp, 'gr')})</div></div>
+    <div class="kpi"><div class="kpi-label">LY 同期</div>
+      <div class="kpi-value">${fmt(total.LY)}</div>
+      <div class="kpi-sub">YoY ${pct(ly_gr)}</div></div>
+    <div class="kpi"><div class="kpi-label">LM 同期</div>
+      <div class="kpi-value">${fmt(total.LM)}</div>
+      <div class="kpi-sub">MoM ${pct(lm_gr)}</div></div>
+  `;
+
+  // 通路 × 縣市(縣市按北中南排序)
+  const CITY_ORDER = ['台北', '新北', '桃園', '新竹', '台中', '嘉義', '台南', '高雄'];
+  const byChannel = {};
+  records.forEach(r => {
+    const k1 = r.門市型態;
+    const k2 = r.縣市;
+    if (!byChannel[k1]) byChannel[k1] = {};
+    if (!byChannel[k1][k2]) byChannel[k1][k2] = { LY: 0, CM: 0, MTD: 0, count: 0 };
+    byChannel[k1][k2].LY += r.LY || 0;
+    byChannel[k1][k2].CM += r.CM目標 || 0;
+    byChannel[k1][k2].MTD += r.MTD || 0;
+    byChannel[k1][k2].count += 1;
+  });
+  
+  // 縣市排序函式
+  function sortCities(cities) {
+    return cities.slice().sort((a, b) => {
+      const ia = CITY_ORDER.indexOf(a);
+      const ib = CITY_ORDER.indexOf(b);
+      if (ia === -1 && ib === -1) return a.localeCompare(b);
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+  }
+
+  let html = '<table style="max-width:900px"><thead><tr>' +
+    '<th style="width:70px">通路</th>' +
+    '<th style="width:55px">縣市</th>' +
+    '<th style="width:50px">店數</th>' +
+    '<th style="width:110px">LY</th>' +
+    '<th style="width:110px">CM 目標</th>' +
+    '<th style="width:110px">MTD</th>' +
+    '<th style="width:75px">達成率</th>' +
+    '<th style="width:75px">LY_GR</th>' +
+    '</tr></thead><tbody>';
+
+  const channelOrder = ['百貨店', '街邊店'];
+  channelOrder.forEach(ch => {
+    if (!byChannel[ch]) return;
+    const cities = sortCities(Object.keys(byChannel[ch]));
+    let chTotal = { LY: 0, CM: 0, MTD: 0, count: 0 };
+    cities.forEach((c, i) => {
+      const d = byChannel[ch][c];
+      const r = d.CM > 0 ? d.MTD / d.CM : 0;
+      const ly_gr = d.LY > 0 ? d.MTD / d.LY - 1 : null;
+      html += `<tr>
+        <td class="col-txt">${i === 0 ? ch : ''}</td>
+        <td class="col-txt">${c}</td>
+        <td>${d.count}</td>
+        <td>${fmt(d.LY)}</td>
+        <td>${fmt(d.CM)}</td>
+        <td>${fmt(d.MTD)}</td>
+        <td class="${rateClass(r)}">${pct(r)}</td>
+        <td>${pct(ly_gr)}</td>
+      </tr>`;
+      chTotal.LY += d.LY; chTotal.CM += d.CM; chTotal.MTD += d.MTD; chTotal.count += d.count;
+    });
+    const tr = chTotal.CM > 0 ? chTotal.MTD / chTotal.CM : 0;
+    const tlg = chTotal.LY > 0 ? chTotal.MTD / chTotal.LY - 1 : null;
+    html += `<tr class="subtotal-row">
+      <td class="col-txt" colspan="2">${ch} 小計</td>
+      <td>${chTotal.count}</td>
+      <td>${fmt(chTotal.LY)}</td>
+      <td>${fmt(chTotal.CM)}</td>
+      <td>${fmt(chTotal.MTD)}</td>
+      <td class="${rateClass(tr)}">${pct(tr)}</td>
+      <td>${pct(tlg)}</td>
+    </tr>`;
+  });
+
+  const gr = total.CM > 0 ? total.MTD / total.CM : 0;
+  const glg = total.LY > 0 ? total.MTD / total.LY - 1 : null;
+  html += `<tr class="grand-row">
+    <td class="col-txt" colspan="2">總計</td>
+    <td>${records.length}</td>
+    <td>${fmt(total.LY)}</td>
+    <td>${fmt(total.CM)}</td>
+    <td>${fmt(total.MTD)}</td>
+    <td class="${rateClass(gr)}">${pct(gr)}</td>
+    <td>${pct(glg)}</td>
+  </tr>`;
+  html += '</tbody></table>';
+  $('channelTable').innerHTML = html;
+}
+
+// ============ 主管彙總 ============
+// 佐伊管轄的 4 位區副理
+const ZOE_TEAM = ['律廷', '含含', '樺樺', 'RIISA'];
+
+function renderManager() {
+  // ⭐ v27 複選邏輯:每個維度可選多個值(OR),維度之間 AND
+  const filterMs = getFilterValues('mgrFilter');
+  const filterAs = getFilterValues('areaFilter');
+  const filterCs = getFilterValues('cityFilter');
+  const filterLs = getFilterValues('lvlFilter');
+  const filterChs = getFilterValues('chFilter');
+  const filterShops = getFilterValues('shopFilter');
+  
+  // 「佐伊」展開成 ZOE_TEAM 4 位
+  const expandedMgrs = filterMs.includes('佐伊')
+    ? Array.from(new Set(filterMs.filter(m => m !== '佐伊').concat(ZOE_TEAM)))
+    : filterMs;
+  const useMgrFilter = filterMs.length > 0;
+  
+  const byMgr = {};
+  records.forEach(r => {
+    // 各維度 OR(空陣列 = 不篩選)
+    if (useMgrFilter && !expandedMgrs.includes(r.主管)) return;
+    if (filterAs.length && !filterAs.includes(r.轄區)) return;
+    if (filterCs.length && !filterCs.includes(r.縣市)) return;
+    if (filterLs.length && !filterLs.includes(r.級別)) return;
+    if (filterChs.length && !filterChs.includes(r.門市型態)) return;
+    if (filterShops.length && !filterShops.includes(r.販售店)) return;
+    
+    if (!byMgr[r.主管]) byMgr[r.主管] = [];
+    byMgr[r.主管].push(r);
+  });
+  
+  // ⭐ v27: 加入佐伊群組(只在沒選主管,或選了佐伊時顯示)
+  if (filterMs.length === 0 || filterMs.includes('佐伊')) {
+    const zoeStores = [];
+    ZOE_TEAM.forEach(m => {
+      if (byMgr[m]) zoeStores.push(...byMgr[m]);
+    });
+    if (zoeStores.length > 0) {
+      byMgr['佐伊'] = zoeStores;
+    }
+  }
+
+  // 卡片
+  let cards = '';
+  const mgrs = Object.keys(byMgr).sort((a, b) => {
+    // 佐伊放最前(區副理摘要卡)
+    if (a === '佐伊') return -1;
+    if (b === '佐伊') return 1;
+    const ia = MGR_ORDER.indexOf(a); const ib = MGR_ORDER.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+  mgrs.forEach(m => {
+    const list = byMgr[m];
+    const ly = list.reduce((s, r) => s + (r.LY || 0), 0);
+    const cm = list.reduce((s, r) => s + (r.CM目標 || 0), 0);
+    const mtd = list.reduce((s, r) => s + (r.MTD || 0), 0);
+    const lm = list.reduce((s, r) => s + (r.LM銷售 || 0), 0);
+    const rate = cm > 0 ? mtd / cm : 0;
+    const ly_gr = ly > 0 ? mtd / ly - 1 : null;
+    const lm_gr = lm > 0 ? mtd / lm - 1 : null;
+    const exp = Number(meta['應達成率']) || 0;
+    let cls = 'progress-fill';
+    if (rate < exp * 0.85) cls += ' bad';
+    else if (rate < exp) cls += ' warn';
+    const isZoe = (m === '佐伊');
+    cards += `
+      <div class="mgr-card${isZoe ? ' mgr-card-zoe' : ''}" onclick="filterByMgr('${m}')">
+        <div class="mgr-card-header">
+          <div class="mgr-name">${m}</div>
+          <div class="mgr-stores">${list.length} 店</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <span>達成率</span>
+          <strong class="${rateClass(rate)}">${pct(rate)}</strong>
+        </div>
+        <div class="progress-bar">
+          <div class="${cls}" style="width:${Math.min(rate*100, 100)}%"></div>
+        </div>
+        <div class="mgr-stats">
+          <div class="mgr-stat">
+            <div class="mgr-stat-label">MTD</div>
+            <div class="mgr-stat-value">${fmt(mtd)}</div>
+          </div>
+          <div class="mgr-stat">
+            <div class="mgr-stat-label">CM 目標</div>
+            <div class="mgr-stat-value">${fmt(cm)}</div>
+          </div>
+          <div class="mgr-stat">
+            <div class="mgr-stat-label">LY_GR</div>
+            <div class="mgr-stat-value">${pct(ly_gr)}</div>
+          </div>
+          <div class="mgr-stat">
+            <div class="mgr-stat-label">LM_GR</div>
+            <div class="mgr-stat-value">${pct(lm_gr)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  $('mgrCards').innerHTML = cards;
+
+  // 詳細表
+  let html = '<table><thead><tr>' +
+    '<th style="width:70px">主管</th>' +
+    '<th style="width:80px">倉庫編號</th>' +
+    '<th style="width:120px">門市</th>' +
+    '<th style="width:60px">級別</th>' +
+    '<th style="width:80px">支線</th>' +
+    '<th style="width:110px">LY</th>' +
+    '<th style="width:110px">CM</th>' +
+    '<th style="width:110px">MTD</th>' +
+    '<th style="width:80px">達成率</th>' +
+    '<th style="width:80px">LY_GR</th>' +
+    '<th style="width:80px">LM_GR</th>' +
+    '</tr></thead><tbody>';
+  mgrs.forEach(m => {
+    // v27: 詳細表中跳過佐伊群組(避免跟原 4 位主管重複列出明細)
+    if (m === '佐伊' && !filterMs.includes('佐伊')) return;
+    const list = byMgr[m].sort((a, b) => (a.達成率 || 0) - (b.達成率 || 0));
+    list.forEach((r, i) => {
+      html += `<tr>
+        <td class="col-txt">${i === 0 ? m : ''}</td>
+        <td class="col-txt"><a href="#" onclick="event.preventDefault();gotoStore('${r.倉庫編號}')">${r.倉庫編號}</a></td>
+        <td class="col-txt">${r.倉庫名稱}</td>
+        <td class="col-center">${r.級別}</td>
+        <td class="col-center">${r.販售支線}</td>
+        <td>${fmt(r.LY)}</td>
+        <td>${fmt(r.CM目標)}</td>
+        <td>${fmt(r.MTD)}</td>
+        <td>${pctRYG(r.達成率, 'rate')}</td>
+        <td>${pctRYG(r.LY_GR, 'gr')}</td>
+        <td>${pctRYG(r.LM_GR, 'gr')}</td>
+      </tr>`;
+    });
+    // 小計
+    const ly = list.reduce((s, r) => s + (r.LY || 0), 0);
+    const cm = list.reduce((s, r) => s + (r.CM目標 || 0), 0);
+    const mtd = list.reduce((s, r) => s + (r.MTD || 0), 0);
+    const lm = list.reduce((s, r) => s + (r.LM銷售 || 0), 0);
+    const rate = cm > 0 ? mtd / cm : 0;
+    const ly_gr = ly > 0 ? mtd / ly - 1 : null;
+    const lm_gr = lm > 0 ? mtd / lm - 1 : null;
+    html += `<tr class="subtotal-row">
+      <td class="col-txt" colspan="5">${m} 小計 (${list.length}店)</td>
+      <td>${fmt(ly)}</td>
+      <td>${fmt(cm)}</td>
+      <td>${fmt(mtd)}</td>
+      <td class="${rateClass(rate)}">${pct(rate)}</td>
+      <td>${pct(ly_gr)}</td>
+      <td>${pct(lm_gr)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('mgrTable').innerHTML = html;
+  // v27: 多選時動態顯示標題
+  $('mgrTableTitle').innerText = filterMs.length === 1 ? `${filterMs[0]} 詳細明細`
+    : filterMs.length > 1 ? `${filterMs.length} 位主管 詳細明細`
+    : '所有主管明細';
+}
+
+function filterByMgr(m) {
+  $('mgrFilter').value = m;
+  renderManager();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function gotoStore(code) {
+  switchTab('store');
+  $('storeSelect').value = code;
+  renderStoreDetail();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============ 單店明細 ============
+let storeChart = null;
+function renderStoreDetail() {
+  const code = $('storeSelect').value;
+  const box = $('storeDetail');
+  if (!code) { box.innerHTML = ''; return; }
+  const r = records.find(x => x.倉庫編號 === code);
+  if (!r) { box.innerHTML = '<div class="error">找不到此門市資料</div>'; return; }
+
+  const exp = Number(meta['應達成率']) || 0;
+  const day = Number(meta['今日是當月第幾天']) || 1;
+  // 預估月底達成率
+  const projMtd = day > 0 ? (r.MTD / day) * (Number(meta['月底總天數']) || 31) : 0;
+  const projRate = r.CM目標 > 0 ? projMtd / r.CM目標 : 0;
+
+  box.innerHTML = `
+    <div class="card">
+      <h2>🏪 ${r.倉庫編號} - ${r.倉庫名稱}</h2>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;color:#475569">
+        <div><strong>主管:</strong> ${r.主管}</div>
+        <div><strong>轄區:</strong> ${r.轄區}</div>
+        <div><strong>縣市:</strong> ${r.縣市}</div>
+        <div><strong>門市型態:</strong> ${r.門市型態}</div>
+        <div><strong>販售店:</strong> ${r.販售店}</div>
+        <div><strong>支線:</strong> ${r.販售支線}</div>
+        <div><strong>級別:</strong> ${r.級別}</div>
+        <div><strong>坪數:</strong> ${r.坪數}</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">CM 目標</div>
+          <div class="kpi-value">${fmt(r.CM目標)}</div></div>
+        <div class="kpi"><div class="kpi-label">MTD</div>
+          <div class="kpi-value">${fmt(r.MTD)}</div></div>
+        <div class="kpi"><div class="kpi-label">達成率</div>
+          <div class="kpi-value ${rateClass(r.達成率)}">${pct(r.達成率)}</div>
+          <div style="margin-top:4px">${pctRYG(r.達成率, 'rate')}</div>
+          <div class="kpi-sub">應 ${pct(exp)}</div></div>
+        <div class="kpi"><div class="kpi-label">月底預估</div>
+          <div class="kpi-value">${fmt(projMtd)}</div>
+          <div class="kpi-sub">預估達成 ${pct(projRate)}</div></div>
+        <div class="kpi"><div class="kpi-label">LY 同期</div>
+          <div class="kpi-value">${fmt(r.LY)}</div>
+          <div class="kpi-sub">YoY ${pctRYG(r.LY_GR, 'gr')}</div></div>
+        <div class="kpi"><div class="kpi-label">LM 同期</div>
+          <div class="kpi-value">${fmt(r.LM銷售)}</div>
+          <div class="kpi-sub">MoM ${pctRYG(r.LM_GR, 'gr')}</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📈 每日銷售趨勢</h2>
+      <div class="chart-container"><canvas id="storeChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>📅 每日明細</h2>
+      <div id="storeDailyTable"></div>
+    </div>
+    <div class="card">
+      <h2>🏆 該店熱銷 TOP 5 商品</h2>
+      <div id="storeTop5"></div>
+    </div>
+  `;
+
+  // 繪圖
+  const daily = (dailyByStore[code] || []).slice().sort((a, b) => {
+    const sa = String(a.date).replace(/^'/, '');
+    const sb = String(b.date).replace(/^'/, '');
+    return sa.localeCompare(sb);
+  });
+  const labels = daily.map(d => {
+    const dt = parseLocalDate(d.date);
+    return (dt.getMonth() + 1) + '/' + dt.getDate();
+  });
+  const data = daily.map(d => d.amt);
+  // 累積線
+  let cum = 0;
+  const cumData = data.map(v => cum += v);
+
+  // 等分目標線 (CM/總天數 為日平均)
+  const dailyTarget = r.CM目標 / (Number(meta['月底總天數']) || 31);
+
+  // 去年同店每日銷售(對齊今年日期的「月-日」)
+  const lyDaily = lyByStore[code] || [];
+  const lyMap = {};
+  lyDaily.forEach(d => {
+    const m = String(d.date).match(/(\d{2})-(\d{2})$/);
+    if (m) lyMap[m[1] + '-' + m[2]] = d.amt;
+  });
+  const lyData = daily.map(d => {
+    const m = String(d.date).match(/(\d{2})-(\d{2})$/);
+    if (m && lyMap[m[1] + '-' + m[2]] !== undefined) return lyMap[m[1] + '-' + m[2]];
+    return null;
+  });
+  const hasLY = lyData.some(v => v !== null && v !== 0);
+  
+  // 智能日均目標:從 API 讀取的動態目標
+  // 公式:該店今日目標 = 全公司今日目標 × (該店月目標 ÷ 全公司月目標)
+  // 優先用 storeMonthTargets(從 Drive 讀的目標),fallback 用 r.CM目標
+  const storeMonthTargetFromAPI = storeMonthTargets[code];
+  const storeMonthTarget = (storeMonthTargetFromAPI > 0) ? storeMonthTargetFromAPI : (r.CM目標 || 0);
+  const monthTotalForRatio = (totalMonthTarget > 0) ? totalMonthTarget : 91861290;
+  const storeRatio = monthTotalForRatio > 0 ? storeMonthTarget / monthTotalForRatio : 0;
+  
+  const smartTargets = daily.map(d => {
+    const mm_dd_match = String(d.date).match(/(\d{2}-\d{2})$/);
+    if (mm_dd_match && dailyTotalTargets[mm_dd_match[1]]) {
+      return Math.round(dailyTotalTargets[mm_dd_match[1]] * storeRatio);
+    }
+    return dailyTarget;  // 找不到目標時,退回平均日目標
+  });
+  
+  const chartDatasets = [
+    {
+      type: 'bar',
+      label: '每日銷售',
+      data: data,
+      backgroundColor: 'rgba(44,82,130,0.55)',
+      yAxisID: 'y'
+    },
+    {
+      type: 'line',
+      label: '當日目標',
+      data: smartTargets,
+      borderColor: '#dc2626',
+      borderDash: [6, 4],
+      backgroundColor: 'transparent',
+      pointRadius: 0,
+      yAxisID: 'y',
+      tension: 0.1
+    }
+  ];
+  if (hasLY) {
+    chartDatasets.push({
+      type: 'line',
+      label: '去年同期',
+      data: lyData,
+      borderColor: '#9ca3af',
+      borderDash: [8, 4],
+      backgroundColor: 'transparent',
+      pointRadius: 3,
+      pointBackgroundColor: '#9ca3af',
+      tension: 0.2,
+      yAxisID: 'y',
+      spanGaps: true
+    });
+  }
+  
+  if (storeChart) storeChart.destroy();
+  storeChart = new Chart($('storeChart'), {
+    data: {
+      labels: labels,
+      datasets: chartDatasets
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: { position: 'left', title: { display: true, text: '單日銷售' } },
+        y1: { position: 'right', title: { display: true, text: '累積' }, grid: { drawOnChartArea: false } }
+      },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`
+          }
+        }
+      }
+    }
+  });
+
+  // 明細表(緊湊版)
+  let dtbl = '<table style="max-width:480px"><thead><tr>' +
+    '<th style="width:70px">日期</th>' +
+    '<th style="width:60px">星期</th>' +
+    '<th style="width:120px">金額</th>' +
+    '<th style="width:140px">累計</th>' +
+    '</tr></thead><tbody>';
+  let acc = 0;
+  daily.forEach(d => {
+    acc += d.amt;
+    const dt = parseLocalDate(d.date);
+    const wk = ['日', '一', '二', '三', '四', '五', '六'][dt.getDay()];
+    const dateStr = (dt.getMonth() + 1) + '/' + dt.getDate();
+    dtbl += `<tr>
+      <td class="col-center">${dateStr}</td>
+      <td class="col-center">${wk}</td>
+      <td>${fmt(d.amt)}</td>
+      <td>${fmt(acc)}</td>
+    </tr>`;
+  });
+  dtbl += '</tbody></table>';
+  $('storeDailyTable').innerHTML = dtbl;
+  
+  // 渲染 TOP 5 商品
+  renderStoreTop5(code);
+}
+
+// 渲染單店 TOP 5(v25:隱藏銷售金額欄)
+function renderStoreTop5(code) {
+  const container = $('storeTop5');
+  if (!container) return;
+  const items = top5ByStore[code] || [];
+  if (items.length === 0) {
+    container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">這家店暫無 TOP 5 商品資料</p>';
+    return;
+  }
+  items.sort((a, b) => (a.rank || 99) - (b.rank || 99));
+  const medals = ['🥇', '🥈', '🥉', '4', '5'];
+  // ⭐ v27 需求 3: 排名 / 款號 / 商品名稱 / 銷售件數(無金額)
+  let html = '<table style="max-width:800px"><thead><tr>' +
+    '<th style="width:60px">排名</th>' +
+    '<th style="width:100px">款號</th>' +
+    '<th>商品名稱</th>' +
+    '<th style="width:120px">銷售件數</th>' +
+    '</tr></thead><tbody>';
+  items.forEach((it, i) => {
+    const medal = medals[i] || (i + 1);
+    const style = it.styleCode || '—';
+    html += `<tr>
+      <td class="col-center" style="font-size:16px">${medal}</td>
+      <td class="col-center" style="font-family:monospace;font-size:13px">${style}</td>
+      <td class="col-txt">${it.name}</td>
+      <td><strong>${(it.qty || 0).toLocaleString()}</strong></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// 渲染全公司熱銷 TOP 10(v25:分 OUTLET / 一般組,按件數排序)
+function renderGlobalTop10() {
+  const container = $('globalTop10');
+  if (!container) return;
+  
+  // 找 OUTLET 店代號
+  const OUTLET_CODES = ['AS51', 'AS63', 'AT08'];
+  
+  // 分組:一般門市 / OUTLET 各自彙總
+  const generalMap = {};   // 一般門市
+  const outletMap = {};    // OUTLET
+  
+  // ⭐ v27: 按「款號 + 名稱」聚合(同款號 = 同商品),記錄款號
+  Object.keys(top5ByStore).forEach(code => {
+    const isOutlet = OUTLET_CODES.indexOf(code) >= 0;
+    const targetMap = isOutlet ? outletMap : generalMap;
+    
+    top5ByStore[code].forEach(item => {
+      const key = (item.styleCode && item.styleCode.trim()) ? item.styleCode.trim() : item.name;
+      if (!targetMap[key]) {
+        targetMap[key] = { styleCode: item.styleCode || '', name: item.name, qty: 0, storeSet: {} };
+      }
+      targetMap[key].qty += (item.qty || 0);
+      targetMap[key].storeSet[code] = true;  // ⭐ v29: 用 object key 去重(比 Set 更穩)
+    });
+  });
+  // ⭐ v29: 把 storeSet 轉成 stores 計數
+  [generalMap, outletMap].forEach(map => {
+    Object.values(map).forEach(p => { p.stores = Object.keys(p.storeSet).length; });
+  });
+  
+  function rankTop10(productMap) {
+    return Object.values(productMap)
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 10);
+  }
+  
+  const generalRanked = rankTop10(generalMap);
+  const outletRanked = rankTop10(outletMap);
+  
+  if (generalRanked.length === 0 && outletRanked.length === 0) {
+    container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">尚未取得 TOP 5 資料,請執行一鍵更新</p>';
+    return;
+  }
+  
+  // 渲染:一般組 + OUTLET 組 兩個獨立表格
+  const medals = ['🥇', '🥈', '🥉'];
+  
+  // ⭐ v27 需求 3: 拉掉銷售金額,加款號(排名/款號/商品名稱/上榜店數/銷售件數)
+  function renderTable(ranked, title, badgeColor) {
+    if (ranked.length === 0) return '';
+    let html = '<h3 style="margin-top:20px;color:' + badgeColor + ';display:flex;align-items:center;gap:8px">' +
+      '<span style="background:' + badgeColor + ';color:white;padding:2px 12px;border-radius:12px;font-size:14px">' + title + '</span>' +
+      '<span style="color:#94a3b8;font-size:14px;font-weight:normal">共 ' + ranked.length + ' 項</span></h3>';
+    html += '<table><thead><tr>' +
+      '<th style="width:60px">排名</th>' +
+      '<th style="width:100px">款號</th>' +
+      '<th>商品名稱</th>' +
+      '<th style="width:80px">上榜店數</th>' +
+      '<th style="width:100px">總銷售件數</th>' +
+      '</tr></thead><tbody>';
+    ranked.forEach((p, i) => {
+      const m = medals[i] || (i + 1);
+      const style = p.styleCode || '—';
+      html += `<tr>
+        <td class="col-center" style="font-size:16px">${m}</td>
+        <td class="col-center" style="font-family:monospace;font-size:13px">${style}</td>
+        <td class="col-txt">${p.name}</td>
+        <td>${p.stores} 店</td>
+        <td><strong>${p.qty.toLocaleString()}</strong></td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    return html;
+  }
+  
+  let html = '';
+  html += renderTable(generalRanked, '🏬 一般門市', '#2563eb');
+  html += renderTable(outletRanked, '🛍️ OUTLET 三店', '#f59e0b');
+  
+  container.innerHTML = html;
+}
+
+// ============ 達成率排名 ============
+function renderRanking() {
+  // ⭐ v29: 更新 RYG 說明條的閾值(隨應達成率動態)
+  const expForLegend = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
+    ? cumulativeDailyTarget / totalMonthTarget : 0;
+  if (expForLegend > 0) {
+    const low = (expForLegend - 0.10) * 100;
+    const high = expForLegend * 100;
+    const el1 = document.getElementById('rygThresholdLow');
+    const el2 = document.getElementById('rygThresholdMid');
+    const el3 = document.getElementById('rygThresholdHigh');
+    const el4 = document.getElementById('rygThresholdHigh2');
+    if (el1) el1.textContent = low.toFixed(1) + '%';
+    if (el2) el2.textContent = low.toFixed(1) + '%';
+    if (el3) el3.textContent = high.toFixed(1) + '%';
+    if (el4) el4.textContent = high.toFixed(1) + '%';
+  }
+
+  const sortBy = $('rankBy').value;
+  const fm = $('rankMgrFilter').value;
+  let list = records.slice();
+  // ⭐ v26 需求 3: 佐伊 = ZOE_TEAM 聚合(不是單一主管)
+  if (fm === '佐伊') {
+    list = list.filter(r => ZOE_TEAM.includes(r.主管));
+  } else if (fm) {
+    list = list.filter(r => r.主管 === fm);
+  }
+  list.sort((a, b) => {
+    switch (sortBy) {
+      case 'rate_asc': return (a.達成率 || 0) - (b.達成率 || 0);
+      case 'rate_desc': return (b.達成率 || 0) - (a.達成率 || 0);
+      case 'ly_gr_asc': return (a.LY_GR === null ? 99 : a.LY_GR) - (b.LY_GR === null ? 99 : b.LY_GR);
+      case 'mtd_desc': return (b.MTD || 0) - (a.MTD || 0);
+    }
+  });
+
+  let html = '<table><thead><tr>' +
+    '<th style="width:50px">#</th>' +
+    '<th style="width:80px">倉庫編號</th>' +
+    '<th style="width:140px">門市</th>' +
+    '<th style="width:70px">主管</th>' +
+    '<th style="width:60px">級別</th>' +
+    '<th style="width:120px">CM</th>' +
+    '<th style="width:120px">MTD</th>' +
+    '<th style="width:80px">達成率</th>' +
+    '<th style="width:80px">LY_GR</th>' +
+    '<th style="width:80px">LM_GR</th>' +
+    '</tr></thead><tbody>';
+  list.forEach((r, i) => {
+    html += `<tr>
+      <td class="col-center">${i + 1}</td>
+      <td class="col-txt"><a href="#" onclick="event.preventDefault();gotoStore('${r.倉庫編號}')">${r.倉庫編號}</a></td>
+      <td class="col-txt">${r.倉庫名稱}</td>
+      <td class="col-txt">${r.主管}</td>
+      <td class="col-center">${r.級別}</td>
+      <td>${fmt(r.CM目標)}</td>
+      <td>${fmt(r.MTD)}</td>
+      <td>${pctRYG(r.達成率, 'rate')}</td>
+      <td>${pctRYG(r.LY_GR, 'gr')}</td>
+      <td>${pctRYG(r.LM_GR, 'gr')}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('rankTable').innerHTML = html;
+}
+
+// ============ 下載 Excel ============
+function downloadExcel() {
+  const filterM = new URLSearchParams(window.location.search).get('mgr');
+  let list = records;
+  if (filterM) list = records.filter(r => r.主管 === filterM);
+
+  let csv = '\uFEFF';  // BOM 給 Excel 正確顯示中文
+  csv += '倉庫編號,倉庫名稱,主管,轄區,縣市,門市型態,販售店,販售支線,級別,LY,CM目標,MTD,達成率,LY_GR,LM_GR\n';
+  list.forEach(r => {
+    csv += [
+      r.倉庫編號, r.倉庫名稱, r.主管, r.轄區, r.縣市,
+      r.門市型態, r.販售店, r.販售支線, r.級別,
+      r.LY, r.CM目標, r.MTD,
+      r.達成率 ? (r.達成率 * 100).toFixed(1) + '%' : '',
+      r.LY_GR !== null && r.LY_GR !== '' ? (r.LY_GR * 100).toFixed(1) + '%' : '',
+      r.LM_GR !== null && r.LM_GR !== '' ? (r.LM_GR * 100).toFixed(1) + '%' : '',
+    ].join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `業績_${meta['月份'] || ''}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+
+// ⭐ v28: RYG 顏色判斷工具函式
+function rygClassByGR(gr) {
+  // 適用 LY_GR / LM_GR / 相差(差異)
+  if (gr === null || gr === undefined || gr === '' || isNaN(gr)) return '';
+  if (gr < -0.10) return 'ryg-red';
+  if (gr < 0) return 'ryg-yellow';
+  return 'ryg-green';
+}
+function rygClassByRate(rate) {
+  // 適用 達成率
+  if (rate === null || rate === undefined || rate === '' || isNaN(rate)) return '';
+  if (rate < 0.80) return 'ryg-red';
+  if (rate < 1.00) return 'ryg-yellow';
+  return 'ryg-green';
+}
+function pctRYG(v, type) {
+  // 數字 → 帶 RYG 樣式的百分比 HTML
+  if (v === null || v === undefined || v === '' || isNaN(v)) return '<span style="color:#94a3b8">—</span>';
+  const cls = type === 'rate' ? rygClassByRate(v) : rygClassByGR(v);
+  const sign = v > 0 ? '+' : '';
+  return `<span class="ryg-cell ${cls}">${sign}${(v * 100).toFixed(1)}%</span>`;
+}
+
+// ============ 啟動 ============
+loadData();
+</script>
+</body>
+</html>

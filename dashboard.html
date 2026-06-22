@@ -111,24 +111,15 @@
   
   /* 立即更新按鈕 */
   .refresh-btn {
-    position: fixed;
-    top: 20px;
-    right: 200px;
-    z-index: 999;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 24px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
   .refresh-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(30, 58, 95, 0.4);
@@ -434,11 +425,7 @@
   </div>
 </div>
 
-<button id="refreshBtn" class="refresh-btn" onclick="refreshData()">
-  <span id="refreshIcon">🔄</span>
-  <span id="refreshText">立即更新</span>
-</button>
-<div id="refreshToast" class="refresh-toast"></div>
+
 
 
 <div class="topbar">
@@ -451,6 +438,11 @@
       <option value="">載入中...</option>
     </select>
     <button class="secondary" onclick="downloadExcel()">📥 下載 Excel</button>
+    <button id="refreshBtn" class="refresh-btn" onclick="refreshData()">
+  <span id="refreshIcon">🔄</span>
+  <span id="refreshText">立即更新</span>
+</button>
+<div id="refreshToast" class="refresh-toast"></div>
   </div>
 </div>
 

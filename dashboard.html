@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <!--
-  AIR SPACE 業績儀表板 v28 (2026/6/8)
+  AIR SPACE 業績儀表板 v29 (2026/6/12)
+  v29 新增:
+    需求 1: TOP10/TOP5 標題加「周銷」
+    需求 2: OUTLET 上榜店數去重(用 Set 計算)
+    需求 3: 達成率排名加 RYG 動態說明條
+  
+  v28 (2026/6/8)
   v28 新增:
     需求 1: RYG 顏色標示(LY_GR/LM_GR/達成率/差異)
     需求 2: 應達成率改用「累計日總目標 / 月總目標」新算法
@@ -518,6 +524,13 @@
 
   <!-- 達成率排名 -->
   <div class="panel" id="panel-ranking">
+    <!-- ⭐ v29: 達成率排名 RYG 動態說明 -->
+    <div id="rankingRygLegend" style="background:linear-gradient(90deg,#fee2e2 0%,#fef3c7 50%,#d1fae5 100%);padding:10px 16px;border-radius:8px;margin-bottom:12px;font-size:13px;line-height:1.6">
+      <strong>📊 達成率 RYG 顏色說明(用「同進度比較」):</strong>
+      <span style="margin-left:8px"><span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-weight:600">🔴 落後</span> 達成率 &lt; <span id="rygThresholdLow">--%</span></span>
+      <span style="margin-left:12px"><span style="background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:4px;font-weight:600">🟡 略落後</span> <span id="rygThresholdMid">--%</span> ~ <span id="rygThresholdHigh">--%</span></span>
+      <span style="margin-left:12px"><span style="background:#d1fae5;color:#047857;padding:2px 8px;border-radius:4px;font-weight:600">🟢 達標</span> &ge; <span id="rygThresholdHigh2">--%</span></span>
+    </div>
     <div class="controls">
       <label>排序方式:</label>
       <select id="rankBy" onchange="renderRanking()">
@@ -559,7 +572,7 @@
 <script>
 // ============ 設定 ============
 // 部署 Apps Script 後填入 Web App URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbyerK_cmcsuqo2OeCZCcZVa5UZITCCzFhcq_uf61FtVNq4tQJbhy-FkClplcDTdPnKahA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyEMZdyDcsCi9pC5fZxY6XoZPi3t0YrQIlikObf97IBLpGxIg0UeFeE6jjG-R1hA2B87A/exec';
 
 // ============ 登入驗證設定 ============
 // ⚠️ 修改這裡可換密碼/網域
@@ -1751,6 +1764,22 @@ function renderGlobalTop10() {
 
 // ============ 達成率排名 ============
 function renderRanking() {
+  // ⭐ v29: 更新 RYG 說明條的閾值(隨應達成率動態)
+  const expForLegend = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
+    ? cumulativeDailyTarget / totalMonthTarget : 0;
+  if (expForLegend > 0) {
+    const low = (expForLegend - 0.10) * 100;
+    const high = expForLegend * 100;
+    const el1 = document.getElementById('rygThresholdLow');
+    const el2 = document.getElementById('rygThresholdMid');
+    const el3 = document.getElementById('rygThresholdHigh');
+    const el4 = document.getElementById('rygThresholdHigh2');
+    if (el1) el1.textContent = low.toFixed(1) + '%';
+    if (el2) el2.textContent = low.toFixed(1) + '%';
+    if (el3) el3.textContent = high.toFixed(1) + '%';
+    if (el4) el4.textContent = high.toFixed(1) + '%';
+  }
+
   const sortBy = $('rankBy').value;
   const fm = $('rankMgrFilter').value;
   let list = records.slice();
@@ -1844,19 +1873,9 @@ function rygClassByRate(rate) {
   return 'ryg-green';
 }
 function pctRYG(v, type) {
+  // 數字 → 帶 RYG 樣式的百分比 HTML
   if (v === null || v === undefined || v === '' || isNaN(v)) return '<span style="color:#94a3b8">—</span>';
-  let cls;
-  if (type === 'rate') {
-    // ⭐ 達成率用「同進度比較」:店家達成率 vs 全公司應達成率
-    const exp = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
-                  ? cumulativeDailyTarget / totalMonthTarget : 1.0;
-    const diff = v - exp;
-    if (diff < -0.10) cls = 'ryg-red';        // 落後超過 10%
-    else if (diff < 0) cls = 'ryg-yellow';     // 略落後
-    else cls = 'ryg-green';                    // 達到/超前
-  } else {
-    cls = rygClassByGR(v);
-  }
+  const cls = type === 'rate' ? rygClassByRate(v) : rygClassByGR(v);
   const sign = v > 0 ? '+' : '';
   return `<span class="ryg-cell ${cls}">${sign}${(v * 100).toFixed(1)}%</span>`;
 }

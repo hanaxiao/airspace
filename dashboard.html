@@ -1875,7 +1875,7 @@ function downloadExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `業績_${meta['月份'] || ''}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `業績_${currentMonth || 'data'}_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }

@@ -473,10 +473,19 @@
     </div>
     <div class="card">
       <h2>📊 通路彙總(百貨/街邊)</h2>
+      <div style="background:linear-gradient(90deg,#fee2e2 0%,#fef3c7 50%,#d1fae5 100%);padding:10px 16px;border-radius:8px;margin-bottom:12px;font-size:13px;line-height:1.6">
+  <strong>📊 達成率 RYG 顏色說明(用「同進度比較」):</strong>
+  <span style="margin-left:8px"><span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-weight:600">🔴 落後</span> 達成率 &lt; <span id="rygCh_Low">--%</span></span>
+  <span style="margin-left:12px"><span style="background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:4px;font-weight:600">🟡 略落後</span> <span id="rygCh_Mid">--%</span> ~ <span id="rygCh_High">--%</span></span>
+  <span style="margin-left:12px"><span style="background:#d1fae5;color:#047857;padding:2px 8px;border-radius:4px;font-weight:600">🟢 達標</span> &ge; <span id="rygCh_High2">--%</span></span>
+</div>
       <div id="channelTable"></div>
     </div>
     <div class="card">
-      <h2>🏆 全公司熱銷 TOP 10 商品(各店 TOP 5 加總)</h2>
+      <h2>🏆 全公司周銷 TOP 10 商品(各店周銷 TOP 5 加總)</h2>
+<div style="font-size:13px;color:#64748b;margin:-8px 0 12px 4px">
+  ⚠️ 「上榜店數」= 該款號出現在幾家店(同款已去重,不會重複計算)
+</div>
       <div id="globalTop10"></div>
     </div>
   </div>
@@ -1142,7 +1151,19 @@ function rateClass(r) {
 }
 
 // ============ 總覽 ============
-function renderDashboard() {
+function renderDashboard() {// ⭐ 更新通路彙整 RYG 說明條趴數
+  const expChan = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
+                    ? cumulativeDailyTarget / totalMonthTarget : 0;
+  if (expChan > 0) {
+    const low = ((expChan - 0.10) * 100).toFixed(1) + '%';
+    const high = (expChan * 100).toFixed(1) + '%';
+    ['rygCh_Low', 'rygCh_Mid'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = low;
+    });
+    ['rygCh_High', 'rygCh_High2'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = high;
+    });
+  }
   const total = records.reduce((acc, r) => {
     acc.LY += r.LY || 0;
     acc.CM += r.CM目標 || 0;
@@ -1510,7 +1531,7 @@ function renderStoreDetail() {
       <div id="storeDailyTable"></div>
     </div>
     <div class="card">
-      <h2>🏆 該店熱銷 TOP 5 商品</h2>
+      <h2>🏆 該店周銷 TOP 5 商品</h2>
       <div id="storeTop5"></div>
     </div>
   `;

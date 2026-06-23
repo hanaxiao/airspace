@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <!--
-  AIR SPACE 業績儀表板 v29 (2026/6/12)
+  AIR SPACE 業績儀表板 v30 (2026/6/12)
+  v30 新增:
+    💡 業績洞察分頁(規則式分析)
+    - 自動篩選需要關注的店家(達成率 < 應達成率)
+    - 數據解讀(根據 LY_GR / LM_GR / 落差自動產生)
+    - 行動建議(根據門市型態 / TOP5 / 落差程度)
+    - 未來可升級為 Claude AI 分析(架構保留)
+  
+  v29 (2026/6/12)
   v29 新增:
     需求 1: TOP10/TOP5 標題加「周銷」
     需求 2: OUTLET 上榜店數去重(用 Set 計算)
@@ -35,8 +43,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIR SPACE 業績儀表板</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<title>AIR SPACE 業績儀表板 v28</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+// ============ ⭐ v30 業績洞察(規則式分析) ============
+function generateInsights() {
+  const status = document.getElementById('insightStatus');
+  const stats = document.getElementById('insightStats');
+  const content = document.getElementById('insightContent');
+  
+  if (!records || records.length === 0) {
+    status.textContent = '⚠️ 沒有店家資料,請先載入';
+    return;
+  }
+  
+  status.textContent = '⏳ 分析中...';
+  
+  // 算全公司應達成率
+  const exp = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
+                ? cumulativeDailyTarget / totalMonthTarget : 0;
+  
+  // 篩出「需要關注」= 達成率 < 應達成率(紅+黃)
+  const needAttention = records
+    .filter(r => (r.達成率 || 0) > 0 && (r.達成率 || 0) < exp)
+    .sort((a, b) => (a.達成率 || 0) - (b.達成率 || 0));  // 由低到高
+  
+  if (needAttention.length === 0) {
+    status.textContent = '🎉 太棒了!所有店家都達到應達成率!';
+    stats.style.display = 'none';
+    content.innerHTML = '';
+    return;
+  }
+  
+  // 算全公司平均 LY_GR / LM_GR(用 records 計算)
+  const validLY = records.filter(r => r.LY_GR !== null && !isNaN(r.LY_GR));
+  const validLM = records.filter(r => r.LM_GR !== null && !isNaN(r.LM_GR));
+  const avgLY = validLY.length ? validLY.reduce((s,r) => s + r.LY_GR, 0) / validLY.length : 0;
+  const avgLM = validLM.length ? validLM.reduce((s,r) => s + r.LM_GR, 0) / validLM.length : 0;
+  
+  // ===== 統計卡片 =====
+  const redCount = needAttention.filter(r => r.達成率 < exp - 0.10).length;
+  const yellowCount = needAttention.length - redCount;
+  stats.style.display = 'block';
+  stats.innerHTML = `
+    <div class="card" style="display:flex;gap:20px;flex-wrap:wrap;background:#f8fafc">
+      <div><strong style="font-size:24px;color:#b91c1c">${redCount}</strong> 家 🔴 嚴重落後</div>
+      <div><strong style="font-size:24px;color:#b45309">${yellowCount}</strong> 家 🟡 略落後</div>
+      <div>全公司平均 LY 成長率:<strong style="color:${avgLY>=0?'#047857':'#b91c1c'}">${(avgLY*100).toFixed(1)}%</strong></div>
+      <div>全公司平均 LM 成長率:<strong style="color:${avgLM>=0?'#047857':'#b91c1c'}">${(avgLM*100).toFixed(1)}%</strong></div>
+    </div>
+  `;
+  
+  // ===== 每家店建議 =====
+  let html = '';
+  needAttention.forEach(r => {
+    html += renderStoreInsight(r, exp, avgLY, avgLM);
+  });
+  content.innerHTML = html;
+  
+  status.textContent = `✓ 共分析 ${needAttention.length} 家店`;
+}
+
+function renderStoreInsight(r, exp, avgLY, avgLM) {
+  const rate = r.達成率 || 0;
+  const lyGR = r.LY_GR;
+  const lmGR = r.LM_GR;
+  const diff = rate - exp;
+  const isRed = diff < -0.10;
+  const bgColor = isRed ? '#fee2e2' : '#fef3c7';
+  const borderColor = isRed ? '#b91c1c' : '#f59e0b';
+  
+  // ===== 數據解讀(根據規則自動產生)=====
+  const interpretations = [];
+  
+  if (lyGR !== null && lyGR < -0.10) {
+    interpretations.push(`📉 <strong style="color:#b91c1c">去年同期衰退 ${(lyGR*100).toFixed(1)}%</strong>(全公司平均 ${(avgLY*100).toFixed(1)}%) — 這是主要警訊`);
+  } else if (lyGR !== null && lyGR > 0.10) {
+    interpretations.push(`📈 去年同期成長 ${(lyGR*100).toFixed(1)}% — 趨勢正向,落後可能是「目標訂太高」`);
+  } else if (lyGR !== null) {
+    interpretations.push(`📊 去年同期 ${(lyGR*100).toFixed(1)}%(全公司 ${(avgLY*100).toFixed(1)}%)`);
+  }
+  
+  if (lmGR !== null && lmGR < -0.10) {
+    interpretations.push(`⚠️ <strong style="color:#b91c1c">比上月同期衰退 ${(lmGR*100).toFixed(1)}%</strong>(全公司平均 ${(avgLM*100).toFixed(1)}%) — 短期動能下滑`);
+  } else if (lmGR !== null && lmGR > 0.10) {
+    interpretations.push(`💪 比上月同期成長 ${(lmGR*100).toFixed(1)}% — 短期動能向上,持續觀察`);
+  }
+  
+  if (diff < -0.20) {
+    interpretations.push(`🔴 <strong>落後應達成率 ${Math.abs(diff*100).toFixed(1)}%</strong> — 急需介入`);
+  } else if (diff < -0.10) {
+    interpretations.push(`🟠 落後應達成率 ${Math.abs(diff*100).toFixed(1)}% — 需密切關注`);
+  } else {
+    interpretations.push(`🟡 略落後應達成率 ${Math.abs(diff*100).toFixed(1)}% — 可挽救`);
+  }
+  
+  // ===== 行動建議(根據規則組合)=====
+  const actions = [];
+  
+  if (lyGR !== null && lyGR < -0.10) {
+    actions.push(`<strong>比較去年熱銷品項</strong>:對照 LY 同期 TOP 商品,確認是否商品結構斷層或缺貨`);
+  }
+  
+  if (lmGR !== null && lmGR < -0.10) {
+    actions.push(`<strong>檢視 7 天內銷售曲線</strong>:找出衰退節點(是某個假日、人員調整、還是商品下架?)`);
+  }
+  
+  // 看該店 TOP5 - 若銷售件數低,代表商品力不足或客流量少
+  const top5 = top5ByStore[r.倉庫編號];
+  if (top5 && top5.length > 0) {
+    const top5TotalQty = top5.reduce((s, t) => s + (t.qty || 0), 0);
+    if (top5TotalQty < 30) {
+      actions.push(`<strong>TOP5 件數偏低(僅 ${top5TotalQty} 件)</strong>:可能客流量不足,加強進店招呼話術 / 引導試穿`);
+    }
+  }
+  
+  if (r.門市型態 === '百貨店') {
+    actions.push(`<strong>百貨店建議</strong>:確認百貨檔期、樓管溝通是否有資源可爭取`);
+  } else if (r.門市型態 === 'OUTLET店') {
+    actions.push(`<strong>OUTLET 店建議</strong>:強化「組合銷售 / 加價購」提升客單價`);
+  } else {
+    actions.push(`<strong>街邊店建議</strong>:檢視商圈動態(競品促銷、人潮變化)`);
+  }
+  
+  if (diff < -0.20) {
+    actions.push(`<strong>緊急動作</strong>:店長 / 主管當週需親自盤點,並提報區經理`);
+  }
+  
+  // ===== 渲染卡片 =====
+  return `
+    <div class="card" style="background:${bgColor};border-left:4px solid ${borderColor};margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div>
+          <h3 style="margin:0;color:${borderColor}">${isRed ? '🔴' : '🟡'} ${r.倉庫編號} ${r.倉庫名稱}</h3>
+          <div style="margin-top:4px;font-size:13px;color:#64748b">
+            主管:${r.主管 || '—'} | ${r.門市型態 || '—'} | ${r.級別 || '—'}級店 | ${r.縣市 || '—'}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:700;color:${borderColor}">${(rate*100).toFixed(1)}%</div>
+          <div style="font-size:12px;color:#64748b">應達 ${(exp*100).toFixed(1)}%</div>
+        </div>
+      </div>
+      
+      <div style="margin-top:12px">
+        <strong style="color:#1e293b">📊 數據解讀:</strong>
+        <ul style="margin:6px 0 0 0;padding-left:20px;line-height:1.8;font-size:14px">
+          ${interpretations.map(i => `<li>${i}</li>`).join('')}
+        </ul>
+      </div>
+      
+      <div style="margin-top:12px">
+        <strong style="color:#1e293b">💡 行動建議:</strong>
+        <ul style="margin:6px 0 0 0;padding-left:20px;line-height:1.8;font-size:14px">
+          ${actions.map(a => `<li>${a}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+</script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -111,15 +277,24 @@
   
   /* 立即更新按鈕 */
   .refresh-btn {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 999;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
   .refresh-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(30, 58, 95, 0.4);
@@ -425,7 +600,11 @@
   </div>
 </div>
 
-
+<button id="refreshBtn" class="refresh-btn" onclick="refreshData()">
+  <span id="refreshIcon">🔄</span>
+  <span id="refreshText">立即更新</span>
+</button>
+<div id="refreshToast" class="refresh-toast"></div>
 
 
 <div class="topbar">
@@ -438,11 +617,6 @@
       <option value="">載入中...</option>
     </select>
     <button class="secondary" onclick="downloadExcel()">📥 下載 Excel</button>
-    <button id="refreshBtn" class="refresh-btn" onclick="refreshData()">
-  <span id="refreshIcon">🔄</span>
-  <span id="refreshText">立即更新</span>
-</button>
-<div id="refreshToast" class="refresh-toast"></div>
   </div>
 </div>
 
@@ -455,6 +629,7 @@
     <div class="tab" data-tab="store">🏪 單店明細</div>
     <div class="tab" data-tab="ranking">📈 達成率排名</div>
     <div class="tab" data-tab="week">📅 週分析</div>
+    <div class="tab" data-tab="insight">💡 業績洞察</div>
   </div>
 
   <!-- 總覽 -->
@@ -465,19 +640,10 @@
     </div>
     <div class="card">
       <h2>📊 通路彙總(百貨/街邊)</h2>
-      <div style="background:linear-gradient(90deg,#fee2e2 0%,#fef3c7 50%,#d1fae5 100%);padding:10px 16px;border-radius:8px;margin-bottom:12px;font-size:13px;line-height:1.6">
-  <strong>📊 達成率 RYG 顏色說明(用「同進度比較」):</strong>
-  <span style="margin-left:8px"><span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-weight:600">🔴 落後</span> 達成率 &lt; <span id="rygCh_Low">--%</span></span>
-  <span style="margin-left:12px"><span style="background:#fef3c7;color:#b45309;padding:2px 8px;border-radius:4px;font-weight:600">🟡 略落後</span> <span id="rygCh_Mid">--%</span> ~ <span id="rygCh_High">--%</span></span>
-  <span style="margin-left:12px"><span style="background:#d1fae5;color:#047857;padding:2px 8px;border-radius:4px;font-weight:600">🟢 達標</span> &ge; <span id="rygCh_High2">--%</span></span>
-</div>
       <div id="channelTable"></div>
     </div>
     <div class="card">
-      <h2>🏆 全公司周銷 TOP 10 商品(各店周銷 TOP 5 加總)</h2>
-<div style="font-size:13px;color:#64748b;margin:-8px 0 12px 4px">
-  ⚠️ 「上榜店數」= 該款號出現在幾家店(同款已去重,不會重複計算)
-</div>
+      <h2>🏆 全公司熱銷 TOP 10 商品(各店 TOP 5 加總)</h2>
       <div id="globalTop10"></div>
     </div>
   </div>
@@ -568,6 +734,27 @@
       <div id="weekTable"></div>
     </div>
   </div>
+
+  <!-- ⭐ v30: 業績洞察 -->
+  <div class="panel" id="panel-insight">
+    <div class="card" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-left:4px solid #f59e0b">
+      <h2 style="margin-top:0">💡 業績洞察(規則式分析)</h2>
+      <p style="margin:8px 0;color:#78350f;line-height:1.6">
+        系統會自動篩選「<strong>需要關注</strong>」的店家(達成率 &lt; 應達成率),提供數據解讀 + 行動建議。
+        分析範圍包含「該店資料」+「全公司平均對比」。
+      </p>
+      <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+        <button class="secondary" onclick="generateInsights()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px">
+          🚀 生成業績洞察
+        </button>
+        <span id="insightStatus" style="align-self:center;color:#78350f;font-size:13px"></span>
+      </div>
+    </div>
+    
+    <div id="insightStats" style="display:none;margin-top:12px"></div>
+    <div id="insightContent" style="margin-top:12px"></div>
+  </div>
+
 </div>
 
 <script>
@@ -1143,19 +1330,7 @@ function rateClass(r) {
 }
 
 // ============ 總覽 ============
-function renderDashboard() {// ⭐ 更新通路彙整 RYG 說明條趴數
-  const expChan = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
-                    ? cumulativeDailyTarget / totalMonthTarget : 0;
-  if (expChan > 0) {
-    const low = ((expChan - 0.10) * 100).toFixed(1) + '%';
-    const high = (expChan * 100).toFixed(1) + '%';
-    ['rygCh_Low', 'rygCh_Mid'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.textContent = low;
-    });
-    ['rygCh_High', 'rygCh_High2'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.textContent = high;
-    });
-  }
+function renderDashboard() {
   const total = records.reduce((acc, r) => {
     acc.LY += r.LY || 0;
     acc.CM += r.CM目標 || 0;
@@ -1523,7 +1698,7 @@ function renderStoreDetail() {
       <div id="storeDailyTable"></div>
     </div>
     <div class="card">
-      <h2>🏆 該店周銷 TOP 5 商品</h2>
+      <h2>🏆 該店熱銷 TOP 5 商品</h2>
       <div id="storeTop5"></div>
     </div>
   `;
@@ -1867,7 +2042,7 @@ function downloadExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `業績_${currentMonth || 'data'}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `業績_${meta['月份'] || ''}_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -1889,19 +2064,9 @@ function rygClassByRate(rate) {
   return 'ryg-green';
 }
 function pctRYG(v, type) {
+  // 數字 → 帶 RYG 樣式的百分比 HTML
   if (v === null || v === undefined || v === '' || isNaN(v)) return '<span style="color:#94a3b8">—</span>';
-  let cls;
-  if (type === 'rate') {
-    // ⭐ 達成率用「同進度比較」:店家達成率 vs 全公司應達成率
-    const exp = (totalMonthTarget > 0 && cumulativeDailyTarget > 0)
-                  ? cumulativeDailyTarget / totalMonthTarget : 1.0;
-    const diff = v - exp;
-    if (diff < -0.10) cls = 'ryg-red';
-    else if (diff < 0) cls = 'ryg-yellow';
-    else cls = 'ryg-green';
-  } else {
-    cls = rygClassByGR(v);
-  }
+  const cls = type === 'rate' ? rygClassByRate(v) : rygClassByGR(v);
   const sign = v > 0 ? '+' : '';
   return `<span class="ryg-cell ${cls}">${sign}${(v * 100).toFixed(1)}%</span>`;
 }

@@ -84,25 +84,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .pivot-footer td{border-top:2px solid #ddd!important}
 
 /* ── 總覽（表格） ── */
-.ov-section{background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.ov-section-title{background:#1d1d1f;color:#fff;padding:9px 12px;font-size:13px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.ov-section{background:#fff;border-radius:10px;margin-bottom:7px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.ov-section-title{background:#1d1d1f;color:#fff;padding:7px 10px;font-size:12px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
 .ov-section-sub{font-size:10px;font-weight:400;color:#aaa}
 .ov-table-wrap{overflow-x:auto}
 .ov-table{width:100%;border-collapse:collapse;font-size:11px}
-.ov-table th{background:#f5f5f5;padding:6px 8px;font-weight:700;font-size:10px;color:#555;border-bottom:2px solid #e0e0e0;white-space:nowrap;text-align:right}
+.ov-table th{background:#f5f5f5;padding:4px 7px;font-weight:700;font-size:10px;color:#555;border-bottom:2px solid #e0e0e0;white-space:nowrap;text-align:right}
 .ov-table th:first-child{text-align:left}
 .ov-table th.store-col{background:#FFF3F3;color:#c62828}
-.ov-table td{padding:7px 8px;border-bottom:1px solid #f2f2f2;text-align:right;font-size:12px}
-.ov-table td:first-child{text-align:left;font-weight:800;font-size:13px;color:#1d1d1f;sticky:left}
+.ov-table td{padding:4px 7px;border-bottom:1px solid #f2f2f2;text-align:right;font-size:11px}
+.ov-table td:first-child{text-align:left;font-weight:800;font-size:12px;color:#1d1d1f}
 .ov-table tr:last-child td{border-bottom:none}
 .ov-table tr:hover td{background:#fafafa}
 .ov-table .highlight-row td{background:#FFF3F3}
 .ov-rate{font-size:10px;color:#86868b}
 .ov-store-val{color:#d32f2f;font-weight:800}
 .ov-no-store{text-align:center;padding:40px 20px;color:#86868b;font-size:13px}
-.ov-summary{display:flex;gap:7px;padding:10px 12px;border-bottom:1px solid #f0f0f0}
+.ov-summary{display:flex;gap:5px;padding:6px 10px;border-bottom:1px solid #f0f0f0}
 .ov-sum-chip{flex:1;text-align:center}
-.ov-sum-chip .v{font-size:16px;font-weight:800}
+.ov-sum-chip .v{font-size:14px;font-weight:800}
 .ov-sum-chip .l{font-size:9px;color:#86868b;margin-top:1px}
 .ov-sum-chip.red .v{color:#d32f2f}
 </style>
@@ -338,17 +338,20 @@ function renderOverview(){
   ['AS','OL','PLUS','CA'].forEach(brand=>{
     const prods=DATA.products[brand];
     if(!prods||!prods.length) return;
+    const mySalesTotal=prods.reduce((s,p)=>s+(p.store_sales?.[currentStore]||0),0);
+    if(mySalesTotal===0) return; // 本店無銷售則隱藏此支線
     const bLabel={AS:'AIR SPACE',OL:'OL',PLUS:'PLUS',CA:'CA'}[brand]||brand;
-    const sorted=[...prods].sort((a,b)=>b.total_sales-a.total_sales);
+    // 只保留本店有銷售的款式
+    const storeProds=prods.filter(p=>(p.store_sales?.[currentStore]||0)>0);
+    const sorted=[...storeProds].sort((a,b)=>b.total_sales-a.total_sales);
 
     const tSales=prods.reduce((s,p)=>s+p.total_sales,0);
     const tInv=prods.reduce((s,p)=>s+p.inventory,0);
-    const mySalesTotal=prods.reduce((s,p)=>s+(p.store_sales?.[currentStore]||0),0);
 
     h+=`<div class="ov-section">
       <div class="ov-section-title">
         <span>${bLabel}</span>
-        <span class="ov-section-sub">${prods.length}款新品</span>
+        <span class="ov-section-sub">${storeProds.length} / ${prods.length} 款有銷售</span>
       </div>
       <div class="ov-summary">
         <div class="ov-sum-chip red"><div class="v">${mySalesTotal}</div><div class="l">本店銷售</div></div>

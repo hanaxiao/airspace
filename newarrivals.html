@@ -380,7 +380,7 @@ function renderOverview(){
         <td>${p.inventory}</td>
         <td class="ov-rate">${turnover(p.total_sales,p.inventory)}</td>
         <td class="ov-store-val">${ms||'–'}</td>
-        <td class="ov-rate">${ms>0?turnover(ms,p.inventory):'–'}</td>
+        <td class="ov-rate">${ms>0?turnover(ms,(p.store_inventory?.[currentStore]||p.inventory)):'–'}</td>
       </tr>`;
     });
     h+=`</tbody></table></div></div>`;

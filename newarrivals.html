@@ -7,15 +7,11 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:#f0f0f2;color:#1d1d1f}
-
-/* Header */
 .header{background:#1d1d1f;color:#fff;padding:12px 14px 10px;position:sticky;top:0;z-index:200}
 .header-top{display:flex;justify-content:space-between;align-items:center}
 .header h1{font-size:15px;font-weight:700}
 .header-sub{font-size:10px;color:#888;margin-top:2px}
 .refresh-btn{background:none;border:1px solid #444;color:#aaa;font-size:11px;padding:3px 9px;border-radius:6px;cursor:pointer}
-
-/* Store bar */
 .store-bar{background:#fff;border-bottom:1px solid #e5e5e5;padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:50px;z-index:199}
 .store-bar label{font-size:11px;color:#86868b;white-space:nowrap;font-weight:600}
 .store-select{flex:1;font-size:13px;font-weight:700;color:#1d1d1f;border:1.5px solid #d0d0d0;border-radius:8px;padding:6px 28px 6px 9px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 9px center;-webkit-appearance:none}
@@ -23,28 +19,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .mode-pill{font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;white-space:nowrap}
 .mode-all{background:#f0f0f0;color:#555}
 .mode-store{background:#1d1d1f;color:#fff}
-
-/* Tab bar */
 .tab-bar{background:#fff;border-bottom:1px solid #e5e5e5;display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:94px;z-index:198}
 .tab-bar::-webkit-scrollbar{display:none}
 .tab-btn{flex:0 0 auto;padding:10px 14px;font-size:12px;font-weight:600;color:#86868b;background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap}
 .tab-btn.active{color:#1d1d1f;border-bottom-color:#1d1d1f}
-
-/* Content */
 .tab-content{display:none;padding:10px 11px 28px}
 .tab-content.active{display:block}
-
-/* Summary chips */
 .chips{display:flex;gap:7px;margin:8px 0 10px}
 .chip{flex:1;background:#fff;border-radius:9px;padding:9px 6px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.07)}
 .chip .v{font-size:18px;font-weight:800;line-height:1}
 .chip .l{font-size:9px;color:#86868b;margin-top:2px}
 .chip.red .v{color:#d32f2f}
-
-/* Section label */
 .sec{font-size:10px;color:#86868b;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding:6px 2px 4px}
-
-/* ── Product card (改版：直式大圖) ── */
 .card{background:#fff;border-radius:12px;margin-bottom:8px;display:flex;align-items:stretch;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .card-img-wrap{position:relative;width:100px;flex-shrink:0}
 .card-img{width:100px;height:140px;object-fit:cover;display:block;background:#f5f5f7}
@@ -53,10 +39,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .rank-1{background:#FFB800!important;color:#fff}
 .rank-2{background:#9EA3A8!important;color:#fff}
 .rank-3{background:#C1845A!important;color:#fff}
-
 .card-body{flex:1;padding:8px 9px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;gap:4px}
-
-/* 款號大 × 2 */
 .card-sku{font-size:20px;font-weight:900;color:#1d1d1f;line-height:1.1;letter-spacing:.3px}
 .card-name{font-size:11px;color:#777;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card-tags{display:flex;gap:4px;flex-wrap:wrap}
@@ -65,8 +48,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .tag-a{background:#FFF3CD;color:#856404}
 .tag-b{background:#E8F4FD;color:#1565C0}
 .tag-rush{background:#FFE0E0;color:#c62828}
-
-/* Stats row - compact */
 .card-stats{display:flex;gap:0;border-top:1px solid #f2f2f2;margin-top:2px}
 .stat{flex:1;text-align:center;padding:5px 2px}
 .stat+.stat{border-left:1px solid #f2f2f2}
@@ -75,54 +56,58 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .stat.mystore .sv{color:#d32f2f}
 .inv-low{color:#d32f2f!important}
 .inv-ok{color:#2e7d32!important}
-
-/* ── 各店比較 ── */
-.cmp-card{background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.cmp-header{display:flex;align-items:center;gap:9px;padding:9px 10px 7px}
-.cmp-img{width:52px;height:72px;object-fit:cover;border-radius:7px;background:#f5f5f7;flex-shrink:0}
-.cmp-img-empty{width:52px;height:72px;border-radius:7px;background:#f5f5f7;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.cmp-info{flex:1;min-width:0}
-.cmp-sku{font-size:17px;font-weight:900;color:#1d1d1f}
-.cmp-name{font-size:10px;color:#888;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;margin-top:2px}
-.cmp-total{font-size:11px;color:#86868b;margin-top:3px}
-.cmp-total b{color:#1d1d1f}
-.cmp-brand{font-size:10px;padding:1px 6px;border-radius:4px;background:#f0f0f0;color:#555}
-.store-rows{padding:0 10px 8px}
-.store-row{display:flex;align-items:center;gap:7px;padding:3px 0;border-radius:6px}
-.store-row.top3{background:#FFFBEA;margin:0 -4px;padding:3px 4px;border-radius:6px}
-.store-row.mystore-row{background:#FFF0F0;margin:0 -4px;padding:3px 4px;border-radius:6px;border-left:3px solid #d32f2f}
-.store-row.top3.mystore-row{background:linear-gradient(to right,#FFF0F0,#FFFBEA);border-left:3px solid #d32f2f}
-.store-code-lbl{font-size:10px;font-weight:700;color:#555;width:40px;flex-shrink:0}
-.bar-wrap{flex:1;background:#eee;border-radius:4px;height:8px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;background:#ccc;transition:width .3s}
-.bar-top1{background:#FFB800}
-.bar-top2{background:#9EA3A8}
-.bar-top3{background:#C1845A}
-.bar-me{background:#d32f2f}
-.store-sales-lbl{font-size:11px;font-weight:700;color:#333;width:28px;text-align:right;flex-shrink:0}
-.medal{font-size:12px;flex-shrink:0}
-
-/* ── 總覽 ── */
-.overview-brand{background:#fff;border-radius:12px;margin-bottom:10px;padding:12px 13px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.ov-title{font-size:13px;font-weight:800;color:#1d1d1f;margin-bottom:8px}
-.ov-nums{display:flex;gap:8px;margin-bottom:10px}
-.ov-num{flex:1;text-align:center}
-.ov-num .v{font-size:20px;font-weight:800}
-.ov-num .l{font-size:9px;color:#86868b;margin-top:1px}
-.ov-num.red .v{color:#d32f2f}
-.ov-rank-label{font-size:11px;color:#86868b;margin-bottom:5px}
-.ov-bar-wrap{background:#eee;border-radius:6px;height:10px;overflow:hidden;margin-bottom:3px}
-.ov-bar{height:100%;border-radius:6px;background:#1d1d1f;transition:width .5s}
-.ov-bar-sub{font-size:10px;color:#86868b;display:flex;justify-content:space-between}
-.ov-no-store{text-align:center;padding:40px 20px;color:#86868b;font-size:13px}
-
 .week-pill{display:inline-block;background:#1d1d1f;color:#fff;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:8px;font-weight:600}
 .loading{text-align:center;padding:50px 20px;color:#86868b;font-size:13px}
 .error{text-align:center;padding:40px 20px;color:#d32f2f;font-size:12px}
+
+/* ── 各店比較（樞紐表格）── */
+.filter-row{display:flex;align-items:center;gap:8px;margin:8px 0 10px;background:#fff;border-radius:9px;padding:8px 10px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.filter-row label{font-size:11px;color:#86868b;font-weight:600;white-space:nowrap}
+.brand-sel{font-size:13px;font-weight:700;color:#1d1d1f;border:1.5px solid #d0d0d0;border-radius:8px;padding:5px 26px 5px 8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;-webkit-appearance:none;flex:1}
+.pivot-note{font-size:10px;color:#86868b;margin-bottom:6px}
+.pivot-outer{overflow-x:auto;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.pivot-table{border-collapse:collapse;font-size:11px;background:#fff;width:max-content;min-width:100%}
+.pivot-table th{background:#1d1d1f;color:#fff;padding:6px 8px;font-weight:600;white-space:nowrap;font-size:10px;text-align:center;position:sticky;top:0}
+.pivot-table th.sticky-col{position:sticky;left:0;z-index:10;background:#1d1d1f;text-align:left;min-width:90px}
+.pivot-table th.total-th{background:#333}
+.pivot-table td{padding:5px 8px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f5f5f5;text-align:center;white-space:nowrap}
+.pivot-table td.sticky-col{position:sticky;left:0;background:#fff;z-index:5;text-align:left;font-weight:700;font-size:11px;border-right:2px solid #e0e0e0}
+.pivot-table tr:hover td{background:#fafafa}
+.pivot-table tr:hover td.sticky-col{background:#f5f5f5}
+.pivot-table td.total-td{font-weight:800;background:#f8f8f8;border-left:2px solid #ddd}
+.pivot-table td.top1{background:#FFE082;font-weight:800;color:#5d3a00}
+.pivot-table td.top2{background:#FFF176;font-weight:700;color:#4a3600}
+.pivot-table td.top3{background:#FFFDE7;font-weight:600}
+.pivot-table td.mystore-td{outline:2px solid #d32f2f;outline-offset:-2px;color:#d32f2f;font-weight:800}
+.pivot-table td.zero{color:#ddd}
+.pivot-footer{background:#f8f8f8;font-weight:700}
+.pivot-footer td{border-top:2px solid #ddd!important}
+
+/* ── 總覽（表格） ── */
+.ov-section{background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.ov-section-title{background:#1d1d1f;color:#fff;padding:9px 12px;font-size:13px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.ov-section-sub{font-size:10px;font-weight:400;color:#aaa}
+.ov-table-wrap{overflow-x:auto}
+.ov-table{width:100%;border-collapse:collapse;font-size:11px}
+.ov-table th{background:#f5f5f5;padding:6px 8px;font-weight:700;font-size:10px;color:#555;border-bottom:2px solid #e0e0e0;white-space:nowrap;text-align:right}
+.ov-table th:first-child{text-align:left}
+.ov-table th.store-col{background:#FFF3F3;color:#c62828}
+.ov-table td{padding:7px 8px;border-bottom:1px solid #f2f2f2;text-align:right;font-size:12px}
+.ov-table td:first-child{text-align:left;font-weight:800;font-size:13px;color:#1d1d1f;sticky:left}
+.ov-table tr:last-child td{border-bottom:none}
+.ov-table tr:hover td{background:#fafafa}
+.ov-table .highlight-row td{background:#FFF3F3}
+.ov-rate{font-size:10px;color:#86868b}
+.ov-store-val{color:#d32f2f;font-weight:800}
+.ov-no-store{text-align:center;padding:40px 20px;color:#86868b;font-size:13px}
+.ov-summary{display:flex;gap:7px;padding:10px 12px;border-bottom:1px solid #f0f0f0}
+.ov-sum-chip{flex:1;text-align:center}
+.ov-sum-chip .v{font-size:16px;font-weight:800}
+.ov-sum-chip .l{font-size:9px;color:#86868b;margin-top:1px}
+.ov-sum-chip.red .v{color:#d32f2f}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-top">
     <h1>🆕 新品銷售排行</h1>
@@ -130,7 +115,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
   </div>
   <div class="header-sub" id="hinfo">載入中...</div>
 </div>
-
 <div class="store-bar">
   <label>門市</label>
   <select class="store-select" id="storeSel" onchange="onStoreChange()">
@@ -138,7 +122,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
   </select>
   <span class="mode-pill mode-all" id="modePill">全店</span>
 </div>
-
 <div class="tab-bar">
   <button class="tab-btn active" onclick="showTab('AS',this)">AS</button>
   <button class="tab-btn" onclick="showTab('OL',this)">OL</button>
@@ -147,7 +130,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
   <button class="tab-btn" onclick="showTab('COMPARE',this)">各店比較</button>
   <button class="tab-btn" onclick="showTab('OVERVIEW',this)">總覽</button>
 </div>
-
 <div id="tab-AS" class="tab-content active"><div class="loading">載入中...</div></div>
 <div id="tab-OL" class="tab-content"></div>
 <div id="tab-PLUS" class="tab-content"></div>
@@ -156,17 +138,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 <div id="tab-OVERVIEW" class="tab-content"></div>
 
 <script>
-let DATA = null, currentStore = '', currentTab = 'AS';
+let DATA=null,currentStore='',currentBrandFilter='AS';
 
 async function loadData(){
   try{
-    const r = await fetch('data/newarrivals.json?t='+Date.now());
+    const r=await fetch('data/newarrivals.json?t='+Date.now());
     if(!r.ok) throw new Error('HTTP '+r.status);
-    DATA = await r.json();
+    DATA=await r.json();
     init();
-  } catch(e){
+  }catch(e){
     ['AS','OL','PLUS','CA','COMPARE','OVERVIEW'].forEach(t=>{
-      document.getElementById('tab-'+t).innerHTML=`<div class="error">⚠️ 無法載入資料<br><small>${e.message}</small><br><small>請確認 data/newarrivals.json 已上傳至 GitHub</small></div>`;
+      document.getElementById('tab-'+t).innerHTML=`<div class="error">⚠️ 無法載入資料<br><small>${e.message}</small><br><small>請確認 data/newarrivals.json 已上傳</small></div>`;
     });
     document.getElementById('hinfo').textContent='載入失敗';
   }
@@ -192,8 +174,8 @@ function onStoreChange(){
     const s=DATA.stores.find(x=>x.code===currentStore);
     pill.textContent=s?s.name:currentStore;
     pill.className='mode-pill mode-store';
-  } else {
-    pill.textContent='全店'; pill.className='mode-pill mode-all';
+  }else{
+    pill.textContent='全店';pill.className='mode-pill mode-all';
   }
   renderAll();
 }
@@ -203,51 +185,38 @@ function showTab(tab,btn){
   document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
-  currentTab=tab;
 }
 
-function storeName(code){
-  const s=DATA.stores.find(x=>x.code===code);
-  return s?s.name:code;
-}
-
-function getStoreSales(p){
-  if(!currentStore) return null;
-  return (p.store_sales&&p.store_sales[currentStore])||0;
-}
+function sName(code){const s=DATA.stores.find(x=>x.code===code);return s?s.name:code;}
+function myS(p){if(!currentStore)return null;return(p.store_sales&&p.store_sales[currentStore])||0;}
+function turnover(sales,inv){if(!inv||inv===0)return '–';return (sales/inv).toFixed(1);}
 
 /* ── 各支線商品列表 ── */
 function renderBrand(brand){
   const prods=DATA.products[brand];
-  if(!prods||!prods.length){
-    document.getElementById('tab-'+brand).innerHTML='<div class="loading">此支線暫無資料</div>'; return;
-  }
+  if(!prods||!prods.length){document.getElementById('tab-'+brand).innerHTML='<div class="loading">此支線暫無資料</div>';return;}
   const sorted=[...prods].sort((a,b)=>b.total_sales-a.total_sales);
-  const totalSales=prods.reduce((s,p)=>s+p.total_sales,0);
-  const totalInv=prods.reduce((s,p)=>s+p.inventory,0);
-  const myTotal=currentStore?prods.reduce((s,p)=>s+(getStoreSales(p)||0),0):null;
-  const brandLabel={AS:'AIR SPACE',OL:'OL',PLUS:'PLUS',CA:'CA'}[brand]||brand;
+  const tSales=prods.reduce((s,p)=>s+p.total_sales,0);
+  const tInv=prods.reduce((s,p)=>s+p.inventory,0);
+  const mTotal=currentStore?prods.reduce((s,p)=>s+(myS(p)||0),0):null;
+  const bLabel={AS:'AIR SPACE',OL:'OL',PLUS:'PLUS',CA:'CA'}[brand]||brand;
 
-  let h=`<div style="margin-top:8px"><span class="week-pill">${brandLabel}</span></div>`;
+  let h=`<div style="margin-top:8px"><span class="week-pill">${bLabel}</span></div>`;
   h+=`<div class="chips">
     <div class="chip"><div class="v">${prods.length}</div><div class="l">新品數</div></div>
-    ${currentStore?`<div class="chip red"><div class="v">${myTotal}</div><div class="l">本店</div></div>`:''}
-    <div class="chip"><div class="v">${totalSales.toLocaleString()}</div><div class="l">全店銷售</div></div>
-    <div class="chip"><div class="v">${totalInv.toLocaleString()}</div><div class="l">總庫存</div></div>
-  </div>`;
-  h+=`<div class="sec">排行榜（依全店銷售）</div>`;
+    ${currentStore?`<div class="chip red"><div class="v">${mTotal}</div><div class="l">本店銷售</div></div>`:''}
+    <div class="chip"><div class="v">${tSales.toLocaleString()}</div><div class="l">全台銷售件數</div></div>
+    <div class="chip"><div class="v">${tInv.toLocaleString()}</div><div class="l">全台庫存</div></div>
+  </div><div class="sec">排行榜（依全台銷售）</div>`;
 
   sorted.forEach((p,i)=>{
-    const rank=i+1;
-    const rk=rank<=3?'rank-'+rank:'';
-    const mySales=getStoreSales(p);
+    const rank=i+1,rk=rank<=3?'rank-'+rank:'';
+    const ms=myS(p);
     const gc=p.grade==='A'?'tag-a':p.grade==='B'?'tag-b':p.grade==='衝'?'tag-rush':'tag-cat';
     const ic=p.inventory<50?'inv-low':p.inventory<150?'':'inv-ok';
-
     h+=`<div class="card">
       <div class="card-img-wrap">
-        <img class="card-img" src="images/${p.product_id}.jpg"
-          onerror="this.outerHTML='<div class=\\'card-img-empty\\'>👗</div>'" alt="">
+        <img class="card-img" src="images/${p.product_id}.jpg" onerror="this.outerHTML='<div class=\\'card-img-empty\\'>👗</div>'" alt="">
         <div class="rank-badge ${rk}">${rank}</div>
       </div>
       <div class="card-body">
@@ -260,78 +229,105 @@ function renderBrand(brand){
           </div>
         </div>
         <div class="card-stats">
-          ${currentStore?`<div class="stat mystore"><div class="sv">${mySales}</div><div class="sl">本店</div></div>`:''}
-          <div class="stat"><div class="sv">${p.total_sales}</div><div class="sl">全店</div></div>
-          <div class="stat"><div class="sv ${ic}">${p.inventory}</div><div class="sl">庫存</div></div>
+          ${currentStore?`<div class="stat mystore"><div class="sv">${ms}</div><div class="sl">本店銷售</div></div>`:''}
+          <div class="stat"><div class="sv">${p.total_sales}</div><div class="sl">全台銷售件數</div></div>
+          <div class="stat"><div class="sv ${ic}">${p.inventory}</div><div class="sl">全台庫存</div></div>
         </div>
       </div>
     </div>`;
   });
-
   document.getElementById('tab-'+brand).innerHTML=h;
 }
 
-/* ── 各店比較 ── */
+/* ── 各店比較（樞紐表格） ── */
 function renderCompare(){
-  const all=[];
-  ['AS','OL','PLUS','CA'].forEach(b=>{
-    if(DATA.products[b]) DATA.products[b].forEach(p=>all.push({...p,brand:b}));
+  const brand=currentBrandFilter;
+  const prods=brand==='ALL'
+    ? ['AS','OL','PLUS','CA'].flatMap(b=>(DATA.products[b]||[]).map(p=>({...p,brand:b})))
+    : (DATA.products[brand]||[]).map(p=>({...p,brand:brand}));
+
+  if(!prods.length){document.getElementById('tab-COMPARE').innerHTML='<div class="loading">此支線暫無資料</div>';return;}
+
+  // Collect all store codes that appear in this brand's data
+  const storeCodes=[];
+  const seen=new Set();
+  DATA.stores.forEach(s=>{
+    const hasData=prods.some(p=>p.store_sales&&p.store_sales[s.code]);
+    if(hasData&&!seen.has(s.code)){seen.add(s.code);storeCodes.push(s.code);}
   });
-  all.sort((a,b)=>b.total_sales-a.total_sales);
 
-  const medals=['🥇','🥈','🥉'];
-  const barColors=['bar-top1','bar-top2','bar-top3'];
+  let h=`<div style="margin-top:8px">
+    <div class="filter-row">
+      <label>支線</label>
+      <select class="brand-sel" onchange="currentBrandFilter=this.value;renderCompare()">
+        <option value="AS" ${brand==='AS'?'selected':''}>AS</option>
+        <option value="OL" ${brand==='OL'?'selected':''}>OL</option>
+        <option value="PLUS" ${brand==='PLUS'?'selected':''}>PLUS</option>
+        <option value="CA" ${brand==='CA'?'selected':''}>CA</option>
+        <option value="ALL" ${brand==='ALL'?'selected':''}>全部</option>
+      </select>
+    </div>
+    <p class="pivot-note">黃底 = 前三名；${currentStore?'<span style="color:#d32f2f;font-weight:700">紅框 = 本店</span>；':''} 左右滑動查看所有門市</p>
+  </div>
+  <div class="pivot-outer">
+  <table class="pivot-table">
+    <thead><tr>
+      <th class="sticky-col">款號</th>`;
 
-  let h=`<div style="margin-top:8px"><span class="week-pill">各店比較</span></div>
-  <p style="font-size:11px;color:#86868b;margin-bottom:10px">選擇門市後，紅色底為本店，黃色底為前三名</p>`;
+  storeCodes.forEach(code=>{
+    const isMine=code===currentStore;
+    h+=`<th style="${isMine?'background:#8b1a1a;':''}">${code}<br><span style="font-weight:400;font-size:9px">${sName(code)}</span></th>`;
+  });
+  h+=`<th class="total-th">總計</th></tr></thead><tbody>`;
 
-  all.forEach(p=>{
-    const storeSales=Object.entries(p.store_sales||{}).sort((a,b)=>b[1]-a[1]);
-    if(!storeSales.length) return;
-    const maxS=storeSales[0][1]||1;
-    const myRank=currentStore?storeSales.findIndex(s=>s[0]===currentStore)+1:0;
+  const sorted=[...prods].sort((a,b)=>b.total_sales-a.total_sales);
 
-    h+=`<div class="cmp-card">
-      <div class="cmp-header">
-        <img class="cmp-img" src="images/${p.product_id}.jpg"
-          onerror="this.outerHTML='<div class=\\'cmp-img-empty\\'>👗</div>'" alt="">
-        <div class="cmp-info">
-          <div class="cmp-sku">${p.sku}</div>
-          <div class="cmp-name">${p.name}</div>
-          <div style="display:flex;gap:5px;margin-top:4px;align-items:center">
-            <span class="cmp-brand">${p.brand}</span>
-            <span class="cmp-total">全店 <b>${p.total_sales}</b>件</span>
-            ${currentStore&&myRank?`<span style="font-size:10px;color:#d32f2f;font-weight:700">本店第${myRank}名</span>`:''}
-          </div>
-        </div>
-      </div>
-      <div class="store-rows">`;
+  // footer totals
+  const colTotals={};
+  storeCodes.forEach(c=>{colTotals[c]=0;});
+  let grandTotal=0;
 
-    storeSales.forEach((s,i)=>{
-      const isTop3=i<3;
-      const isMe=s[0]===currentStore;
-      const w=Math.round((s[1]/maxS)*100);
-      const barCls=isMe?'bar-me':i<3?barColors[i]:'';
-      const rowCls=(isTop3?'top3 ':''+(isMe?'mystore-row':''));
-      h+=`<div class="store-row ${rowCls}">
-        <span class="store-code-lbl">${s[0]}</span>
-        <div class="bar-wrap"><div class="bar-fill ${barCls}" style="width:${w}%"></div></div>
-        <span class="store-sales-lbl">${s[1]}</span>
-        <span class="medal">${isTop3?medals[i]:''}</span>
-      </div>`;
+  sorted.forEach(p=>{
+    // Get per-store values and find top3
+    const vals=storeCodes.map(c=>(p.store_sales&&p.store_sales[c])||0);
+    const sorted3=[...vals].sort((a,b)=>b-a);
+    const top1=sorted3[0],top2=sorted3[1],top3=sorted3[2];
+
+    h+=`<tr>
+      <td class="sticky-col">${brand==='ALL'?`<span style="font-size:9px;background:#eee;padding:1px 4px;border-radius:3px;margin-right:3px">${p.brand}</span>`:''}${p.sku}<br><span style="font-size:9px;color:#aaa;font-weight:400">${p.name.substring(0,12)}...</span></td>`;
+
+    storeCodes.forEach((code,i)=>{
+      const v=vals[i];
+      colTotals[code]+=v;
+      grandTotal+=v;
+      let cls='';
+      if(v>0&&v===top1) cls='top1';
+      else if(v>0&&v===top2) cls='top2';
+      else if(v>0&&v===top3) cls='top3';
+      if(code===currentStore) cls+=' mystore-td';
+      if(v===0) cls='zero';
+      h+=`<td class="${cls}">${v===0?'–':v}</td>`;
     });
-
-    h+=`</div></div>`;
+    h+=`<td class="total-td">${p.total_sales}</td></tr>`;
   });
+
+  // Footer row
+  h+=`<tr class="pivot-footer"><td class="sticky-col">合計</td>`;
+  storeCodes.forEach(code=>{
+    const isMine=code===currentStore;
+    h+=`<td class="${isMine?'mystore-td':''}">${colTotals[code]||'–'}</td>`;
+  });
+  h+=`<td class="total-td">${grandTotal}</td></tr>`;
+  h+=`</tbody></table></div>`;
 
   document.getElementById('tab-COMPARE').innerHTML=h;
 }
 
-/* ── 總覽 ── */
+/* ── 總覽（款號表格） ── */
 function renderOverview(){
   if(!currentStore){
     document.getElementById('tab-OVERVIEW').innerHTML=
-      `<div class="ov-no-store">🏪<br><br>請先在上方選擇<b>門市</b><br>才能查看本店與全店的比較</div>`;
+      `<div class="ov-no-store">🏪<br><br>請先在上方選擇<b>門市</b><br>才能查看本店與全台的比較</div>`;
     return;
   }
   const store=DATA.stores.find(x=>x.code===currentStore);
@@ -342,38 +338,49 @@ function renderOverview(){
   ['AS','OL','PLUS','CA'].forEach(brand=>{
     const prods=DATA.products[brand];
     if(!prods||!prods.length) return;
+    const bLabel={AS:'AIR SPACE',OL:'OL',PLUS:'PLUS',CA:'CA'}[brand]||brand;
+    const sorted=[...prods].sort((a,b)=>b.total_sales-a.total_sales);
 
-    const brandLabel={AS:'AIR SPACE',OL:'OL',PLUS:'PLUS',CA:'CA'}[brand]||brand;
-    const totalSales=prods.reduce((s,p)=>s+p.total_sales,0);
-    const mySales=prods.reduce((s,p)=>s+(p.store_sales?.[currentStore]||0),0);
-    const totalInv=prods.reduce((s,p)=>s+p.inventory,0);
+    const tSales=prods.reduce((s,p)=>s+p.total_sales,0);
+    const tInv=prods.reduce((s,p)=>s+p.inventory,0);
+    const mySalesTotal=prods.reduce((s,p)=>s+(p.store_sales?.[currentStore]||0),0);
 
-    // Calculate store rank across all stores for this brand
-    const storeMap={};
-    prods.forEach(p=>{
-      Object.entries(p.store_sales||{}).forEach(([code,qty])=>{
-        storeMap[code]=(storeMap[code]||0)+qty;
-      });
-    });
-    const rankArr=Object.entries(storeMap).sort((a,b)=>b[1]-a[1]);
-    const myRankIdx=rankArr.findIndex(x=>x[0]===currentStore);
-    const myRank=myRankIdx>=0?myRankIdx+1:null;
-    const totalStores=rankArr.length;
-    const barPct=totalSales>0?Math.round((mySales/totalSales)*100):0;
-
-    h+=`<div class="overview-brand">
-      <div class="ov-title">${brandLabel} <span style="font-size:11px;font-weight:400;color:#86868b">${prods.length}款新品</span></div>
-      <div class="ov-nums">
-        <div class="ov-num red"><div class="v">${mySales}</div><div class="l">本店銷售</div></div>
-        <div class="ov-num"><div class="v">${totalSales.toLocaleString()}</div><div class="l">全店銷售</div></div>
-        <div class="ov-num"><div class="v">${barPct}%</div><div class="l">占比</div></div>
-        <div class="ov-num"><div class="v">${totalInv.toLocaleString()}</div><div class="l">總庫存</div></div>
+    h+=`<div class="ov-section">
+      <div class="ov-section-title">
+        <span>${bLabel}</span>
+        <span class="ov-section-sub">${prods.length}款新品</span>
       </div>
-      ${myRank?`<div class="ov-rank-label">全店排行：第 <b>${myRank}</b> 名 / ${totalStores} 家門市</div>
-      <div class="ov-bar-wrap"><div class="ov-bar" style="width:${Math.round(((totalStores-myRank+1)/totalStores)*100)}%"></div></div>
-      <div class="ov-bar-sub"><span>排名最低</span><span>排名第一</span></div>`
-      :`<div style="font-size:11px;color:#86868b">此支線無本店銷售資料</div>`}
-    </div>`;
+      <div class="ov-summary">
+        <div class="ov-sum-chip red"><div class="v">${mySalesTotal}</div><div class="l">本店銷售</div></div>
+        <div class="ov-sum-chip"><div class="v">${tSales.toLocaleString()}</div><div class="l">全台銷售</div></div>
+        <div class="ov-sum-chip"><div class="v">${tSales>0?Math.round(mySalesTotal/tSales*100):0}%</div><div class="l">占比</div></div>
+        <div class="ov-sum-chip"><div class="v">${tInv.toLocaleString()}</div><div class="l">全台庫存</div></div>
+      </div>
+      <div class="ov-table-wrap">
+      <table class="ov-table">
+        <thead><tr>
+          <th>款號</th>
+          <th>全台銷售</th>
+          <th>全台庫存</th>
+          <th>全台周轉</th>
+          <th class="store-col">本店銷售</th>
+          <th class="store-col">本店周轉</th>
+        </tr></thead>
+        <tbody>`;
+
+    sorted.forEach(p=>{
+      const ms=p.store_sales?.[currentStore]||0;
+      const trClass=ms>0?'highlight-row':'';
+      h+=`<tr class="${trClass}">
+        <td>${p.sku}<br><span style="font-size:9px;color:#aaa;font-weight:400">${p.name.substring(0,14)}...</span></td>
+        <td>${p.total_sales}</td>
+        <td>${p.inventory}</td>
+        <td class="ov-rate">${turnover(p.total_sales,p.inventory)}</td>
+        <td class="ov-store-val">${ms||'–'}</td>
+        <td class="ov-rate">${ms>0?turnover(ms,p.inventory):'–'}</td>
+      </tr>`;
+    });
+    h+=`</tbody></table></div></div>`;
   });
 
   document.getElementById('tab-OVERVIEW').innerHTML=h;

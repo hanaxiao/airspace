@@ -122,23 +122,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
   </select>
   <span class="mode-pill mode-all" id="modePill">全店</span>
 </div>
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('AS',this)">AS</button>
-  <button class="tab-btn" onclick="showTab('OL',this)">OL</button>
-  <button class="tab-btn" onclick="showTab('PLUS',this)">PLUS</button>
-  <button class="tab-btn" onclick="showTab('CA',this)">CA</button>
-  <button class="tab-btn" onclick="showTab('COMPARE',this)">各店比較</button>
-  <button class="tab-btn" onclick="showTab('OVERVIEW',this)">總覽</button>
-</div>
-<div id="tab-AS" class="tab-content active"><div class="loading">載入中...</div></div>
-<div id="tab-OL" class="tab-content"></div>
-<div id="tab-PLUS" class="tab-content"></div>
-<div id="tab-CA" class="tab-content"></div>
-<div id="tab-COMPARE" class="tab-content"></div>
-<div id="tab-OVERVIEW" class="tab-content"></div>
+<div class="tab-bar" id="tabBar"></div>
+<div id="tabContents"></div>
 
 <script>
-let DATA=null,currentStore='',currentBrandFilter='AS';
+let DATA=null,currentStore='',currentBrandFilter='',BRANDS=[];
 
 async function loadData(){
   try{
@@ -147,9 +135,7 @@ async function loadData(){
     DATA=await r.json();
     init();
   }catch(e){
-    ['AS','OL','PLUS','CA','COMPARE','OVERVIEW'].forEach(t=>{
-      document.getElementById('tab-'+t).innerHTML=`<div class="error">⚠️ 無法載入資料<br><small>${e.message}</small><br><small>請確認 data/newarrivals.json 已上傳</small></div>`;
-    });
+    document.getElementById('tabContents').innerHTML=`<div class="error">⚠️ 無法載入資料<br><small>${e.message}</small><br><small>請確認 data/newarrivals.json 已上傳</small></div>`;
     document.getElementById('hinfo').textContent='載入失敗';
   }
 }
@@ -157,6 +143,44 @@ async function loadData(){
 function init(){
   const m=DATA.meta;
   document.getElementById('hinfo').textContent=`${m.week} ｜ ${m.period} ｜ 更新：${m.generated}`;
+
+  // 從 JSON 動態建立支線分頁
+  BRANDS=Object.keys(DATA.products);
+  currentBrandFilter=BRANDS[0]||'';
+  const bar=document.getElementById('tabBar');
+  const contents=document.getElementById('tabContents');
+  bar.innerHTML='';
+  contents.innerHTML='';
+
+  BRANDS.forEach((b,i)=>{
+    const btn=document.createElement('button');
+    btn.className='tab-btn'+(i===0?' active':'');
+    btn.textContent=b;
+    btn.onclick=()=>showTab(b,btn);
+    bar.appendChild(btn);
+
+    const div=document.createElement('div');
+    div.id='tab-'+b;
+    div.className='tab-content'+(i===0?' active':'');
+    div.innerHTML='<div class="loading">載入中...</div>';
+    contents.appendChild(div);
+  });
+
+  // 固定分頁：各店比較 / 總覽
+  ['各店比較|COMPARE','總覽|OVERVIEW'].forEach(item=>{
+    const [label,id]=item.split('|');
+    const btn=document.createElement('button');
+    btn.className='tab-btn';
+    btn.textContent=label;
+    btn.onclick=()=>showTab(id,btn);
+    bar.appendChild(btn);
+
+    const div=document.createElement('div');
+    div.id='tab-'+id;
+    div.className='tab-content';
+    contents.appendChild(div);
+  });
+
   const sel=document.getElementById('storeSel');
   sel.innerHTML='<option value="">── 全店彙總 ──</option>';
   DATA.stores.forEach(s=>{
@@ -243,7 +267,7 @@ function renderBrand(brand){
 function renderCompare(){
   const brand=currentBrandFilter;
   const prods=brand==='ALL'
-    ? ['AS','OL','PLUS','CA'].flatMap(b=>(DATA.products[b]||[]).map(p=>({...p,brand:b})))
+    ? BRANDS.flatMap(b=>(DATA.products[b]||[]).map(p=>({...p,brand:b})))
     : (DATA.products[brand]||[]).map(p=>({...p,brand:brand}));
 
   if(!prods.length){document.getElementById('tab-COMPARE').innerHTML='<div class="loading">此支線暫無資料</div>';return;}
@@ -256,14 +280,12 @@ function renderCompare(){
     if(hasData&&!seen.has(s.code)){seen.add(s.code);storeCodes.push(s.code);}
   });
 
+  const brandOptions=BRANDS.map(b=>`<option value="${b}" ${brand===b?'selected':''}>${b}</option>`).join('');
   let h=`<div style="margin-top:8px">
     <div class="filter-row">
       <label>支線</label>
       <select class="brand-sel" onchange="currentBrandFilter=this.value;renderCompare()">
-        <option value="AS" ${brand==='AS'?'selected':''}>AS</option>
-        <option value="OL" ${brand==='OL'?'selected':''}>OL</option>
-        <option value="PLUS" ${brand==='PLUS'?'selected':''}>PLUS</option>
-        <option value="CA" ${brand==='CA'?'selected':''}>CA</option>
+        ${brandOptions}
         <option value="ALL" ${brand==='ALL'?'selected':''}>全部</option>
       </select>
     </div>
@@ -335,7 +357,7 @@ function renderOverview(){
 
   let h=`<div style="margin-top:8px"><span class="week-pill">總覽 · ${storeLbl}</span></div>`;
 
-  ['AS','OL','PLUS','CA'].forEach(brand=>{
+  BRANDS.forEach(brand=>{
     const prods=DATA.products[brand];
     if(!prods||!prods.length) return;
     const mySalesTotal=prods.reduce((s,p)=>s+(p.store_sales?.[currentStore]||0),0);
@@ -391,7 +413,7 @@ function renderOverview(){
 
 function renderAll(){
   if(!DATA) return;
-  ['AS','OL','PLUS','CA'].forEach(b=>renderBrand(b));
+  BRANDS.forEach(b=>renderBrand(b));
   renderCompare();
   renderOverview();
 }

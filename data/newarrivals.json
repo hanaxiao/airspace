@@ -1,110 +1,2254 @@
 {
   "meta": {
-    "week": "26W26",
-    "period": "06/19（四）－ 06/22（日）",
-    "generated": "2026-06-25"
+    "week": "26W27",
+    "period": "06/26（四）－ 06/29（日）",
+    "generated": "2026-06-29"
   },
   "stores": [
-    { "code": "AT03", "name": "台北FOCUS" },
-    { "code": "AT04", "name": "大江大遠百" },
-    { "code": "AT05", "name": "南港" },
-    { "code": "AT07", "name": "台中中友" }
+    {
+      "code": "AS04",
+      "name": "AS04"
+    },
+    {
+      "code": "AS05",
+      "name": "AS05"
+    },
+    {
+      "code": "AS07",
+      "name": "AS07"
+    },
+    {
+      "code": "AS10",
+      "name": "AS10"
+    },
+    {
+      "code": "AS12",
+      "name": "AS12"
+    },
+    {
+      "code": "AS15",
+      "name": "AS15"
+    },
+    {
+      "code": "AS17",
+      "name": "AS17"
+    },
+    {
+      "code": "AS24",
+      "name": "AS24"
+    },
+    {
+      "code": "AS25",
+      "name": "AS25"
+    },
+    {
+      "code": "AS29",
+      "name": "AS29"
+    },
+    {
+      "code": "AS35",
+      "name": "AS35"
+    },
+    {
+      "code": "AS37",
+      "name": "AS37"
+    },
+    {
+      "code": "AS38",
+      "name": "AS38"
+    },
+    {
+      "code": "AS40",
+      "name": "AS40"
+    },
+    {
+      "code": "AS44",
+      "name": "AS44"
+    },
+    {
+      "code": "AS45",
+      "name": "AS45"
+    },
+    {
+      "code": "AS46",
+      "name": "AS46"
+    },
+    {
+      "code": "AS49",
+      "name": "AS49"
+    },
+    {
+      "code": "AS51",
+      "name": "AS51"
+    },
+    {
+      "code": "AS52",
+      "name": "AS52"
+    },
+    {
+      "code": "AS57",
+      "name": "AS57"
+    },
+    {
+      "code": "AS59",
+      "name": "AS59"
+    },
+    {
+      "code": "AS61",
+      "name": "AS61"
+    },
+    {
+      "code": "AS62",
+      "name": "AS62"
+    },
+    {
+      "code": "AS63",
+      "name": "AS63"
+    },
+    {
+      "code": "AS64",
+      "name": "AS64"
+    },
+    {
+      "code": "AS66",
+      "name": "AS66"
+    },
+    {
+      "code": "AS68",
+      "name": "AS68"
+    },
+    {
+      "code": "AS69",
+      "name": "AS69"
+    },
+    {
+      "code": "AS70",
+      "name": "AS70"
+    },
+    {
+      "code": "AS71",
+      "name": "AS71"
+    },
+    {
+      "code": "AS72",
+      "name": "AS72"
+    },
+    {
+      "code": "AS73",
+      "name": "AS73"
+    },
+    {
+      "code": "AS77",
+      "name": "AS77"
+    },
+    {
+      "code": "AS79",
+      "name": "AS79"
+    },
+    {
+      "code": "AS81",
+      "name": "AS81"
+    },
+    {
+      "code": "AS82",
+      "name": "AS82"
+    },
+    {
+      "code": "AS83",
+      "name": "AS83"
+    },
+    {
+      "code": "AS84",
+      "name": "AS84"
+    },
+    {
+      "code": "AS86",
+      "name": "AS86"
+    },
+    {
+      "code": "AS88",
+      "name": "AS88"
+    },
+    {
+      "code": "AS89",
+      "name": "AS89"
+    },
+    {
+      "code": "AS92",
+      "name": "AS92"
+    },
+    {
+      "code": "AS93",
+      "name": "AS93"
+    },
+    {
+      "code": "AS95",
+      "name": "AS95"
+    },
+    {
+      "code": "AS96",
+      "name": "AS96"
+    },
+    {
+      "code": "AS97",
+      "name": "AS97"
+    },
+    {
+      "code": "AS99",
+      "name": "AS99"
+    },
+    {
+      "code": "AT02",
+      "name": "AT02"
+    },
+    {
+      "code": "AT03",
+      "name": "AT03"
+    },
+    {
+      "code": "AT04",
+      "name": "AT04"
+    },
+    {
+      "code": "AT05",
+      "name": "AT05"
+    },
+    {
+      "code": "AT07",
+      "name": "AT07"
+    },
+    {
+      "code": "AT08",
+      "name": "AT08"
+    },
+    {
+      "code": "AT10",
+      "name": "AT10"
+    }
   ],
   "products": {
     "AS": [
       {
-        "product_id": "2620123009",
-        "sku": "EB19841",
-        "name": "涼感零修圖翹臀美高腰顯瘦前車線牛仔短褲",
-        "category": "褲子",
-        "grade": "B",
-        "total_sales": 182,
-        "inventory": 385,
-        "store_sales": { "AT03": 25, "AT04": 18, "AT05": 30, "AT07": 22 },
-        "store_inventory": { "AT03": 60, "AT04": 55, "AT05": 70, "AT07": 65 }
+        "product_id": "2620122013",
+        "sku": "XY62835",
+        "name": "零修圖翹臀高腰顯瘦百褶牛仔短裙",
+        "category": "裙子",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS04": 4,
+          "AS10": 4,
+          "AS15": 1,
+          "AS17": 2,
+          "AS40": 1,
+          "AS45": 12,
+          "AS52": 14,
+          "AS57": 20,
+          "AS59": 2,
+          "AS61": 5,
+          "AS66": 1,
+          "AS72": 5,
+          "AS73": 13,
+          "AS83": 2,
+          "AS84": 5,
+          "AS89": 7,
+          "AS92": 4,
+          "AS93": 4,
+          "AS96": 1,
+          "AT03": 3,
+          "AT05": 4,
+          "AT07": 3
+        },
+        "store_inventory": {
+          "AS04": 29,
+          "AS10": 17,
+          "AS15": 27,
+          "AS17": 25,
+          "AS40": 23,
+          "AS45": 41,
+          "AS52": 13,
+          "AS57": 40,
+          "AS59": 19,
+          "AS61": 41,
+          "AS66": 19,
+          "AS72": 16,
+          "AS73": 14,
+          "AS83": 19,
+          "AS84": 17,
+          "AS88": 16,
+          "AS89": 20,
+          "AS92": 29,
+          "AS93": 22,
+          "AS96": 32,
+          "AT03": 24,
+          "AT05": 23,
+          "AT07": 17
+        }
       },
       {
-        "product_id": "2620121054",
-        "sku": "EB20068",
-        "name": "圓領排扣貼鑲條格紋長袖版開襟衫",
+        "product_id": "2620121059",
+        "sku": "SHY2611",
+        "name": "V領細肩帶U型美背BRA背心",
         "category": "上衣",
         "grade": "B",
-        "total_sales": 139,
-        "inventory": 185,
-        "store_sales": { "AT03": 20, "AT04": 15, "AT05": 22, "AT07": 18 },
-        "store_inventory": { "AT03": 40, "AT04": 35, "AT05": 50, "AT07": 45 }
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS04": 9,
+          "AS10": 5,
+          "AS15": 3,
+          "AS17": 4,
+          "AS45": 10,
+          "AS52": 10,
+          "AS57": 1,
+          "AS61": 1,
+          "AS66": 3,
+          "AS72": 4,
+          "AS73": 1,
+          "AS83": 2,
+          "AS89": 9,
+          "AS92": 2,
+          "AS93": 2,
+          "AS96": 1,
+          "AT05": 2,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS04": 16,
+          "AS10": 5,
+          "AS15": 11,
+          "AS17": 10,
+          "AS40": 18,
+          "AS45": 21,
+          "AS52": 9,
+          "AS57": 43,
+          "AS59": 14,
+          "AS61": 29,
+          "AS66": 7,
+          "AS72": 6,
+          "AS73": 13,
+          "AS83": 8,
+          "AS84": 10,
+          "AS88": 6,
+          "AS89": 10,
+          "AS92": 21,
+          "AS93": 17,
+          "AS96": 23,
+          "AT03": 19,
+          "AT05": 12,
+          "AT07": 13
+        }
       },
       {
-        "product_id": "2620121048",
-        "sku": "XY62877",
-        "name": "雙層荷葉花邊一字領短版合身上衣(附胸墊)",
+        "product_id": "2620121056",
+        "sku": "XY62928",
+        "name": "翻領V型交叉開襟長袖短版壓皺紋理上衣",
         "category": "上衣",
-        "grade": "B",
-        "total_sales": 138,
-        "inventory": 337,
-        "store_sales": { "AT03": 18, "AT04": 22, "AT05": 19, "AT07": 15 },
-        "store_inventory": { "AT03": 75, "AT04": 80, "AT05": 70, "AT07": 60 }
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS04": 1,
+          "AS10": 2,
+          "AS40": 1,
+          "AS45": 2,
+          "AS52": 4,
+          "AS57": 3,
+          "AS59": 2,
+          "AS61": 3,
+          "AS72": 2,
+          "AS73": 2,
+          "AS83": 1,
+          "AS84": 3,
+          "AS89": 9,
+          "AS92": 1,
+          "AS93": 2,
+          "AS96": 8,
+          "AT03": 3,
+          "AT05": 6,
+          "AT07": 6
+        },
+        "store_inventory": {
+          "AS04": 28,
+          "AS10": 18,
+          "AS15": 24,
+          "AS17": 22,
+          "AS40": 21,
+          "AS45": 38,
+          "AS52": 18,
+          "AS57": 50,
+          "AS59": 16,
+          "AS61": 32,
+          "AS66": 17,
+          "AS72": 14,
+          "AS73": 20,
+          "AS83": 16,
+          "AS84": 14,
+          "AS88": 11,
+          "AS89": 13,
+          "AS92": 28,
+          "AS93": 20,
+          "AS96": 19,
+          "AT03": 19,
+          "AT05": 16,
+          "AT07": 11
+        }
       },
       {
-        "product_id": "2620127008",
-        "sku": "ZX11466",
-        "name": "條紋長袖短版襯衫V領細肩帶背心套裝(附胸墊)",
+        "product_id": "2620127007",
+        "sku": "XY62888",
+        "name": "蕾絲花邊桃心領細肩帶短版背心傘擺褲裙套裝(附胸墊)",
         "category": "套裝",
-        "grade": "A",
-        "total_sales": 115,
-        "inventory": 510,
-        "store_sales": { "AT03": 16, "AT04": 12, "AT05": 14, "AT07": 18 },
-        "store_inventory": { "AT03": 100, "AT04": 95, "AT05": 110, "AT07": 105 }
-      }
-    ],
-    "OL": [
-      {
-        "product_id": "2621821052",
-        "sku": "GE90981Q",
-        "name": "圓領打褶削層V塊空短版花苞背心",
-        "category": "上衣",
         "grade": "B",
-        "total_sales": 145,
-        "inventory": 347,
-        "store_sales": { "AT03": 22, "AT04": 19, "AT05": 25, "AT07": 20 },
-        "store_inventory": { "AT03": 80, "AT04": 75, "AT05": 85, "AT07": 70 }
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS04": 3,
+          "AS10": 2,
+          "AS15": 1,
+          "AS40": 1,
+          "AS45": 2,
+          "AS52": 1,
+          "AS57": 1,
+          "AS59": 1,
+          "AS61": 4,
+          "AS66": 3,
+          "AS73": 3,
+          "AS84": 3,
+          "AS88": 1,
+          "AS89": 9,
+          "AS92": 5,
+          "AS93": 1,
+          "AS96": 5,
+          "AT03": 3,
+          "AT05": 1,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS04": 21,
+          "AS10": 13,
+          "AS15": 18,
+          "AS17": 19,
+          "AS40": 18,
+          "AS45": 30,
+          "AS52": 18,
+          "AS57": 38,
+          "AS59": 13,
+          "AS61": 24,
+          "AS66": 11,
+          "AS72": 14,
+          "AS73": 16,
+          "AS83": 14,
+          "AS84": 11,
+          "AS88": 9,
+          "AS89": 10,
+          "AS92": 19,
+          "AS93": 17,
+          "AS96": 19,
+          "AT03": 15,
+          "AT05": 17,
+          "AT07": 10
+        }
       },
       {
-        "product_id": "2621821047",
-        "sku": "EB20004Q",
-        "name": "圓領薄後綁帶短版雕花蕾絲排扣上衣",
+        "product_id": "2620124028",
+        "sku": "GE90988",
+        "name": "交叉V領澎袖荷葉飄帶雙層傘擺短洋裝",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS10": 2,
+          "AS17": 3,
+          "AS40": 3,
+          "AS45": 3,
+          "AS52": 1,
+          "AS57": 3,
+          "AS61": 2,
+          "AS66": 2,
+          "AS72": 2,
+          "AS73": 1,
+          "AS83": 1,
+          "AS84": 1,
+          "AS88": 1,
+          "AS89": 1,
+          "AS92": 3,
+          "AT03": 1,
+          "AT05": 2,
+          "AT07": 2
+        },
+        "store_inventory": {
+          "AS04": 21,
+          "AS10": 11,
+          "AS15": 20,
+          "AS17": 17,
+          "AS40": 17,
+          "AS45": 27,
+          "AS52": 17,
+          "AS57": 35,
+          "AS59": 13,
+          "AS61": 25,
+          "AS66": 11,
+          "AS72": 11,
+          "AS73": 17,
+          "AS83": 12,
+          "AS84": 12,
+          "AS88": 10,
+          "AS89": 17,
+          "AS92": 19,
+          "AS93": 18,
+          "AS96": 23,
+          "AT03": 17,
+          "AT05": 15,
+          "AT07": 11
+        }
+      },
+      {
+        "product_id": "2620128006",
+        "sku": "MS67395",
+        "name": "桃心領抓褶設計細肩帶連身長褲(附胸墊)",
+        "category": "連身褲",
+        "grade": "D",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS04": 5,
+          "AS40": 2,
+          "AS45": 2,
+          "AS52": 2,
+          "AS57": 3,
+          "AS59": 1,
+          "AS61": 1,
+          "AS83": 1,
+          "AS92": 3,
+          "AS93": 1,
+          "AS96": 3,
+          "AT03": 3,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS04": 29,
+          "AS40": 20,
+          "AS45": 27,
+          "AS52": 26,
+          "AS57": 49,
+          "AS59": 22,
+          "AS61": 32,
+          "AS89": 29,
+          "AS92": 27,
+          "AS93": 28,
+          "AS96": 32,
+          "AT03": 19,
+          "AT07": 21
+        }
+      },
+      {
+        "product_id": "2620122012",
+        "sku": "MS67823",
+        "name": "拼接抓褶開衩雪紡長裙",
+        "category": "裙子",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS04": 2,
+          "AS10": 2,
+          "AS52": 1,
+          "AS57": 1,
+          "AS72": 1,
+          "AS73": 2,
+          "AS88": 2,
+          "AS89": 1,
+          "AS92": 1
+        },
+        "store_inventory": {
+          "AS04": 23,
+          "AS10": 13,
+          "AS15": 19,
+          "AS17": 18,
+          "AS40": 18,
+          "AS45": 30,
+          "AS52": 17,
+          "AS57": 38,
+          "AS59": 14,
+          "AS61": 28,
+          "AS66": 14,
+          "AS72": 13,
+          "AS73": 15,
+          "AS83": 14,
+          "AS84": 14,
+          "AS88": 8,
+          "AS89": 16,
+          "AS92": 22,
+          "AS93": 17,
+          "AS96": 22,
+          "AT03": 17,
+          "AT05": 17,
+          "AT07": 13
+        }
+      },
+      {
+        "product_id": "2620134001",
+        "sku": "EB17746",
+        "name": "雕花蕾絲開衩褲裙",
+        "category": "褲裙",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {}
+      },
+      {
+        "product_id": "2620121062",
+        "sku": "EB20045",
+        "name": "方領綁帶抓褶雕花蕾絲短版寬肩帶背心",
         "category": "上衣",
         "grade": "B",
-        "total_sales": 135,
-        "inventory": 331,
-        "store_sales": { "AT03": 20, "AT04": 17, "AT05": 23, "AT07": 19 },
-        "store_inventory": { "AT03": 75, "AT04": 70, "AT05": 80, "AT07": 72 }
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {}
+      },
+      {
+        "product_id": "2620121057",
+        "sku": "XY62834",
+        "name": "零修圖顯瘦馬甲收腰背心(附胸墊)",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {}
       }
     ],
-    "PLUS": [
+    "鞋子": [
       {
-        "product_id": "2620821047",
-        "sku": "SHY339F",
-        "name": "V領薔絲渲漫排扣短版上衣",
-        "category": "上衣",
-        "grade": "A",
-        "total_sales": 132,
-        "inventory": 490,
-        "store_sales": { "AT03": 18, "AT04": 20, "AT05": 22, "AT07": 16 },
-        "store_inventory": { "AT03": 110, "AT04": 115, "AT05": 120, "AT07": 100 }
+        "product_id": "2620199004",
+        "sku": "HHSH26003",
+        "name": "漁網繫帶芭蕾舞鞋",
+        "category": "鞋子",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS17": 1,
+          "AS25": 1,
+          "AS35": 1,
+          "AS45": 1,
+          "AS46": 2,
+          "AS69": 1,
+          "AS72": 2,
+          "AS96": 2
+        },
+        "store_inventory": {
+          "AS04": 33,
+          "AS05": 30,
+          "AS10": 18,
+          "AS15": 21,
+          "AS17": 32,
+          "AS24": 32,
+          "AS25": 17,
+          "AS35": 28,
+          "AS40": 17,
+          "AS45": 32,
+          "AS46": 14,
+          "AS57": 55,
+          "AS61": 29,
+          "AS69": 23,
+          "AS70": 29,
+          "AS71": 15,
+          "AS72": 19,
+          "AS73": 33,
+          "AS84": 21,
+          "AS88": 21,
+          "AS96": 28,
+          "AT03": 24
+        }
+      },
+      {
+        "product_id": "2620199002",
+        "sku": "IBSH26001",
+        "name": "芭蕾風緞面運動鞋",
+        "category": "鞋子",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS15": 1,
+          "AS35": 2,
+          "AS70": 1,
+          "AS88": 1,
+          "AT03": 1
+        },
+        "store_inventory": {
+          "AS04": 21,
+          "AS05": 20,
+          "AS10": 12,
+          "AS15": 13,
+          "AS17": 22,
+          "AS24": 22,
+          "AS25": 12,
+          "AS35": 17,
+          "AS40": 11,
+          "AS45": 23,
+          "AS46": 12,
+          "AS57": 38,
+          "AS61": 19,
+          "AS69": 16,
+          "AS70": 19,
+          "AS71": 10,
+          "AS72": 14,
+          "AS73": 22,
+          "AS84": 13,
+          "AS88": 13,
+          "AS96": 20,
+          "AT03": 15
+        }
+      },
+      {
+        "product_id": "2620199003",
+        "sku": "HESH26002",
+        "name": "杏色德訓穆勒鞋",
+        "category": "鞋子",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS10": 1,
+          "AS24": 1,
+          "AS25": 1,
+          "AS61": 1
+        },
+        "store_inventory": {
+          "AS04": 6,
+          "AS05": 8,
+          "AS10": 1,
+          "AS15": 4,
+          "AS17": 5,
+          "AS24": 4,
+          "AS25": 4,
+          "AS35": 5,
+          "AS40": 2,
+          "AS45": 6,
+          "AS46": 2,
+          "AS57": 10,
+          "AS61": 4,
+          "AS69": 4,
+          "AS70": 8,
+          "AS71": 1,
+          "AS72": 4,
+          "AS73": 6,
+          "AS84": 4,
+          "AS88": 2,
+          "AS96": 8,
+          "AT03": 5
+        }
+      }
+    ],
+    "洋裝": [
+      {
+        "product_id": "2620124025",
+        "sku": "EB20078",
+        "name": "V領美背鏤空綁帶側開衩條紋細肩帶長洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {}
       }
     ],
     "CA": [
       {
-        "product_id": "2620723014",
-        "sku": "XY62892A",
-        "name": "不收邊腰頭斜紋休閒短褲(附皮帶)",
+        "product_id": "2620721047",
+        "sku": "XY62926A",
+        "name": "U領削肩美背拉鍊短版牛仔背心(附胸墊)",
+        "category": "上衣",
+        "grade": "D",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS17": 5,
+          "AS37": 4,
+          "AS52": 8,
+          "AS70": 2,
+          "AS71": 3,
+          "AS77": 11,
+          "AS79": 11,
+          "AS82": 9,
+          "AS89": 5,
+          "AS92": 5,
+          "AS95": 6,
+          "AT05": 10
+        },
+        "store_inventory": {
+          "AS17": 7,
+          "AS37": 5,
+          "AS52": 13,
+          "AS70": 9,
+          "AS71": 5,
+          "AS77": 5,
+          "AS79": 11,
+          "AS82": 19,
+          "AS89": 11,
+          "AS92": 11,
+          "AS95": 11,
+          "AT05": 2
+        }
+      },
+      {
+        "product_id": "2620721043",
+        "sku": "SHY2622A",
+        "name": "V領排扣短袖短版羅紋開襟衫(附胸墊)",
+        "category": "上衣",
+        "grade": "衝",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS37": 1,
+          "AS52": 8,
+          "AS70": 4,
+          "AS71": 9,
+          "AS77": 3,
+          "AS79": 4,
+          "AS82": 6,
+          "AS89": 17,
+          "AS92": 8,
+          "AS95": 7,
+          "AT05": 5
+        },
+        "store_inventory": {
+          "AS17": 27,
+          "AS37": 13,
+          "AS52": 42,
+          "AS70": 23,
+          "AS71": 8,
+          "AS77": 33,
+          "AS79": 45,
+          "AS82": 69,
+          "AS89": 22,
+          "AS92": 31,
+          "AS95": 32,
+          "AT05": 26
+        }
+      },
+      {
+        "product_id": "2620722013",
+        "sku": "XY62927A",
+        "name": "中低腰反摺腰頭A字牛仔短裙",
+        "category": "裙子",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS17": 2,
+          "AS37": 2,
+          "AS52": 3,
+          "AS70": 4,
+          "AS71": 3,
+          "AS77": 5,
+          "AS79": 5,
+          "AS82": 2,
+          "AS89": 5,
+          "AS92": 1,
+          "AS95": 2,
+          "AT05": 5
+        },
+        "store_inventory": {
+          "AS17": 15,
+          "AS37": 10,
+          "AS52": 26,
+          "AS70": 13,
+          "AS71": 11,
+          "AS77": 18,
+          "AS79": 24,
+          "AS82": 37,
+          "AS89": 19,
+          "AS92": 23,
+          "AS95": 22,
+          "AT05": 13
+        }
+      },
+      {
+        "product_id": "2620721045",
+        "sku": "ICH3544A",
+        "name": "抓皺綁結短袖短版襯衫",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS17": 2,
+          "AS37": 1,
+          "AS70": 1,
+          "AS71": 2,
+          "AS77": 3,
+          "AS79": 1,
+          "AS82": 7,
+          "AS89": 6,
+          "AS92": 4,
+          "AS95": 2,
+          "AT05": 2
+        },
+        "store_inventory": {
+          "AS17": 16,
+          "AS37": 13,
+          "AS52": 33,
+          "AS70": 17,
+          "AS71": 13,
+          "AS77": 22,
+          "AS79": 32,
+          "AS82": 39,
+          "AS89": 21,
+          "AS92": 24,
+          "AS95": 25,
+          "AT05": 20
+        }
+      },
+      {
+        "product_id": "2620723015",
+        "sku": "XY62897A",
+        "name": "中低腰反摺腰頭牛仔短褲",
+        "category": "褲子",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS52": 2,
+          "AS70": 2,
+          "AS79": 2,
+          "AS82": 4,
+          "AS89": 1,
+          "AS95": 2,
+          "AT05": 5
+        },
+        "store_inventory": {
+          "AS17": 12,
+          "AS37": 10,
+          "AS52": 18,
+          "AS70": 10,
+          "AS71": 10,
+          "AS77": 14,
+          "AS79": 18,
+          "AS82": 20,
+          "AS89": 14,
+          "AS92": 17,
+          "AS95": 13,
+          "AT05": 7
+        }
+      },
+      {
+        "product_id": "2620729010",
+        "sku": "GE00717A",
+        "name": "方形桃心領寬肩帶木耳邊短版羅紋針織背心",
+        "category": "針織",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS17": 1,
+          "AS70": 1,
+          "AS71": 1,
+          "AS77": 2,
+          "AS79": 4,
+          "AS82": 5
+        },
+        "store_inventory": {
+          "AS17": 14,
+          "AS37": 10,
+          "AS52": 30,
+          "AS70": 15,
+          "AS71": 11,
+          "AS77": 20,
+          "AS79": 25,
+          "AS82": 38,
+          "AS89": 24,
+          "AS92": 24,
+          "AS95": 24,
+          "AT05": 19
+        }
+      },
+      {
+        "product_id": "2620724010",
+        "sku": "ZX11473A",
+        "name": "削肩繞頸肩帶抓皺魚尾長洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS37": 1,
+          "AS77": 2,
+          "AS79": 2,
+          "AS82": 1,
+          "AS92": 1,
+          "AS95": 3
+        },
+        "store_inventory": {
+          "AS17": 8,
+          "AS37": 5,
+          "AS52": 12,
+          "AS70": 8,
+          "AS71": 7,
+          "AS77": 7,
+          "AS79": 9,
+          "AS82": 13,
+          "AS89": 9,
+          "AS92": 8,
+          "AS95": 6,
+          "AT05": 9
+        }
+      },
+      {
+        "product_id": "2620721055",
+        "sku": "ZX11483A",
+        "name": "船領側鏤空綁帶短版背心",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {}
+      },
+      {
+        "product_id": "2620722018",
+        "sku": "ZX11484A",
+        "name": "單側開衩直筒長裙",
+        "category": "裙子",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {}
+      }
+    ],
+    "IP": [
+      {
+        "product_id": "2620227004",
+        "sku": "AF-12658K",
+        "name": "【Hello Kitty聯名】滿版印花短袖上衣短褲家居服套裝",
+        "category": "套裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 12,
+          "AT10": 12
+        },
+        "store_inventory": {
+          "AS62": 33,
+          "AT10": 61
+        }
+      },
+      {
+        "product_id": "2620227005",
+        "sku": "XY-62889K",
+        "name": "【Hello Kitty聯名】滿版印花細肩帶BRA背心短褲家居服套裝",
+        "category": "套裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 15,
+          "AT10": 7
+        },
+        "store_inventory": {
+          "AS62": 54,
+          "AT10": 97
+        }
+      },
+      {
+        "product_id": "2620221004",
+        "sku": "EB-20050K",
+        "name": "【Hello Kitty聯名】輕甜食光圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 5,
+          "AT10": 7
+        },
+        "store_inventory": {
+          "AS62": 38,
+          "AT10": 68
+        }
+      },
+      {
+        "product_id": "2620221007",
+        "sku": "EB-20053K",
+        "name": "【Hello Kitty聯名】可愛漢堡凱蒂貓圓領短袖寬版TEE",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 3,
+          "AT10": 8
+        },
+        "store_inventory": {
+          "AS62": 30,
+          "AT10": 46
+        }
+      },
+      {
+        "product_id": "2620229001",
+        "sku": "XY-6950QK",
+        "name": "【DINOTAENG】前後毛巾繡小圖V領短袖短版開襟針織衫",
+        "category": "針織",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 4,
+          "AT10": 3
+        },
+        "store_inventory": {
+          "AS62": 51,
+          "AT10": 80
+        }
+      },
+      {
+        "product_id": "2620221005",
+        "sku": "EB-20051K",
+        "name": "【Hello Kitty聯名】櫻桃聖代凱蒂貓圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 2,
+          "AT10": 4
+        },
+        "store_inventory": {
+          "AS62": 46,
+          "AT10": 79
+        }
+      },
+      {
+        "product_id": "2620229003",
+        "sku": "XY-6948K",
+        "name": "【Hello Kitty聯名】緹花圖案圓領削肩短版針織背心(附胸墊)",
+        "category": "針織",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 3,
+          "AT10": 3
+        },
+        "store_inventory": {
+          "AS62": 63,
+          "AT10": 94
+        }
+      },
+      {
+        "product_id": "2620223001",
+        "sku": "XY-62898QK",
+        "name": "【DINOTAENG】後口袋反摺毛巾繡斜紋休閒長褲",
+        "category": "褲子",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 2,
+          "AT10": 4
+        },
+        "store_inventory": {
+          "AS62": 85,
+          "AT10": 120
+        }
+      },
+      {
+        "product_id": "2620221006",
+        "sku": "EB-20052K",
+        "name": "【Hello Kitty聯名】棒棒糖凱蒂貓圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 3,
+          "AT10": 3
+        },
+        "store_inventory": {
+          "AS62": 36,
+          "AT10": 68
+        }
+      },
+      {
+        "product_id": "2620221003",
+        "sku": "EB-20048K",
+        "name": "【Hello Kitty聯名】美味漢堡凱蒂貓圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "衝",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 4,
+          "AT10": 2
+        },
+        "store_inventory": {
+          "AS62": 46,
+          "AT10": 65
+        }
+      },
+      {
+        "product_id": "2620221001",
+        "sku": "EB-20059QK",
+        "name": "【DINOTAENG】前後印花圓領短袖寬版 TEE",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AT10": 5
+        },
+        "store_inventory": {
+          "AS62": 51,
+          "AT10": 66
+        }
+      },
+      {
+        "product_id": "2620221002",
+        "sku": "EB-20058QK",
+        "name": "【DINOTAENG】彩色印花圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 3
+        },
+        "store_inventory": {
+          "AS62": 105,
+          "AT10": 170
+        }
+      },
+      {
+        "product_id": "2620229002",
+        "sku": "BF-5290QK",
+        "name": "【DINOTAENG】貼布繡小圖方領針織背心",
+        "category": "針織",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 1
+        },
+        "store_inventory": {
+          "AS62": 46,
+          "AT10": 73
+        }
+      }
+    ],
+    "IP配件": [
+      {
+        "product_id": "2620225002",
+        "sku": "SHY-26104CK",
+        "name": "【Hello Kitty聯名】刺繡造型擦手巾 漢堡款/大頭款",
+        "category": "配件",
+        "grade": "衝",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 15,
+          "AT10": 5
+        },
+        "store_inventory": {
+          "AS62": 44,
+          "AT10": 101
+        }
+      },
+      {
+        "product_id": "2620225025",
+        "sku": "SHY-2503CK",
+        "name": "【Hello Kitty聯名】鎖鍊繡字母小圖撞色棒球帽",
+        "category": "配件",
+        "grade": "C",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 5,
+          "AT10": 2
+        },
+        "store_inventory": {
+          "AS62": 17,
+          "AT10": 32
+        }
+      },
+      {
+        "product_id": "2620225014",
+        "sku": "SHY-26103CK",
+        "name": "【Hello Kitty聯名】絨毛大頭造型雙面零錢包",
+        "category": "配件",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 3,
+          "AT10": 4
+        },
+        "store_inventory": {
+          "AS62": 34,
+          "AT10": 59
+        }
+      },
+      {
+        "product_id": "2620225001",
+        "sku": "SH-0101QKC",
+        "name": "【DINOTAENG】彩色造型地墊",
+        "category": "配件",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS62": 1,
+          "AT10": 3
+        },
+        "store_inventory": {
+          "AS62": 21,
+          "AT10": 23
+        }
+      },
+      {
+        "product_id": "2620225003",
+        "sku": "EB-20072QKC",
+        "name": "【DINOTAENG】毛巾繡壓紋對摺零錢包 QUOKKA款 / BOBO款",
+        "category": "配件",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {
+          "AS62": 47,
+          "AT10": 71
+        }
+      }
+    ],
+    "OL": [
+      {
+        "product_id": "2621821057",
+        "sku": "GE90980Q",
+        "name": "緞帶蝴蝶結羅紋木耳邊細肩帶背心(附胸墊)",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS05": 1,
+          "AS10": 4,
+          "AS15": 4,
+          "AS24": 7,
+          "AS25": 3,
+          "AS35": 18,
+          "AS37": 2,
+          "AS38": 6,
+          "AS40": 2,
+          "AS45": 11,
+          "AS46": 13,
+          "AS59": 3,
+          "AS66": 11,
+          "AS69": 4,
+          "AS70": 3,
+          "AS71": 3,
+          "AS72": 2,
+          "AS73": 13,
+          "AS81": 4,
+          "AS83": 3,
+          "AS88": 2,
+          "AS89": 10,
+          "AS92": 10,
+          "AS93": 1,
+          "AS95": 4,
+          "AT02": 9,
+          "AT03": 4,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS05": 28,
+          "AS10": 16,
+          "AS15": 16,
+          "AS24": 55,
+          "AS25": 26,
+          "AS35": 37,
+          "AS37": 18,
+          "AS38": 31,
+          "AS40": 27,
+          "AS45": 35,
+          "AS46": 42,
+          "AS59": 26,
+          "AS66": 9,
+          "AS69": 42,
+          "AS70": 35,
+          "AS71": 25,
+          "AS72": 18,
+          "AS73": 24,
+          "AS81": 40,
+          "AS83": 17,
+          "AS84": 29,
+          "AS88": 27,
+          "AS89": 19,
+          "AS92": 27,
+          "AS93": 28,
+          "AS95": 24,
+          "AT02": 28,
+          "AT03": 16,
+          "AT07": 15
+        }
+      },
+      {
+        "product_id": "2621821053",
+        "sku": "ML11502Q",
+        "name": "V型一字領繞頸肩帶圓弧短下擺短袖羅紋上衣(附胸墊)",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS10": 1,
+          "AS24": 4,
+          "AS35": 4,
+          "AS37": 2,
+          "AS38": 5,
+          "AS40": 1,
+          "AS45": 7,
+          "AS46": 9,
+          "AS59": 2,
+          "AS66": 5,
+          "AS69": 3,
+          "AS70": 1,
+          "AS71": 3,
+          "AS72": 6,
+          "AS73": 6,
+          "AS81": 5,
+          "AS83": 3,
+          "AS84": 2,
+          "AS89": 7,
+          "AS92": 1,
+          "AS93": 6,
+          "AS95": 14,
+          "AT02": 3,
+          "AT03": 1,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS05": 26,
+          "AS10": 18,
+          "AS15": 19,
+          "AS24": 54,
+          "AS25": 26,
+          "AS35": 47,
+          "AS37": 17,
+          "AS38": 29,
+          "AS40": 24,
+          "AS45": 37,
+          "AS46": 42,
+          "AS59": 24,
+          "AS66": 14,
+          "AS69": 41,
+          "AS70": 33,
+          "AS71": 23,
+          "AS72": 13,
+          "AS73": 28,
+          "AS81": 39,
+          "AS83": 16,
+          "AS84": 24,
+          "AS88": 25,
+          "AS89": 18,
+          "AS92": 35,
+          "AS93": 20,
+          "AS95": 12,
+          "AT02": 31,
+          "AT03": 18,
+          "AT07": 15
+        }
+      },
+      {
+        "product_id": "2621824017",
+        "sku": "AF12650Q",
+        "name": "平口抓褶後綁帶暈染條紋細肩帶短洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS05": 2,
+          "AS10": 1,
+          "AS15": 2,
+          "AS24": 6,
+          "AS25": 2,
+          "AS35": 4,
+          "AS37": 3,
+          "AS38": 2,
+          "AS45": 8,
+          "AS59": 3,
+          "AS66": 2,
+          "AS69": 4,
+          "AS70": 2,
+          "AS71": 4,
+          "AS72": 1,
+          "AS73": 3,
+          "AS81": 3,
+          "AS83": 4,
+          "AS84": 4,
+          "AS88": 2,
+          "AS89": 2,
+          "AS92": 7,
+          "AS95": 3,
+          "AT02": 4,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS05": 15,
+          "AS10": 10,
+          "AS15": 11,
+          "AS24": 29,
+          "AS25": 15,
+          "AS35": 26,
+          "AS37": 8,
+          "AS38": 19,
+          "AS40": 18,
+          "AS45": 18,
+          "AS46": 30,
+          "AS59": 15,
+          "AS66": 10,
+          "AS69": 22,
+          "AS70": 19,
+          "AS71": 13,
+          "AS72": 11,
+          "AS73": 18,
+          "AS81": 23,
+          "AS83": 8,
+          "AS84": 14,
+          "AS88": 16,
+          "AS89": 16,
+          "AS92": 14,
+          "AS93": 18,
+          "AS95": 14,
+          "AT02": 17,
+          "AT03": 12,
+          "AT07": 11
+        }
+      },
+      {
+        "product_id": "2621821054",
+        "sku": "ZX11461Q",
+        "name": "蝴蝶結側開衩單口袋長袖寬版襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS05": 1,
+          "AS15": 3,
+          "AS24": 1,
+          "AS25": 1,
+          "AS35": 4,
+          "AS37": 2,
+          "AS38": 6,
+          "AS40": 2,
+          "AS45": 4,
+          "AS46": 6,
+          "AS59": 3,
+          "AS66": 1,
+          "AS73": 8,
+          "AS81": 5,
+          "AS83": 3,
+          "AS84": 1,
+          "AS89": 6,
+          "AS92": 4,
+          "AS95": 5,
+          "AT02": 3,
+          "AT03": 2,
+          "AT07": 3
+        },
+        "store_inventory": {
+          "AS05": 18,
+          "AS10": 13,
+          "AS15": 10,
+          "AS24": 42,
+          "AS25": 18,
+          "AS35": 33,
+          "AS37": 10,
+          "AS38": 19,
+          "AS40": 16,
+          "AS45": 27,
+          "AS46": 31,
+          "AS59": 15,
+          "AS66": 12,
+          "AS69": 31,
+          "AS70": 25,
+          "AS71": 19,
+          "AS72": 13,
+          "AS73": 17,
+          "AS81": 26,
+          "AS83": 10,
+          "AS84": 17,
+          "AS88": 19,
+          "AS89": 12,
+          "AS92": 21,
+          "AS93": 18,
+          "AS95": 14,
+          "AT02": 22,
+          "AT03": 11,
+          "AT07": 10
+        }
+      },
+      {
+        "product_id": "2621823016",
+        "sku": "EB20037Q",
+        "name": "後開衩水洗喇叭牛仔褲",
         "category": "褲子",
         "grade": "A",
-        "total_sales": 119,
-        "inventory": 145,
-        "store_sales": { "AT03": 20, "AT04": 15, "AT05": 18, "AT07": 22 },
-        "store_inventory": { "AT03": 35, "AT04": 30, "AT05": 38, "AT07": 40 }
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS05": 1,
+          "AS15": 1,
+          "AS24": 5,
+          "AS25": 1,
+          "AS35": 2,
+          "AS37": 1,
+          "AS40": 1,
+          "AS45": 1,
+          "AS46": 9,
+          "AS59": 4,
+          "AS66": 1,
+          "AS69": 1,
+          "AS71": 1,
+          "AS73": 9,
+          "AS81": 2,
+          "AS83": 11,
+          "AS84": 2,
+          "AS88": 1,
+          "AS89": 7,
+          "AS92": 3,
+          "AS93": 2,
+          "AS95": 1,
+          "AT02": 2
+        },
+        "store_inventory": {
+          "AS05": 24,
+          "AS10": 18,
+          "AS15": 17,
+          "AS24": 51,
+          "AS25": 24,
+          "AS35": 45,
+          "AS37": 17,
+          "AS38": 35,
+          "AS40": 24,
+          "AS45": 42,
+          "AS46": 39,
+          "AS59": 21,
+          "AS66": 17,
+          "AS69": 43,
+          "AS70": 33,
+          "AS71": 24,
+          "AS72": 18,
+          "AS73": 26,
+          "AS81": 41,
+          "AS83": 7,
+          "AS84": 23,
+          "AS88": 24,
+          "AS89": 18,
+          "AS92": 33,
+          "AS93": 23,
+          "AS95": 24,
+          "AT02": 31,
+          "AT03": 18,
+          "AT07": 18
+        }
+      },
+      {
+        "product_id": "2621821055",
+        "sku": "ZX11250Q",
+        "name": "法式袖打褶收腰短版壓紋襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS10": 1,
+          "AS15": 3,
+          "AS24": 2,
+          "AS25": 1,
+          "AS35": 1,
+          "AS37": 2,
+          "AS38": 2,
+          "AS40": 2,
+          "AS45": 6,
+          "AS46": 8,
+          "AS59": 3,
+          "AS69": 1,
+          "AS70": 2,
+          "AS71": 3,
+          "AS73": 2,
+          "AS81": 2,
+          "AS83": 1,
+          "AS88": 1,
+          "AS89": 5,
+          "AS92": 4,
+          "AS93": 1,
+          "AT02": 3,
+          "AT03": 1,
+          "AT07": 5
+        },
+        "store_inventory": {
+          "AS05": 18,
+          "AS10": 13,
+          "AS15": 11,
+          "AS24": 41,
+          "AS25": 17,
+          "AS35": 37,
+          "AS37": 12,
+          "AS38": 24,
+          "AS40": 17,
+          "AS45": 26,
+          "AS46": 29,
+          "AS59": 16,
+          "AS66": 14,
+          "AS69": 31,
+          "AS70": 24,
+          "AS71": 15,
+          "AS72": 14,
+          "AS73": 24,
+          "AS81": 30,
+          "AS83": 13,
+          "AS84": 19,
+          "AS88": 18,
+          "AS89": 14,
+          "AS92": 21,
+          "AS93": 18,
+          "AS95": 18,
+          "AT02": 22,
+          "AT03": 12,
+          "AT07": 8
+        }
+      },
+      {
+        "product_id": "2621821056",
+        "sku": "GT9109Q",
+        "name": "2WAY 法式方領撞色花邊綁帶澎袖荷葉下擺格紋上衣",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS05": 1,
+          "AS10": 2,
+          "AS15": 1,
+          "AS24": 1,
+          "AS25": 1,
+          "AS40": 3,
+          "AS45": 7,
+          "AS46": 5,
+          "AS59": 2,
+          "AS66": 4,
+          "AS69": 1,
+          "AS70": 2,
+          "AS71": 1,
+          "AS72": 1,
+          "AS73": 1,
+          "AS81": 5,
+          "AS83": 2,
+          "AS88": 1,
+          "AS89": 9,
+          "AS93": 2,
+          "AS95": 1,
+          "AT02": 4,
+          "AT03": 1,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS05": 19,
+          "AS10": 12,
+          "AS15": 14,
+          "AS24": 42,
+          "AS25": 20,
+          "AS35": 35,
+          "AS37": 13,
+          "AS38": 27,
+          "AS40": 17,
+          "AS45": 24,
+          "AS46": 30,
+          "AS59": 19,
+          "AS66": 10,
+          "AS69": 30,
+          "AS70": 24,
+          "AS71": 20,
+          "AS72": 13,
+          "AS73": 26,
+          "AS81": 26,
+          "AS83": 12,
+          "AS84": 21,
+          "AS88": 20,
+          "AS89": 12,
+          "AS92": 26,
+          "AS93": 19,
+          "AS95": 20,
+          "AT02": 23,
+          "AT03": 13,
+          "AT07": 9
+        }
+      },
+      {
+        "product_id": "2621824018",
+        "sku": "AF12632Q",
+        "name": "反摺一字領側抓皺開衩修身長洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS05": 2,
+          "AS10": 1,
+          "AS24": 6,
+          "AS25": 1,
+          "AS35": 2,
+          "AS38": 1,
+          "AS40": 1,
+          "AS45": 4,
+          "AS46": 2,
+          "AS66": 1,
+          "AS69": 4,
+          "AS70": 2,
+          "AS71": 5,
+          "AS72": 2,
+          "AS81": 2,
+          "AS84": 2,
+          "AS88": 2,
+          "AS89": 3,
+          "AS92": 1,
+          "AS93": 1,
+          "AS95": 2,
+          "AT02": 1,
+          "AT03": 2,
+          "AT07": 3
+        },
+        "store_inventory": {
+          "AS05": 17,
+          "AS10": 14,
+          "AS15": 16,
+          "AS24": 37,
+          "AS25": 18,
+          "AS35": 37,
+          "AS37": 14,
+          "AS38": 25,
+          "AS40": 19,
+          "AS45": 29,
+          "AS46": 37,
+          "AS59": 19,
+          "AS66": 14,
+          "AS69": 28,
+          "AS70": 25,
+          "AS71": 14,
+          "AS72": 13,
+          "AS73": 26,
+          "AS81": 30,
+          "AS83": 15,
+          "AS84": 17,
+          "AS88": 17,
+          "AS89": 17,
+          "AS92": 25,
+          "AS93": 18,
+          "AS95": 17,
+          "AT02": 27,
+          "AT03": 13,
+          "AT07": 12
+        }
+      },
+      {
+        "product_id": "2621827004",
+        "sku": "XY62858Q",
+        "name": "交叉V領抽皺澎袖短版上衣後開衩直筒長裙套裝",
+        "category": "套裝",
+        "grade": "D",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS05": 2,
+          "AS35": 6,
+          "AS40": 1,
+          "AS45": 2,
+          "AS46": 1,
+          "AS69": 2,
+          "AS89": 1,
+          "AS92": 3,
+          "AS93": 2,
+          "AT03": 1,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS05": 57,
+          "AS24": 76,
+          "AS35": 58,
+          "AS40": 39,
+          "AS45": 44,
+          "AS46": 59,
+          "AS59": 40,
+          "AS69": 58,
+          "AS89": 46,
+          "AS92": 44,
+          "AS93": 37,
+          "AT03": 39,
+          "AT07": 38
+        }
+      },
+      {
+        "product_id": "2621822013",
+        "sku": "XY62894Q",
+        "name": "多層次荷葉網紗蛋糕長裙",
+        "category": "裙子",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS10": 1,
+          "AS15": 1,
+          "AS25": 2,
+          "AS35": 2,
+          "AS37": 2,
+          "AS40": 1,
+          "AS45": 3,
+          "AS66": 1,
+          "AS73": 2,
+          "AS83": 1,
+          "AS84": 1,
+          "AS89": 2,
+          "AS92": 2,
+          "AT02": 1
+        },
+        "store_inventory": {
+          "AS05": 12,
+          "AS10": 7,
+          "AS15": 7,
+          "AS24": 27,
+          "AS25": 10,
+          "AS35": 21,
+          "AS37": 6,
+          "AS38": 15,
+          "AS40": 11,
+          "AS45": 17,
+          "AS46": 23,
+          "AS59": 12,
+          "AS66": 7,
+          "AS69": 20,
+          "AS70": 16,
+          "AS71": 12,
+          "AS72": 8,
+          "AS73": 13,
+          "AS81": 20,
+          "AS83": 7,
+          "AS84": 11,
+          "AS88": 12,
+          "AS89": 10,
+          "AS92": 14,
+          "AS93": 12,
+          "AS95": 12,
+          "AT02": 15,
+          "AT03": 8,
+          "AT07": 8
+        }
+      }
+    ],
+    "PLUS": [
+      {
+        "product_id": "2620821052",
+        "sku": "ICH3565F",
+        "name": "假兩件繞頸綁帶背心V領排扣抽皺羅紋木耳邊開襟衫",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 26,
+          "AS12": 17,
+          "AS29": 3,
+          "AS44": 3,
+          "AS49": 11,
+          "AS64": 37,
+          "AS68": 4,
+          "AS86": 20,
+          "AS97": 15,
+          "AT03": 6,
+          "AT04": 13
+        },
+        "store_inventory": {
+          "AS07": 30,
+          "AS12": 23,
+          "AS29": 45,
+          "AS44": 39,
+          "AS49": 27,
+          "AS64": 43,
+          "AS68": 35,
+          "AS86": 33,
+          "AS97": 22,
+          "AT03": 36,
+          "AT04": 24
+        }
+      },
+      {
+        "product_id": "2620822011",
+        "sku": "XY62835F",
+        "name": "零修圖翹臀高腰顯瘦百褶牛仔短裙",
+        "category": "裙子",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 6,
+          "AS12": 12,
+          "AS29": 3,
+          "AS44": 6,
+          "AS49": 4,
+          "AS64": 9,
+          "AS68": 1,
+          "AS97": 2,
+          "AT04": 4
+        },
+        "store_inventory": {
+          "AS07": 45,
+          "AS12": 26,
+          "AS29": 41,
+          "AS44": 32,
+          "AS49": 30,
+          "AS64": 70,
+          "AS68": 37,
+          "AS86": 50,
+          "AS97": 33,
+          "AT03": 39,
+          "AT04": 31
+        }
+      },
+      {
+        "product_id": "2620821053",
+        "sku": "ZX11434F",
+        "name": "涼感CEO顯瘦短版西裝襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 1,
+          "AS12": 3,
+          "AS29": 2,
+          "AS44": 3,
+          "AS49": 3,
+          "AS64": 6,
+          "AS68": 4,
+          "AS86": 7,
+          "AS97": 2,
+          "AT03": 3,
+          "AT04": 2
+        },
+        "store_inventory": {
+          "AS07": 59,
+          "AS12": 41,
+          "AS29": 49,
+          "AS44": 41,
+          "AS49": 36,
+          "AS64": 85,
+          "AS68": 40,
+          "AS86": 48,
+          "AS97": 36,
+          "AT03": 41,
+          "AT04": 36
+        }
+      },
+      {
+        "product_id": "2620823012",
+        "sku": "ZX11490F",
+        "name": "涼感CEO顯瘦高腰直筒西裝褲",
+        "category": "褲子",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 1,
+          "AS12": 2,
+          "AS29": 3,
+          "AS44": 2,
+          "AS49": 1,
+          "AS64": 3,
+          "AS68": 4,
+          "AS86": 4,
+          "AS97": 2,
+          "AT03": 5,
+          "AT04": 5
+        },
+        "store_inventory": {
+          "AS07": 50,
+          "AS12": 35,
+          "AS29": 41,
+          "AS44": 35,
+          "AS49": 31,
+          "AS64": 71,
+          "AS68": 33,
+          "AS86": 44,
+          "AS97": 31,
+          "AT03": 33,
+          "AT04": 27
+        }
+      },
+      {
+        "product_id": "2620821051",
+        "sku": "GT9109QF",
+        "name": "2WAY 法式方領撞色花邊綁帶澎袖荷葉下擺格紋上衣",
+        "category": "上衣",
+        "grade": "C",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 7,
+          "AS29": 1,
+          "AS44": 8,
+          "AS49": 4,
+          "AS64": 4,
+          "AS97": 4,
+          "AT03": 1
+        },
+        "store_inventory": {
+          "AS07": 22,
+          "AS29": 19,
+          "AS44": 11,
+          "AS49": 16,
+          "AS64": 26,
+          "AS97": 15,
+          "AT03": 18
+        }
+      },
+      {
+        "product_id": "2620822012",
+        "sku": "XY62894QF",
+        "name": "多層次荷葉網紗蛋糕長裙",
+        "category": "裙子",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 3,
+          "AS12": 2,
+          "AS44": 1,
+          "AS49": 1,
+          "AS64": 1,
+          "AS68": 1,
+          "AS97": 1,
+          "AT03": 1,
+          "AT04": 2
+        },
+        "store_inventory": {
+          "AS07": 24,
+          "AS12": 18,
+          "AS29": 22,
+          "AS44": 19,
+          "AS49": 16,
+          "AS64": 39,
+          "AS68": 19,
+          "AS86": 25,
+          "AS97": 17,
+          "AT03": 19,
+          "AT04": 15
+        }
+      },
+      {
+        "product_id": "2620824017",
+        "sku": "ZX11435F",
+        "name": "翻領排扣開襟法式袖抓褶波浪傘擺短洋裝",
+        "category": "洋裝",
+        "grade": "D",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 2,
+          "AS44": 1,
+          "AS64": 1,
+          "AS97": 1
+        },
+        "store_inventory": {
+          "AS07": 51,
+          "AS29": 32,
+          "AS44": 31,
+          "AS49": 32,
+          "AS64": 52,
+          "AS97": 30,
+          "AT03": 32
+        }
+      },
+      {
+        "product_id": "2620824020",
+        "sku": "MS67901F",
+        "name": "荷葉方V領綁帶抓褶傘袖雪紡長洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS07": 1,
+          "AS12": 1,
+          "AS44": 1,
+          "AS49": 1
+        },
+        "store_inventory": {
+          "AS07": 43,
+          "AS12": 31,
+          "AS29": 37,
+          "AS44": 32,
+          "AS49": 27,
+          "AS64": 65,
+          "AS68": 33,
+          "AS86": 40,
+          "AS97": 28,
+          "AT03": 32,
+          "AT04": 28
+        }
+      },
+      {
+        "product_id": "2620821046",
+        "sku": "XY62834F",
+        "name": "零修圖顯瘦馬甲收腰背心",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {}
+      }
+    ],
+    "配件": [
+      {
+        "product_id": "2621825004",
+        "sku": "GT9143Q",
+        "name": "撞色滾邊透紗髮圈",
+        "category": "配件",
+        "grade": "C",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {
+          "AS24": 1,
+          "AS45": 1,
+          "AS59": 1,
+          "AS89": 4,
+          "AS92": 1,
+          "AS93": 1
+        },
+        "store_inventory": {
+          "AS05": 23,
+          "AS24": 29,
+          "AS35": 25,
+          "AS40": 16,
+          "AS45": 17,
+          "AS46": 23,
+          "AS59": 15,
+          "AS69": 23,
+          "AS89": 14,
+          "AS92": 17,
+          "AS93": 16,
+          "AT03": 17,
+          "AT07": 16
+        }
       }
     ]
   }

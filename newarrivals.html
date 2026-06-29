@@ -41,7 +41,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .rank-3{background:#C1845A!important;color:#fff}
 .card-body{flex:1;padding:8px 9px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;gap:4px}
 .card-sku{font-size:20px;font-weight:900;color:#1d1d1f;line-height:1.1;letter-spacing:.3px}
-.card-name{font-size:11px;color:#777;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.card-name{font-size:11px;color:#777;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
 .card-tags{display:flex;gap:4px;flex-wrap:wrap}
 .tag{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:500}
 .tag-cat{background:#f0f0f0;color:#555}
@@ -89,15 +89,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .ov-section-sub{font-size:10px;font-weight:400;color:#aaa}
 .ov-table-wrap{overflow-x:auto}
 .ov-table{width:100%;border-collapse:collapse;font-size:11px}
-.ov-table th{background:#f5f5f5;padding:4px 7px;font-weight:700;font-size:10px;color:#555;border-bottom:2px solid #e0e0e0;white-space:nowrap;text-align:right}
+.ov-table th{background:#f5f5f5;padding:4px 7px;font-weight:700;font-size:14px;color:#555;border-bottom:2px solid #e0e0e0;white-space:nowrap;text-align:right}
 .ov-table th:first-child{text-align:left}
 .ov-table th.store-col{background:#FFF3F3;color:#c62828}
-.ov-table td{padding:4px 7px;border-bottom:1px solid #f2f2f2;text-align:right;font-size:11px}
+.ov-table td{padding:4px 7px;border-bottom:1px solid #f2f2f2;text-align:right;font-size:15px}
 .ov-table td:first-child{text-align:left;font-weight:800;font-size:22px;color:#1d1d1f}
 .ov-table tr:last-child td{border-bottom:none}
 .ov-table tr:hover td{background:#fafafa}
 .ov-table .highlight-row td{background:#FFF3F3}
-.ov-rate{font-size:10px;color:#86868b}
+.ov-rate{font-size:14px;color:#86868b}
 .ov-store-val{color:#d32f2f;font-weight:800}
 .ov-no-store{text-align:center;padding:40px 20px;color:#86868b;font-size:13px}
 .ov-summary{display:flex;gap:5px;padding:6px 10px;border-bottom:1px solid #f0f0f0}
@@ -397,7 +397,7 @@ function renderOverview(){
       const ms=p.store_sales?.[currentStore]||0;
       const trClass=ms>0?'highlight-row':'';
       h+=`<tr class="${trClass}">
-        <td>${p.sku}<br><span style="font-size:14px;color:#aaa;font-weight:400">${p.name.substring(0,14)}...</span></td>
+        <td style="min-width:120px;max-width:180px;white-space:normal">${p.sku}<br><span style="font-size:14px;color:#aaa;font-weight:400;line-height:1.3;display:block">${p.name}</span></td>
         <td>${p.total_sales}</td>
         <td>${p.inventory}</td>
         <td class="ov-rate">${turnover(p.total_sales,p.inventory)}</td>

@@ -7,75 +7,75 @@
   "stores": [
     {
       "code": "AS04",
-      "name": "AS04"
+      "name": "敦南AS店"
     },
     {
       "code": "AS05",
-      "name": "AS05"
+      "name": "敦南LADY店"
     },
     {
       "code": "AS07",
-      "name": "AS07"
+      "name": "南西大碼店"
     },
     {
       "code": "AS10",
-      "name": "AS10"
+      "name": "大安店"
     },
     {
       "code": "AS12",
-      "name": "AS12"
+      "name": "西門大碼店"
     },
     {
       "code": "AS15",
-      "name": "AS15"
+      "name": "逢甲店"
     },
     {
       "code": "AS17",
-      "name": "AS17"
+      "name": "一中店"
     },
     {
       "code": "AS24",
-      "name": "AS24"
+      "name": "南西LADY店"
     },
     {
       "code": "AS25",
-      "name": "AS25"
+      "name": "一中LADY店"
     },
     {
       "code": "AS29",
-      "name": "AS29"
+      "name": "一中大碼店"
     },
     {
       "code": "AS35",
-      "name": "AS35"
+      "name": "新竹巨城LADY店"
     },
     {
       "code": "AS37",
-      "name": "AS37"
+      "name": "南港CITYLINK店"
     },
     {
       "code": "AS38",
-      "name": "AS38"
+      "name": "南紡LADY店"
     },
     {
       "code": "AS40",
-      "name": "AS40"
+      "name": "中山一店"
     },
     {
       "code": "AS44",
-      "name": "AS44"
+      "name": "文心大碼店"
     },
     {
       "code": "AS45",
-      "name": "AS45"
+      "name": "高雄夢時代店"
     },
     {
       "code": "AS46",
-      "name": "AS46"
+      "name": "岡山LADY店"
     },
     {
       "code": "AS49",
-      "name": "AS49"
+      "name": "敦南大碼店"
     },
     {
       "code": "AS51",
@@ -83,23 +83,23 @@
     },
     {
       "code": "AS52",
-      "name": "AS52"
+      "name": "中港新光店"
     },
     {
       "code": "AS57",
-      "name": "AS57"
+      "name": "南西AS店"
     },
     {
       "code": "AS59",
-      "name": "AS59"
+      "name": "左營新光店"
     },
     {
       "code": "AS61",
-      "name": "AS61"
+      "name": "西門AS店"
     },
     {
       "code": "AS62",
-      "name": "AS62"
+      "name": "南西IP店"
     },
     {
       "code": "AS63",
@@ -107,91 +107,91 @@
     },
     {
       "code": "AS64",
-      "name": "AS64"
+      "name": "夢時代大碼店"
     },
     {
       "code": "AS66",
-      "name": "AS66"
+      "name": "台中遠百店"
     },
     {
       "code": "AS68",
-      "name": "AS68"
+      "name": "樹林大碼店"
     },
     {
       "code": "AS69",
-      "name": "AS69"
+      "name": "文心LADY店"
     },
     {
       "code": "AS70",
-      "name": "AS70"
+      "name": "西門三店"
     },
     {
       "code": "AS71",
-      "name": "AS71"
+      "name": "中和環球店"
     },
     {
       "code": "AS72",
-      "name": "AS72"
+      "name": "桃園統領店"
     },
     {
       "code": "AS73",
-      "name": "AS73"
+      "name": "新莊宏匯店"
     },
     {
       "code": "AS77",
-      "name": "AS77"
+      "name": "忠孝CHIC.A店"
     },
     {
       "code": "AS79",
-      "name": "AS79"
+      "name": "高雄漢神CHIC.A店"
     },
     {
       "code": "AS81",
-      "name": "AS81"
+      "name": "高雄漢神LADY店"
     },
     {
       "code": "AS82",
-      "name": "AS82"
+      "name": "高雄夢時代CHIC.A店"
     },
     {
       "code": "AS83",
-      "name": "AS83"
+      "name": "三多遠百店"
     },
     {
       "code": "AS84",
-      "name": "AS84"
+      "name": "嘉義秀泰店"
     },
     {
       "code": "AS86",
-      "name": "AS86"
+      "name": "統領大碼店"
     },
     {
       "code": "AS88",
-      "name": "AS88"
+      "name": "士林一店"
     },
     {
       "code": "AS89",
-      "name": "AS89"
+      "name": "桃園大江店"
     },
     {
       "code": "AS92",
-      "name": "AS92"
+      "name": "信義ATT店"
     },
     {
       "code": "AS93",
-      "name": "AS93"
+      "name": "嘉義文化一店"
     },
     {
       "code": "AS95",
-      "name": "AS95"
+      "name": "桃園台茂店"
     },
     {
       "code": "AS96",
-      "name": "AS96"
+      "name": "桃園台茂AS店"
     },
     {
       "code": "AS97",
-      "name": "AS97"
+      "name": "嘉義大碼店"
     },
     {
       "code": "AS99",
@@ -199,23 +199,23 @@
     },
     {
       "code": "AT02",
-      "name": "AT02"
+      "name": "板橋遠百LADY店"
     },
     {
       "code": "AT03",
-      "name": "AT03"
+      "name": "新台南FOCUS店"
     },
     {
       "code": "AT04",
-      "name": "AT04"
+      "name": "大江大碼店"
     },
     {
       "code": "AT05",
-      "name": "AT05"
+      "name": "南紡店"
     },
     {
       "code": "AT07",
-      "name": "AT07"
+      "name": "台中漢神店"
     },
     {
       "code": "AT08",
@@ -223,7 +223,7 @@
     },
     {
       "code": "AT10",
-      "name": "AT10"
+      "name": "夢時代IP店"
     }
   ],
   "products": {

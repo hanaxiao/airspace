@@ -240,7 +240,7 @@ function renderBrand(brand){
     const ic=p.inventory<50?'inv-low':p.inventory<150?'':'inv-ok';
     h+=`<div class="card">
       <div class="card-img-wrap">
-        <img class="card-img" src="images/${p.product_id}.jpg" onerror="this.outerHTML='<div class=\\'card-img-empty\\'>👗</div>'" alt="">
+        <img class="card-img" src="images/${p.product_id}.JPG" onerror="this.outerHTML='<div class=\\'card-img-empty\\'>👗</div>'" alt="">
         <div class="rank-badge ${rk}">${rank}</div>
       </div>
       <div class="card-body">

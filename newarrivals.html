@@ -105,6 +105,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .ov-sum-chip .v{font-size:14px;font-weight:800}
 .ov-sum-chip .l{font-size:9px;color:#86868b;margin-top:1px}
 .ov-sum-chip.red .v{color:#d32f2f}
+
+/* ── AI 摘要 ── */
+.ai-hero{background:linear-gradient(135deg,#1d1d1f 0%,#3a3a3c 100%);color:#fff;border-radius:12px;padding:14px 14px 10px;margin:10px 0 12px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.ai-hero-title{font-size:11px;font-weight:700;letter-spacing:.8px;color:#aaa;text-transform:uppercase;margin-bottom:6px}
+.ai-chips-row{display:flex;gap:6px;margin-bottom:10px}
+.ai-chip{flex:1;background:rgba(255,255,255,.08);border-radius:8px;padding:8px 4px;text-align:center}
+.ai-chip .av{font-size:18px;font-weight:800;line-height:1}
+.ai-chip .al{font-size:9px;color:#aaa;margin-top:2px}
+.ai-chip.gold .av{color:#FFB800}
+.ai-section{background:#fff;border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.ai-section-hd{background:#f5f5f7;padding:8px 12px;font-size:12px;font-weight:800;color:#1d1d1f;display:flex;justify-content:space-between;align-items:center}
+.ai-section-hd .ai-badge{font-size:10px;font-weight:600;background:#1d1d1f;color:#fff;padding:2px 7px;border-radius:10px}
+.ai-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f2f2f2}
+.ai-row:last-child{border-bottom:none}
+.ai-rank{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;background:#eee;color:#555}
+.ai-rank.r1{background:#FFB800;color:#fff}
+.ai-rank.r2{background:#9EA3A8;color:#fff}
+.ai-rank.r3{background:#C1845A;color:#fff}
+.ai-prod-info{flex:1;min-width:0}
+.ai-prod-sku{font-size:14px;font-weight:800;color:#1d1d1f}
+.ai-prod-name{font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-prod-stat{text-align:right;flex-shrink:0}
+.ai-prod-stat .n{font-size:16px;font-weight:800;color:#1d1d1f}
+.ai-prod-stat .u{font-size:10px;color:#86868b}
+.ai-warn{background:#FFF8E1;border-left:3px solid #FFB800;padding:7px 12px;margin:6px 10px;border-radius:0 6px 6px 0;font-size:12px;color:#5d3a00}
+.ai-ok{background:#E8F5E9;border-left:3px solid #43A047;padding:7px 12px;margin:6px 10px;border-radius:0 6px 6px 0;font-size:12px;color:#1b5e20}
+.ai-copybox{background:#f5f5f7;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:12px;color:#1d1d1f;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+.ai-copy-btn{width:100%;background:#1d1d1f;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px}
+.ai-copy-btn:active{opacity:.8}
 </style>
 </head>
 <body>
@@ -166,8 +195,8 @@ function init(){
     contents.appendChild(div);
   });
 
-  // 固定分頁：各店比較 / 總覽
-  ['各店比較|COMPARE','總覽|OVERVIEW'].forEach(item=>{
+  // 固定分頁：AI摘要 / 各店比較 / 總覽
+  ['AI摘要|SUMMARY','各店比較|COMPARE','總覽|OVERVIEW'].forEach(item=>{
     const [label,id]=item.split('|');
     const btn=document.createElement('button');
     btn.className='tab-btn';
@@ -389,7 +418,7 @@ function renderOverview(){
       <table class="ov-table">
         <thead><tr>
           <th style="min-width:54px"></th>
-          <th style="text-align:left">款號</th>
+          <th>款號</th>
           <th>全台銷售</th>
           <th>全台庫存</th>
           <th>全台周轉</th>
@@ -403,8 +432,8 @@ function renderOverview(){
       const trClass=ms>0?'highlight-row':'';
       h+=`<tr class="${trClass}">
         <td style="padding:4px;text-align:center;vertical-align:middle">
-          <img src="images/${p.product_id}.JPG" style="width:80px;height:112px;object-fit:cover;border-radius:5px;display:block"
-            onerror="this.outerHTML='<div style=\\'width:80px;height:112px;background:#f5f5f7;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:22px\\'>👗</div>'">
+          <img src="images/${p.product_id}.JPG" style="width:50px;height:70px;object-fit:cover;border-radius:5px;display:block"
+            onerror="this.outerHTML='<div style=\\'width:50px;height:70px;background:#f5f5f7;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:22px\\'>👗</div>'">
         </td>
         <td style="min-width:110px;max-width:170px;white-space:normal;text-align:left">${p.sku}<br><span style="font-size:13px;color:#aaa;font-weight:400;line-height:1.3;display:block">${p.name}</span></td>
         <td>${p.total_sales}</td>
@@ -420,9 +449,113 @@ function renderOverview(){
   document.getElementById('tab-OVERVIEW').innerHTML=h;
 }
 
+/* ── AI 摘要 ── */
+function renderSummary(){
+  const el=document.getElementById('tab-SUMMARY');
+  const allProds=BRANDS.flatMap(b=>DATA.products[b]||[]);
+  const totalProds=allProds.length;
+  const totalSales=allProds.reduce((s,p)=>s+p.total_sales,0);
+  const totalInv=allProds.reduce((s,p)=>s+p.inventory,0);
+
+  // 各支線銷售
+  const brandSales=BRANDS.map(b=>({
+    brand:b,
+    sales:(DATA.products[b]||[]).reduce((s,p)=>s+p.total_sales,0),
+    count:(DATA.products[b]||[]).length
+  })).filter(x=>x.sales>0).sort((a,b)=>b.sales-a.sales);
+
+  const topBrand=brandSales[0]||null;
+
+  // 全台周轉最快
+  const toRate=p=>p.inventory>0?p.total_sales/p.inventory:0;
+  const topTO=[...allProds].filter(p=>p.total_sales>0).sort((a,b)=>toRate(b)-toRate(a))[0]||null;
+
+  // 庫存偏低
+  const lowInv=allProds.filter(p=>p.inventory>0&&p.inventory<50);
+
+  // 英雄區塊
+  let h=`<div class="ai-hero">
+    <div class="ai-hero-title">✦ 本週新品分析 · ${DATA.meta.week}</div>
+    <div class="ai-chips-row">
+      <div class="ai-chip"><div class="av">${totalProds}</div><div class="al">新品款數</div></div>
+      <div class="ai-chip gold"><div class="av">${totalSales.toLocaleString()}</div><div class="al">全台銷售件數</div></div>
+      <div class="ai-chip"><div class="av">${totalInv.toLocaleString()}</div><div class="al">全台庫存</div></div>
+      <div class="ai-chip"><div class="av">${totalSales>0?(totalSales/totalInv).toFixed(2):'-'}</div><div class="al">整體周轉率</div></div>
+    </div>`;
+
+  if(topBrand) h+=`<div style="font-size:12px;color:#fff;padding:4px 2px 2px">🏆 銷售最強：<b>${topBrand.brand}</b>（${topBrand.sales.toLocaleString()} 件）</div>`;
+  if(topTO) h+=`<div style="font-size:12px;color:#fff;padding:2px">⚡ 周轉最快：<b>${topTO.sku}</b> · ${toRate(topTO).toFixed(2)} 倍</div>`;
+  if(lowInv.length) h+=`<div style="font-size:12px;color:#FFB800;padding:2px">⚠️ 庫存偏低（&lt;50件）：${lowInv.length} 款，請注意補貨</div>`;
+  h+=`</div>`;
+
+  // 各支線明細
+  BRANDS.forEach(brand=>{
+    const prods=DATA.products[brand]||[];
+    if(!prods.length) return;
+    const bSales=prods.reduce((s,p)=>s+p.total_sales,0);
+    const bInv=prods.reduce((s,p)=>s+p.inventory,0);
+    const sorted=[...prods].sort((a,b)=>b.total_sales-a.total_sales);
+    const top3=sorted.slice(0,3);
+    const bLow=prods.filter(p=>p.inventory>0&&p.inventory<50);
+
+    h+=`<div class="ai-section">
+      <div class="ai-section-hd">
+        <span>${brand}</span>
+        <span class="ai-badge">${prods.length} 款 · ${bSales} 件</span>
+      </div>`;
+
+    if(bSales===0){
+      h+=`<div style="padding:10px 12px;font-size:12px;color:#aaa">本週尚無銷售記錄</div>`;
+    } else {
+      top3.forEach((p,i)=>{
+        if(p.total_sales===0) return;
+        const rc=['r1','r2','r3'][i]||'';
+        h+=`<div class="ai-row">
+          <div class="ai-rank ${rc}">${i+1}</div>
+          <div class="ai-prod-info">
+            <div class="ai-prod-sku">${p.sku}</div>
+            <div class="ai-prod-name">${p.name}</div>
+          </div>
+          <div class="ai-prod-stat">
+            <div class="n">${p.total_sales}</div>
+            <div class="u">件｜周轉${toRate(p).toFixed(2)}</div>
+          </div>
+        </div>`;
+      });
+      if(bInv>0) h+=`<div class="ai-ok">周轉率 ${(bSales/bInv).toFixed(2)}，庫存餘 ${bInv} 件</div>`;
+    }
+    if(bLow.length) h+=`<div class="ai-warn">⚠️ 庫存偏低：${bLow.map(p=>p.sku).join('、')}</div>`;
+    h+=`</div>`;
+  });
+
+  // 可複製文字版
+  let copyText=`【AIR SPACE 新品週報 ${DATA.meta.week}】\n`;
+  copyText+=`期間：${DATA.meta.period}\n`;
+  copyText+=`新品共 ${totalProds} 款，全台銷售 ${totalSales.toLocaleString()} 件，庫存餘 ${totalInv.toLocaleString()} 件\n`;
+  if(topBrand) copyText+=`銷售最強：${topBrand.brand}（${topBrand.sales} 件）\n`;
+  if(topTO) copyText+=`周轉最快：${topTO.sku}（${toRate(topTO).toFixed(2)} 倍）\n`;
+  if(lowInv.length) copyText+=`庫存偏低：${lowInv.map(p=>p.sku).join('、')}\n`;
+  copyText+='\n';
+  BRANDS.forEach(brand=>{
+    const prods=DATA.products[brand]||[];
+    if(!prods.length) return;
+    const bSales=prods.reduce((s,p)=>s+p.total_sales,0);
+    const sorted=[...prods].sort((a,b)=>b.total_sales-a.total_sales).slice(0,3).filter(p=>p.total_sales>0);
+    copyText+=`【${brand}】${prods.length} 款，銷售 ${bSales} 件\n`;
+    sorted.forEach((p,i)=>{ copyText+=`  #${i+1} ${p.sku}（${p.total_sales}件）\n`; });
+  });
+
+  h+=`<div style="padding:4px 0 2px;font-size:11px;font-weight:700;color:#86868b;letter-spacing:.5px">📋 複製文字版</div>
+  <div class="ai-copybox" id="copyText">${copyText}</div>
+  <button class="ai-copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('copyText').innerText).then(()=>{this.textContent='✅ 已複製！';setTimeout(()=>this.textContent='📋 複製到剪貼簿',2000)})">📋 複製到剪貼簿</button>`;
+
+  el.innerHTML=h;
+}
+
 function renderAll(){
   if(!DATA) return;
   BRANDS.forEach(b=>renderBrand(b));
+  renderSummary();
   renderCompare();
   renderOverview();
 }

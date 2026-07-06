@@ -12,14 +12,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .header h1{font-size:15px;font-weight:700}
 .header-sub{font-size:10px;color:#888;margin-top:2px}
 .refresh-btn{background:none;border:1px solid #444;color:#aaa;font-size:11px;padding:3px 9px;border-radius:6px;cursor:pointer}
-.store-bar{background:#fff;border-bottom:1px solid #e5e5e5;padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:50px;z-index:199}
+.week-bar{background:#f5f5f7;border-bottom:1px solid #e5e5e5;padding:5px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:50px;z-index:200}
+.week-bar label{font-size:11px;color:#86868b;white-space:nowrap;font-weight:600}
+.week-select{flex:1;font-size:12px;font-weight:700;color:#1d1d1f;border:1.5px solid #d0d0d0;border-radius:8px;padding:4px 26px 4px 8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;-webkit-appearance:none}
+.week-select:focus{outline:none;border-color:#1d1d1f}
+.store-bar{background:#fff;border-bottom:1px solid #e5e5e5;padding:8px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:84px;z-index:199}
 .store-bar label{font-size:11px;color:#86868b;white-space:nowrap;font-weight:600}
 .store-select{flex:1;font-size:13px;font-weight:700;color:#1d1d1f;border:1.5px solid #d0d0d0;border-radius:8px;padding:6px 28px 6px 9px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 9px center;-webkit-appearance:none}
 .store-select:focus{outline:none;border-color:#1d1d1f}
 .mode-pill{font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;white-space:nowrap}
 .mode-all{background:#f0f0f0;color:#555}
 .mode-store{background:#1d1d1f;color:#fff}
-.tab-bar{background:#fff;border-bottom:1px solid #e5e5e5;display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:94px;z-index:198}
+.tab-bar{background:#fff;border-bottom:1px solid #e5e5e5;display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:128px;z-index:198}
 .tab-bar::-webkit-scrollbar{display:none}
 .tab-btn{flex:0 0 auto;padding:10px 14px;font-size:12px;font-weight:600;color:#86868b;background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap}
 .tab-btn.active{color:#1d1d1f;border-bottom-color:#1d1d1f}
@@ -144,6 +148,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
   </div>
   <div class="header-sub" id="hinfo">載入中...</div>
 </div>
+<div class="week-bar">
+  <label>週</label>
+  <select class="week-select" id="weekSel" onchange="onWeekChange()">
+    <option>載入中...</option>
+  </select>
+</div>
 <div class="store-bar">
   <label>門市</label>
   <select class="store-select" id="storeSel" onchange="onStoreChange()">
@@ -155,19 +165,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 <div id="tabContents"></div>
 
 <script>
-let DATA=null,currentStore='',currentBrandFilter='',BRANDS=[];
+let DATA=null,INDEX=[],currentStore='',currentBrandFilter='',BRANDS=[];
 
 async function loadData(){
   try{
-    const r=await fetch('data/newarrivals.json?t='+Date.now());
+    // 先嘗試載入週數索引
+    const ir=await fetch('data/index.json?t='+Date.now());
+    if(ir.ok){
+      const idx=await ir.json();
+      INDEX=idx.weeks||[];
+      buildWeekSelector();
+    }
+  }catch(e){ /* 無 index.json，舊模式 */ }
+
+  await loadWeekData();
+}
+
+function buildWeekSelector(){
+  const sel=document.getElementById('weekSel');
+  if(!INDEX.length){ sel.innerHTML='<option value="newarrivals.json">最新週</option>'; return; }
+  sel.innerHTML='';
+  INDEX.forEach((w,i)=>{
+    const o=document.createElement('option');
+    o.value=w.file;
+    o.textContent=`${w.key}　${w.period}`;
+    if(i===0) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+async function loadWeekData(){
+  const sel=document.getElementById('weekSel');
+  const file=sel&&sel.value?sel.value:'newarrivals.json';
+  try{
+    const r=await fetch(`data/${file}?t=`+Date.now());
     if(!r.ok) throw new Error('HTTP '+r.status);
     DATA=await r.json();
+    currentStore='';
+    document.getElementById('storeSel').value='';
+    document.getElementById('modePill').textContent='全店';
+    document.getElementById('modePill').className='mode-pill mode-all';
     init();
   }catch(e){
-    document.getElementById('tabContents').innerHTML=`<div class="error">⚠️ 無法載入資料<br><small>${e.message}</small><br><small>請確認 data/newarrivals.json 已上傳</small></div>`;
+    document.getElementById('tabContents').innerHTML=`<div class="error">⚠️ 無法載入資料<br><small>${e.message}</small></div>`;
     document.getElementById('hinfo').textContent='載入失敗';
   }
 }
+
+function onWeekChange(){ loadWeekData(); }
 
 function init(){
   const m=DATA.meta;

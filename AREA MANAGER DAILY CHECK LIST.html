@@ -158,13 +158,13 @@
           <input type="date" id="fDate">
         </div>
         <div class="field">
-          <label>巡店主管</label>
+          <label>巡店主管（與陳列至少擇一）</label>
           <select id="fMgr"></select>
         </div>
       </div>
       <div class="row2">
         <div class="field">
-          <label>陳列</label>
+          <label>陳列（與主管至少擇一）</label>
           <select id="fDisplay"></select>
         </div>
         <div class="field"></div>
@@ -387,7 +387,7 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec'   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  API_URL: ''   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
 };
 
 async function apiGet(action, params={}){
@@ -621,8 +621,7 @@ function findDeductionWarnings(){
 function doStage(){
   const d = gatherData();
   if(!d.storeCode){ showToast('請先輸入門市代號'); return; }
-  if(!d.mgr){ showToast('請選擇巡店主管'); return; }
-  if(!d.display){ showToast('請選擇陳列夥伴'); return; }
+  if(!d.mgr && !d.display){ showToast('巡店主管／陳列請至少選擇一位'); return; }
   const warns = findDeductionWarnings();
   if(warns.length){
     showToast(`序${warns.map(w=>w.seq).join('、')} 扣分不是固定單位，請確認後再暫存`);
@@ -635,6 +634,7 @@ function doStage(){
 function openConfirmModal(){
   const d = gatherData();
   if(!d.storeCode){ showToast('請先輸入門市代號'); return; }
+  if(!d.mgr && !d.display){ showToast('巡店主管／陳列請至少選擇一位'); return; }
   const warns = findDeductionWarnings();
   if(warns.length){
     showToast(`序${warns.map(w=>w.seq).join('、')} 扣分不是固定單位，請確認後再送出`);
@@ -728,7 +728,7 @@ function buildPrintView(d){
     <h1 style="text-align:center;">AREA MANAGER DAILY CHECK LIST</h1>
     <table style="margin-bottom:10px;">
       <tr><td><b>日期</b></td><td>${d.date}</td><td><b>稽核門市</b></td><td>${d.storeCode} ${d.storeName}（${d.region}）</td></tr>
-      <tr><td><b>巡店主管</b></td><td>${d.mgr}</td><td><b>陳列</b></td><td>${d.display}</td></tr>
+      <tr><td><b>巡店主管</b></td><td>${d.mgr||'-'}</td><td><b>陳列</b></td><td>${d.display||'-'}</td></tr>
       <tr><td><b>到店時間</b></td><td>${d.timeIn}</td><td><b>離店時間</b></td><td>${d.timeOut}</td></tr>
       <tr><td><b>當班人數</b></td><td colspan="3">正職：${d.full}位　兼職：${d.part}位</td></tr>
     </table>

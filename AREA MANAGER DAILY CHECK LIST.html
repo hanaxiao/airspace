@@ -387,7 +387,7 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec'   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  API_URL: ''   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
 };
 
 async function apiGet(action, params={}){
@@ -674,7 +674,7 @@ function weightForSeq_(seq){
   return g ? g.weight : '';
 }
 
-function buildPrintView(d){
+async function buildPrintView(d){
   const scoreMap = {};
   d.rows.forEach(r=>{ scoreMap[r.seq] = r; });
   const items = getFullOrderedItems_();
@@ -724,6 +724,26 @@ function buildPrintView(d){
     </tr>`;
   }).join('');
 
+  // 目前總分：抓即時總表資料估算(若有本月月結試算資料則優先採用最準確的版本)
+  let liveTotalHtml = '';
+  if(backendConnected()){
+    const r = await apiGet('settlement', {month: currentMonth});
+    const row = r && r.settlement ? r.settlement.find(x=>x.code===d.storeCode) : null;
+    if(row && row.hasData){
+      liveTotalHtml = `
+        <td><b>目前總分（即時估算）</b></td>
+        <td style="text-align:center;font-size:16px;"><b>${row.finalScore} / 100</b></td>`;
+    } else {
+      liveTotalHtml = `
+        <td><b>目前總分（即時估算）</b></td>
+        <td style="text-align:center;">總表或新人資料尚未齊全</td>`;
+    }
+  } else {
+    liveTotalHtml = `
+      <td><b>目前總分（即時估算）</b></td>
+      <td style="text-align:center;">尚未連接後端</td>`;
+  }
+
   document.getElementById('printView').innerHTML = `
     <h1 style="text-align:center;">AREA MANAGER DAILY CHECK LIST</h1>
     <table style="margin-bottom:10px;">
@@ -745,6 +765,10 @@ function buildPrintView(d){
         <td><b>總部評核四項(序7-10)</b></td><td style="text-align:center;">月結時計入</td>
         <td><b>請假/新人/垃圾調整</b></td><td style="text-align:center;">月結時計入</td>
       </tr>
+      <tr>
+        ${liveTotalHtml}
+        <td colspan="4" style="font-size:11px;color:#666;">此為套用目前總表即時資料試算的參考值，正式成績仍以「確認結算」後為準</td>
+      </tr>
     </table>
     <p style="font-size:11px;color:#666;margin-top:6px;">正式月成績＝(區主管評核+營運後端)/2 之總表現，加計總部四項評核，並套用請假扣分、新人試用期通過加分、垃圾分類扣分後，於月底結算產出，詳見月結歷史查詢。</p>
     <p style="margin-top:30px;">稽核主管簽核：＿＿＿＿＿＿＿＿　　營運主管/區主管簽核：＿＿＿＿＿＿＿＿</p>
@@ -753,7 +777,7 @@ function buildPrintView(d){
 
 async function finishSubmit(mode){
   const d = gatherData();
-  buildPrintView(d);
+  await buildPrintView(d);
   closeConfirmModal();
   submitted = true; updateStageStatus();
 

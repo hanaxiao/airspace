@@ -241,25 +241,9 @@
   <div class="tab-panel" id="tab5">
 
     <div class="card">
-      <h2>月結總表填寫（項目7–10資料來源）</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">每月由後台在這裡輸入各店的帳務/客訴/撤貨/請假/垃圾檢舉次數與會員結帳率，總表檢視、區域彙總、後台分析都會自動用這裡的資料重新計算。</p>
-      <div class="field">
-        <label>選擇門市</label>
-        <select id="maintStoreSelect"></select>
-      </div>
-      <div class="row2">
-        <div class="field"><label>帳務扣分（次數）</label><input type="number" id="mAcct"></div>
-        <div class="field"><label>客訴扣分（次數，讚美可填負數）</label><input type="number" id="mComplaint"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>撤貨扣分（次數）</label><input type="number" id="mReturn"></div>
-        <div class="field"><label>請假扣分（人次）</label><input type="number" id="mLeave"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>垃圾檢舉（張數）</label><input type="number" id="mTrash"></div>
-        <div class="field"><label>會員結帳率（%，例：82.1）</label><input type="number" step="0.1" id="mMemberRate"></div>
-      </div>
-      <button class="btn primary" style="width:100%;" onclick="saveMaintTotal()">儲存此門市月結資料</button>
+      <h2>總表資料來源</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);">項目7–10(帳務/客訴/撤貨/會員結帳率)、請假、垃圾檢舉，現在<b>直接即時讀取你Google Sheet裡「總表」分頁</b>，你跟總部同事平常怎麼用VLOOKUP維護就繼續怎麼維護，不用在這個網頁另外輸入一次。「新人」試用期加分也是一樣，直接讀取「新人」分頁的樞紐欄位。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);">你在Sheet裡改完之後，回到「總表檢視」「後台分析」「月結試算」重新整理頁面，就會看到最新的數字，不需要額外同步的步驟。</p>
     </div>
 
     <div class="card">
@@ -688,7 +672,7 @@ function renderHqTable(){
   const table = document.getElementById('hqTable');
   let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>序7 帳務</th><th>序8 會員結帳</th><th>序9 客訴</th><th>序10 撤貨</th><th>四項小計</th></tr>`;
   STORES.forEach(s=>{
-    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    const t = TOTALS.find(x=>x.code===s.code);
     if(!t){ html += `<tr><td class="left">${s.code}</td><td class="left">${s.name}</td><td colspan="5">尚無總表資料</td></tr>`; return; }
     const sc = computeHqScores(t);
     const memberDisp = sc.memberScore===null ? (t.member_rate||'-') : `${sc.memberScore}`;
@@ -717,7 +701,7 @@ function renderRegionTable(){
   let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>四項小計</th><th>請假扣分</th><th>會員結帳率</th></tr>`;
   let sumSub=0, cnt=0;
   list.forEach(s=>{
-    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    const t = TOTALS.find(x=>x.code===s.code);
     let subtotal='-', leave='-', rate='-';
     if(t){
       const sc = computeHqScores(t);
@@ -737,7 +721,7 @@ function renderRegionTable(){
 // ---- Tab4 後台分析 ----
 function renderHotspot(){
   const rows = STORES.map(s=>{
-    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    const t = TOTALS.find(x=>x.code===s.code);
     return {code:s.code, name:s.name, acct: t? (t.acct||0) : 0};
   }).filter(r=>r.acct>0).sort((a,b)=>b.acct-a.acct).slice(0,8);
   const max = Math.max(...rows.map(r=>r.acct), 1);
@@ -749,7 +733,7 @@ function renderHotspot(){
     </div>`).join('') || '<p style="font-size:13px;color:var(--ink-soft);">目前無帳務扣分紀錄</p>';
 
   const warnRows = STORES.map(s=>{
-    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    const t = TOTALS.find(x=>x.code===s.code);
     return {code:s.code, name:s.name, rate: t? t.member_rate : null};
   }).filter(r=>typeof r.rate==='number' && r.rate<0.795).sort((a,b)=>a.rate-b.rate);
   document.getElementById('memberWarn').innerHTML = warnRows.length ? warnRows.map(r=>`
@@ -846,8 +830,8 @@ async function loadAllData(){
       STORES = boot.stores && boot.stores.length ? boot.stores : JSON.parse(JSON.stringify(BASE_STORES));
       MANAGERS = boot.managers && boot.managers.length ? boot.managers : [...BASE_MANAGERS];
       DISPLAY_STAFF = boot.displayStaff && boot.displayStaff.length ? boot.displayStaff : [...BASE_DISPLAY_STAFF];
-      const tot = await apiGet('totals', {month: currentMonth});
-      TOTALS = (tot && tot.totals && tot.totals.length) ? tot.totals : BASE_TOTALS.map(t=>({...t, month: currentMonth}));
+      const tot = await apiGet('totals');
+      TOTALS = (tot && tot.totals && tot.totals.length) ? tot.totals : JSON.parse(JSON.stringify(BASE_TOTALS));
       return;
     }
     // 後端連不上就自動退回本機模式，不中斷操作
@@ -858,10 +842,7 @@ async function loadAllData(){
     STORES = r ? JSON.parse(r.value) : JSON.parse(JSON.stringify(BASE_STORES));
   }catch(e){ STORES = JSON.parse(JSON.stringify(BASE_STORES)); }
 
-  try{
-    const r = await window.storage.get('totals-data');
-    TOTALS = r ? JSON.parse(r.value) : BASE_TOTALS.map(t=>({...t, month: currentMonth}));
-  }catch(e){ TOTALS = BASE_TOTALS.map(t=>({...t, month: currentMonth})); }
+  TOTALS = JSON.parse(JSON.stringify(BASE_TOTALS)); // 未接後端時僅供demo展示，實際以Google Sheet「總表」為準
 
   try{
     const r = await window.storage.get('managers-list');
@@ -875,14 +856,11 @@ async function loadAllData(){
 }
 
 async function refreshTotalsForMonth(month){
+  // 總表為即時單一快照(無月份區分)，切換月份只需重新整理總表資料本身
   if(backendConnected()){
-    const tot = await apiGet('totals', {month});
-    if(tot){ TOTALS = TOTALS.filter(t=>t.month!==month).concat(tot.totals); return; }
+    const tot = await apiGet('totals');
+    if(tot){ TOTALS = tot.totals; }
   }
-  try{
-    const r = await window.storage.get('totals-data');
-    if(r) TOTALS = JSON.parse(r.value);
-  }catch(e){ /* 保留現有 TOTALS */ }
 }
 async function persist(key, value){
   try{ await window.storage.set(key, JSON.stringify(value), false); }
@@ -891,11 +869,6 @@ async function persist(key, value){
 
 // ---- Tab5 資料維護 ----
 function renderMaintTab(){
-  const sel = document.getElementById('maintStoreSelect');
-  sel.innerHTML = STORES.map(s=>`<option value="${s.code}">${s.code} ${s.name}</option>`).join('');
-  loadMaintFormForSelected();
-  sel.onchange = loadMaintFormForSelected;
-
   const mgrSel = document.getElementById('newStoreMgr');
   mgrSel.innerHTML = MANAGERS.map(m=>`<option value="${m}">${m}</option>`).join('');
 
@@ -903,41 +876,6 @@ function renderMaintTab(){
   renderStoreEditTable();
   document.getElementById('mgrListLabel').textContent = MANAGERS.join('、');
   document.getElementById('displayListLabel').textContent = DISPLAY_STAFF.join('、');
-}
-
-function loadMaintFormForSelected(){
-  const code = document.getElementById('maintStoreSelect').value;
-  const t = TOTALS.find(x=>x.code===code && x.month===currentMonth);
-  document.getElementById('mAcct').value = t ? (t.acct||0) : 0;
-  document.getElementById('mComplaint').value = t ? (t.complaint||0) : 0;
-  document.getElementById('mReturn').value = t ? (t.return||0) : 0;
-  document.getElementById('mLeave').value = t ? (t.leave||0) : 0;
-  document.getElementById('mTrash').value = t ? (t.trash||0) : 0;
-  document.getElementById('mMemberRate').value = (t && typeof t.member_rate==='number') ? (t.member_rate*100).toFixed(1) : '';
-}
-
-async function saveMaintTotal(){
-  const code = document.getElementById('maintStoreSelect').value;
-  const rateInput = document.getElementById('mMemberRate').value;
-  const entry = {
-    code,
-    month: currentMonth,
-    acct: parseInt(document.getElementById('mAcct').value||0),
-    complaint: parseInt(document.getElementById('mComplaint').value||0),
-    return: parseInt(document.getElementById('mReturn').value||0),
-    leave: parseInt(document.getElementById('mLeave').value||0),
-    trash: parseInt(document.getElementById('mTrash').value||0),
-    member_rate: rateInput==='' ? null : parseFloat(rateInput)/100
-  };
-  const idx = TOTALS.findIndex(t=>t.code===code && t.month===currentMonth);
-  if(idx>=0) TOTALS[idx] = entry; else TOTALS.push(entry);
-
-  if(backendConnected()){
-    const r = await apiPost('saveTotal', entry);
-    if(!r){ showToast('後端連線失敗，本次僅存於本機，請確認網址設定'); }
-  }
-  await persist('totals-data', TOTALS);
-  showToast(`已儲存 ${code}（${monthLabel(currentMonth)}）的月結資料`);
 }
 
 function renderStoreEditTable(){

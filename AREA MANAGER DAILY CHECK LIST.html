@@ -261,6 +261,16 @@
     </div>
 
     <div class="card">
+      <h2>月結試算（整合成正式成績）</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">整合「巡店評分」(本月最後一次送出)＋「總表」四項＋新人加分/請假/垃圾調整，算出每店正式成績。確認無誤後按「確認結算」會寫入月結歷史，供各店查詢歷史分數使用。</p>
+      <button class="btn primary" style="width:100%;" onclick="previewSettlement()">試算本月成績</button>
+      <div class="scroll-x" style="margin-top:12px;">
+        <table class="data" id="settlementTable"></table>
+      </div>
+      <button class="btn gold" style="width:100%;margin-top:10px;" onclick="confirmSettlement()" id="confirmSettleBtn" disabled>確認結算並存檔</button>
+    </div>
+
+    <div class="card">
       <h2>新增門市</h2>
       <div class="row2">
         <div class="field"><label>店代號</label><input type="text" id="newStoreCode" placeholder="例：AS99"></div>
@@ -786,6 +796,44 @@ async function onAiPhoto(input){
     }
   };
   reader.readAsDataURL(file);
+}
+
+// ---- 月結試算 ----
+let lastSettlementRows = [];
+async function previewSettlement(){
+  if(!backendConnected()){
+    showToast('尚未接後端(CONFIG.API_URL未設定)，無法試算，需要有巡店紀錄+總表資料才能整合');
+    return;
+  }
+  const r = await apiGet('settlement', {month: currentMonth});
+  if(!r){ showToast('試算失敗，請確認後端連線'); return; }
+  lastSettlementRows = r.settlement;
+  renderSettlementTable(r.settlement);
+  document.getElementById('confirmSettleBtn').disabled = false;
+}
+function renderSettlementTable(rows){
+  const table = document.getElementById('settlementTable');
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>評核小計</th><th>總部小計</th><th>請假</th><th>新人加分</th><th>垃圾扣分</th><th>正式成績</th></tr>`;
+  rows.forEach(r=>{
+    if(!r.hasData){
+      html += `<tr><td class="left">${r.code}</td><td class="left">${r.name}</td><td colspan="6" style="color:var(--ink-soft);">本月尚無巡店紀錄或總表資料，暫不列入</td></tr>`;
+      return;
+    }
+    html += `<tr>
+      <td class="left">${r.code}</td><td class="left">${r.name}</td>
+      <td>${r.manualSubtotal}</td><td>${r.hqSubtotal}</td>
+      <td>-${r.leaveDeduct}</td><td>+${r.newHireBonus}</td><td>-${r.trashDeduct}</td>
+      <td><b>${r.finalScore}</b></td>
+    </tr>`;
+  });
+  table.innerHTML = html;
+}
+async function confirmSettlement(){
+  if(!backendConnected()){ showToast('尚未接後端，無法存檔'); return; }
+  const r = await apiPost('runSettlement', {month: currentMonth});
+  if(!r){ showToast('結算失敗，請確認後端連線'); return; }
+  showToast(`已完成 ${monthLabel(currentMonth)} 結算，寫入月結歷史`);
+  renderSettlementTable(r.settlement);
 }
 
 // ---- 持久化資料存取 ----

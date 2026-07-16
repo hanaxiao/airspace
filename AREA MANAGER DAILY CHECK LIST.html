@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AIR SPACE 巡店評核系統</title>
+<style>
+  :root{
+    --paper:#F7F5F1; --ink:#2B2620; --ink-soft:#6B655C; --line:#E4DFD6;
+    --brand:#1F4B4C; --brand-soft:#E6EEEC; --gold:#B08A4E;
+    --good-bg:#E7EFE4; --good-text:#3E6B3A;
+    --bad-bg:#F7E3DE; --bad-text:#B3432E;
+    --card:#FFFFFF; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;background:var(--paper);color:var(--ink);padding-bottom:110px;}
+  header{background:var(--brand);color:#fff;padding:18px 18px 0;border-radius:0 0 22px 22px;}
+  header .eyebrow{font-size:11px;letter-spacing:2px;opacity:.75;text-transform:uppercase;}
+  header h1{margin:4px 0 14px;font-size:20px;font-weight:700;}
+  .tabbar{display:flex;gap:4px;padding:0 6px;overflow-x:auto;}
+  .tabbar button{
+    flex:1; white-space:nowrap; background:rgba(255,255,255,.12); color:#fff; border:none;
+    padding:10px 8px; font-size:12.5px; border-radius:10px 10px 0 0; cursor:pointer;
+  }
+  .tabbar button.active{ background:var(--paper); color:var(--brand); font-weight:700; }
+  .wrap{padding:16px;max-width:680px;margin:0 auto;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:14px;border:1px solid var(--line);}
+  .card h2{font-size:14px;margin:0 0 12px;color:var(--brand);display:flex;align-items:center;gap:6px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;}
+  .field input, .field select, .field textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    font-size:15px;font-family:inherit;background:#fff;color:var(--ink);
+  }
+  .row2{display:flex;gap:10px;} .row2 > div{flex:1;}
+  .store-readout{font-size:13px;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:8px 10px;margin-top:-4px;margin-bottom:12px;min-height:16px;}
+
+  .cat-title{font-size:11px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin:22px 4px 8px;font-weight:700;}
+  .cat-title:first-of-type{margin-top:6px;}
+
+  .item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+  .item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .item-head .no{font-size:11px;color:#fff;background:var(--brand);border-radius:6px;padding:2px 7px;font-weight:700;flex-shrink:0;}
+  .item-head .title{font-size:14.5px;font-weight:700;flex:1;}
+  .item-head .max{font-size:12px;color:var(--ink-soft);flex-shrink:0;}
+  .desc-toggle{font-size:12px;color:var(--brand);margin:6px 0;cursor:pointer;display:inline-block;text-decoration:underline;}
+  .desc-body{display:none;font-size:12.5px;color:var(--ink-soft);white-space:pre-line;background:var(--brand-soft);border-radius:8px;padding:10px;margin-bottom:10px;line-height:1.6;}
+  .desc-body.open{display:block;}
+
+  .deduct-row{display:flex;align-items:center;gap:10px;margin:10px 0;}
+  .deduct-row .grp{flex:1;}
+  .deduct-row label.mini{font-size:11.5px;color:var(--ink-soft);display:block;margin-bottom:3px;}
+  .deduct-row input[type=number]{width:100%;text-align:center;font-size:17px;font-weight:700;padding:8px;border:1px solid var(--line);border-radius:10px;}
+  .deduct-row .score-readout{font-size:20px;font-weight:800;color:var(--brand);min-width:56px;text-align:center;}
+  .deduct-row .score-readout small{display:block;font-size:10px;font-weight:400;color:var(--ink-soft);}
+
+  .photo-row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap;}
+  .photo-btn{font-size:12.5px;border:1px dashed var(--gold);color:var(--gold);background:#FBF6EC;border-radius:8px;padding:8px 10px;cursor:pointer;}
+  .thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--line);}
+
+  .note-box textarea{min-height:52px;resize:vertical;transition:background .25s, border-color .25s;}
+  .note-box.deducted textarea{background:var(--bad-bg);border-color:var(--bad-text);color:var(--bad-text);}
+  .note-box.full textarea{background:var(--good-bg);border-color:var(--good-text);}
+
+  .hq-note{background:var(--brand-soft);border-radius:var(--radius);padding:14px;font-size:12.5px;color:var(--brand);line-height:1.7;margin-bottom:14px;}
+  .hq-note b{display:block;margin-bottom:4px;font-size:13px;}
+
+  .summary{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:14px 16px;box-shadow:0 -6px 16px rgba(0,0,0,.06);}
+  .summary .score-big{display:flex;align-items:baseline;gap:6px;margin-bottom:6px;}
+  .summary .score-big .num{font-size:28px;font-weight:800;color:var(--brand);}
+  .summary .score-big .denom{font-size:14px;color:var(--ink-soft);}
+  .summary .stage-status{font-size:11.5px;color:var(--ink-soft);margin-bottom:8px;}
+  .btn-row{display:flex;gap:8px;}
+  .btn{flex:1;padding:13px;border-radius:10px;border:none;font-size:14.5px;font-weight:700;cursor:pointer;}
+  .btn.primary{background:var(--brand);color:#fff;}
+  .btn.ghost{background:#fff;border:1px solid var(--brand);color:var(--brand);}
+  .btn.gold{background:var(--gold);color:#fff;}
+
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:60;text-align:center;max-width:88%;}
+  .toast.show{opacity:1;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:55;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:20px;}
+  .modal h3{margin:0 0 6px;font-size:16px;color:var(--brand);}
+  .modal p{font-size:13px;color:var(--ink-soft);margin:0 0 16px;}
+  .modal .btn{margin-bottom:8px;}
+
+  table.data{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.data th, table.data td{border:1px solid var(--line);padding:7px 8px;text-align:center;}
+  table.data th{background:var(--brand-soft);color:var(--brand);}
+  table.data td.left{text-align:left;}
+  .badge{display:inline-block;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700;}
+  .badge.warn{background:var(--bad-bg);color:var(--bad-text);}
+  .badge.ok{background:var(--good-bg);color:var(--good-text);}
+  .filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .filter-bar select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-size:13px;}
+  .scroll-x{overflow-x:auto;}
+
+  .hotspot-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12.5px;}
+  .hotspot-bar .name{width:120px;flex-shrink:0;}
+  .hotspot-bar .bar{flex:1;background:var(--line);border-radius:6px;height:14px;overflow:hidden;}
+  .hotspot-bar .bar .fill{height:100%;background:var(--bad-text);}
+  .hotspot-bar .val{width:28px;text-align:right;font-weight:700;}
+
+  .ai-box{border:1px dashed var(--gold);border-radius:12px;padding:14px;background:#FBF6EC;margin-bottom:14px;}
+  .ai-status{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+
+  #printView{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #printView, #printView *{visibility:visible;}
+    #printView{display:block;position:absolute;left:0;top:0;width:100%;padding:20px;}
+  }
+  #printView table{width:100%;border-collapse:collapse;font-size:12px;}
+  #printView th, #printView td{border:1px solid #999;padding:6px 8px;text-align:left;vertical-align:top;}
+  #printView h2{margin:18px 0 6px;font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">AIR SPACE · Area Manager Check</div>
+  <h1>巡店評核系統</h1>
+  <div class="tabbar">
+    <button class="active" data-tab="tab1" onclick="switchTab('tab1')">巡店評分</button>
+    <button data-tab="tab2" onclick="switchTab('tab2')">總表檢視</button>
+    <button data-tab="tab3" onclick="switchTab('tab3')">區域彙總</button>
+    <button data-tab="tab4" onclick="switchTab('tab4')">後台分析</button>
+    <button data-tab="tab5" onclick="switchTab('tab5')">資料維護</button>
+  </div>
+  <div id="monthBar" style="display:none;padding:8px 12px 12px;">
+    <select id="monthSelect" onchange="onMonthChange()" style="width:100%;padding:8px;border-radius:8px;border:none;font-size:13px;"></select>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- TAB 1：巡店評分 -->
+  <div class="tab-panel active" id="tab1">
+    <div class="card">
+      <h2>基本資料</h2>
+      <div class="field">
+        <label>稽核門市（輸入店代號，例如 AS04）</label>
+        <input type="text" id="storeCodeInput" list="storeList" placeholder="輸入店代號" oninput="onStoreCodeChange()">
+        <datalist id="storeList"></datalist>
+      </div>
+      <div class="store-readout" id="storeReadout">尚未帶入門市資料</div>
+
+      <div class="row2">
+        <div class="field">
+          <label>日期</label>
+          <input type="date" id="fDate">
+        </div>
+        <div class="field">
+          <label>巡店主管</label>
+          <select id="fMgr"></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>陳列</label>
+          <select id="fDisplay"></select>
+        </div>
+        <div class="field"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>到店時間</label><input type="time" id="fIn"></div>
+        <div class="field"><label>離店時間</label><input type="time" id="fOut"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>當班正職</label><input type="number" min="0" id="fFull" value="0"></div>
+        <div class="field"><label>當班兼職</label><input type="number" min="0" id="fPart" value="0"></div>
+      </div>
+    </div>
+
+    <div id="itemsHolder"></div>
+
+    <div class="hq-note">
+      <b>總部評核項目（帳務／會員結帳／客訴／撤貨）</b>
+      這4項由總部於月結時從總表帶入，此表不需手動評分。本次巡店分數為「暫時分數」，正式月成績於月底結算後產生。
+    </div>
+  </div>
+
+  <!-- TAB 2：總表檢視 -->
+  <div class="tab-panel" id="tab2">
+    <div class="card">
+      <h2>總部評核四項最終扣分（項目7–10）</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">資料來源：總表分頁，每月由總部人工更新。分數計算方式與稽核內容公式一致。</p>
+      <div class="scroll-x">
+        <table class="data" id="hqTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3：區域彙總 -->
+  <div class="tab-panel" id="tab3">
+    <div class="card">
+      <h2>依主管／轄區篩選</h2>
+      <div class="filter-bar">
+        <select id="filterMgr" onchange="renderRegionTable()"></select>
+        <select id="filterRegion" onchange="renderRegionTable()"></select>
+      </div>
+      <div class="scroll-x">
+        <table class="data" id="regionTable"></table>
+      </div>
+      <p style="font-size:12px;color:var(--ink-soft);">項目1–6、11、12（現場評核分數）需要巡店資料累積後才會顯示在此彙總，目前先顯示總部四項與請假/垃圾調整項。</p>
+    </div>
+  </div>
+
+  <!-- TAB 4：後台分析 -->
+  <div class="tab-panel" id="tab4">
+    <div class="card">
+      <h2>扣分熱點分析（依總表資料）</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">用來了解哪些店在總部評核項目扣最多分，作為優化依據。現場評核項目(1–6/11/12)的熱點會在巡店資料累積後一併顯示。</p>
+      <div id="hotspotAcct"></div>
+    </div>
+    <div class="card">
+      <h2>會員結帳率未達標門市（&lt;79.5%）</h2>
+      <div id="memberWarn" style="font-size:13px;"></div>
+    </div>
+    <div class="ai-box">
+      <h2 style="margin-top:0;">AI 陳列評估（後台輔助工具）</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">僅供後台檢視使用，不會出現在主管填寫的巡店評分頁面。上傳照片，AI會依評分標準給建議分數與原因，可用於覆核或訓練參考。</p>
+      <div class="field">
+        <label>選擇對應評核項目</label>
+        <select id="aiItemSelect"></select>
+      </div>
+      <label class="photo-btn">
+        📷 上傳照片進行AI評估
+        <input type="file" accept="image/*" style="display:none" onchange="onAiPhoto(this)">
+      </label>
+      <div class="ai-status" id="aiResult"></div>
+    </div>
+  <!-- TAB 5：資料維護 -->
+  <div class="tab-panel" id="tab5">
+
+    <div class="card">
+      <h2>月結總表填寫（項目7–10資料來源）</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">每月由後台在這裡輸入各店的帳務/客訴/撤貨/請假/垃圾檢舉次數與會員結帳率，總表檢視、區域彙總、後台分析都會自動用這裡的資料重新計算。</p>
+      <div class="field">
+        <label>選擇門市</label>
+        <select id="maintStoreSelect"></select>
+      </div>
+      <div class="row2">
+        <div class="field"><label>帳務扣分（次數）</label><input type="number" id="mAcct"></div>
+        <div class="field"><label>客訴扣分（次數，讚美可填負數）</label><input type="number" id="mComplaint"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>撤貨扣分（次數）</label><input type="number" id="mReturn"></div>
+        <div class="field"><label>請假扣分（人次）</label><input type="number" id="mLeave"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>垃圾檢舉（張數）</label><input type="number" id="mTrash"></div>
+        <div class="field"><label>會員結帳率（%，例：82.1）</label><input type="number" step="0.1" id="mMemberRate"></div>
+      </div>
+      <button class="btn primary" style="width:100%;" onclick="saveMaintTotal()">儲存此門市月結資料</button>
+    </div>
+
+    <div class="card">
+      <h2>新增門市</h2>
+      <div class="row2">
+        <div class="field"><label>店代號</label><input type="text" id="newStoreCode" placeholder="例：AS99"></div>
+        <div class="field"><label>店名</label><input type="text" id="newStoreName" placeholder="例：新店名"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>轄區負責人</label>
+          <select id="newStoreMgr"></select>
+        </div>
+        <div class="field"><label>轄區</label><input type="text" id="newStoreRegion" placeholder="例：北二"></div>
+      </div>
+      <button class="btn primary" style="width:100%;" onclick="addStore()">新增門市</button>
+      <p style="font-size:12px;color:var(--ink-soft);margin-top:10px;">目前共 <b id="storeCountLabel">0</b> 間門市。如需調整既有門市的轄區負責人（例如人員異動），請至下方清單直接改選單。</p>
+      <div class="scroll-x">
+        <table class="data" id="storeEditTable"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>主管／陳列名單管理</h2>
+      <div class="row2">
+        <div class="field">
+          <label>新增巡店主管</label>
+          <input type="text" id="newMgrName" placeholder="輸入姓名/代稱">
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;">
+          <button class="btn primary" style="width:100%;" onclick="addManager()">新增</button>
+        </div>
+      </div>
+      <p style="font-size:12.5px;">目前名單：<span id="mgrListLabel"></span></p>
+      <div class="row2">
+        <div class="field">
+          <label>新增陳列夥伴</label>
+          <input type="text" id="newDisplayName" placeholder="輸入姓名">
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;">
+          <button class="btn primary" style="width:100%;" onclick="addDisplayStaff()">新增</button>
+        </div>
+      </div>
+      <p style="font-size:12.5px;">目前名單：<span id="displayListLabel"></span></p>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 底部操作列，僅在巡店評分頁顯示 -->
+<div class="summary" id="scoreSummary">
+  <div class="score-big">
+    <span class="num" id="scoreNum">75</span>
+    <span class="denom">/ 75 分（暫時）</span>
+  </div>
+  <div class="stage-status" id="stageStatus">尚未暫存</div>
+  <div class="btn-row">
+    <button class="btn ghost" onclick="doStage()">暫存</button>
+    <button class="btn primary" onclick="openConfirmModal()">確認送出</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3>送出給門市</h3>
+    <p>請選擇要進行的動作：</p>
+    <button class="btn primary" onclick="finishSubmit('print')">僅列印 A4</button>
+    <button class="btn gold" onclick="finishSubmit('mail')">僅寄送門市信箱</button>
+    <button class="btn primary" onclick="finishSubmit('both')">列印＋寄送</button>
+    <button class="btn ghost" onclick="closeConfirmModal()">取消</button>
+  </div>
+</div>
+
+<div id="printView"></div>
+
+<script>
+const BASE_STORES = [{"code": "AS04", "name": "敦南AS店", "mgr": "樺樺", "region": "北二"}, {"code": "AS05", "name": "敦南LADY店", "mgr": "樺樺", "region": "北二"}, {"code": "AS07", "name": "南西大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS10", "name": "大安店", "mgr": "LULU", "region": "北二"}, {"code": "AS12", "name": "西門大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS15", "name": "逢甲店", "mgr": "泡泡", "region": "中一"}, {"code": "AS17", "name": "一中店", "mgr": "泡泡", "region": "中一"}, {"code": "AS24", "name": "南西LADY店", "mgr": "含含", "region": "北一"}, {"code": "AS25", "name": "一中LADY店", "mgr": "泡泡", "region": "中一"}, {"code": "AS29", "name": "一中大碼店", "mgr": "泡泡", "region": "中一"}, {"code": "AS35", "name": "新竹巨城LADY店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS37", "name": "南港CITYLINK店", "mgr": "樺樺", "region": "北二"}, {"code": "AS38", "name": "南紡LADY店", "mgr": "姚", "region": "南區"}, {"code": "AS40", "name": "中山一店", "mgr": "含含", "region": "北一"}, {"code": "AS44", "name": "文心大碼店", "mgr": "泡泡", "region": "中一"}, {"code": "AS45", "name": "高雄夢時代店", "mgr": "姚", "region": "南區"}, {"code": "AS46", "name": "岡山LADY店", "mgr": "LILY", "region": "南區"}, {"code": "AS49", "name": "敦南大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS51", "name": "麗寶OUTLET店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS52", "name": "中港新光店", "mgr": "泡泡", "region": "中一"}, {"code": "AS57", "name": "南西AS店", "mgr": "含含", "region": "北一"}, {"code": "AS59", "name": "左營新光店", "mgr": "姚", "region": "南區"}, {"code": "AS61", "name": "西門AS店", "mgr": "律廷", "region": "北二"}, {"code": "AS62", "name": "南西IP店", "mgr": "含含", "region": "北一"}, {"code": "AS63", "name": "華泰OUTLET店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS64", "name": "夢時代大碼店", "mgr": "姚", "region": "南區"}, {"code": "AS66", "name": "台中遠百店", "mgr": "泡泡", "region": "中一"}, {"code": "AS68", "name": "樹林大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS69", "name": "文心LADY店", "mgr": "泡泡", "region": "中一"}, {"code": "AS70", "name": "西門三店", "mgr": "律廷", "region": "北二"}, {"code": "AS71", "name": "中和環球店", "mgr": "樺樺", "region": "北一"}, {"code": "AS72", "name": "桃園統領店", "mgr": "LULU", "region": "北二"}, {"code": "AS73", "name": "新莊宏匯店", "mgr": "LULU", "region": "北二"}, {"code": "AS77", "name": "忠孝CHIC.A店", "mgr": "樺樺", "region": "北二"}, {"code": "AS79", "name": "高雄漢神CHIC.A店", "mgr": "姚", "region": "南區"}, {"code": "AS81", "name": "高雄漢神LADY店", "mgr": "姚", "region": "南區"}, {"code": "AS82", "name": "高雄夢時代CHIC.A店", "mgr": "姚", "region": "南區"}, {"code": "AS83", "name": "三多遠百店", "mgr": "姚", "region": "南區"}, {"code": "AS84", "name": "嘉義秀泰店", "mgr": "LILY", "region": "南區"}, {"code": "AS86", "name": "統領大碼店", "mgr": "LULU", "region": "北二"}, {"code": "AS88", "name": "士林一店", "mgr": "律廷", "region": "北一"}, {"code": "AS89", "name": "桃園大江店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS92", "name": "信義ATT店", "mgr": "LULU", "region": "北二"}, {"code": "AS93", "name": "嘉義文化一店", "mgr": "LILY", "region": "南區"}, {"code": "AS95", "name": "桃園台茂店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS96", "name": "桃園台茂AS店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS97", "name": "嘉義大碼店", "mgr": "LILY", "region": "南區"}, {"code": "AT02", "name": "板橋遠百LADY店", "mgr": "律廷", "region": "北一"}, {"code": "AT03", "name": "新台南FOCUS店", "mgr": "姚", "region": "南區"}, {"code": "AT04", "name": "大江大碼店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AT05", "name": "南紡店", "mgr": "姚", "region": "南區"}, {"code": "AT07", "name": "台中漢神店", "mgr": "泡泡", "region": "中一"}, {"code": "AT08", "name": "台南三井OUTLET店", "mgr": "姚", "region": "南區"}, {"code": "AT11", "name": "一中IP店", "mgr": "泡泡", "region": "中一"}, {"code": "AT10", "name": "夢時代IP店", "mgr": "姚", "region": "南區"}];
+let STORES = [];
+
+const BASE_TOTALS = [{"code": "AS04", "acct": 3, "complaint": 1, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8209255533199196}, {"code": "AS05", "acct": 0, "complaint": 0, "return": 0, "leave": 4, "trash": null, "member_rate": 0.8301886792452831}, {"code": "AS07", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8823529411764706}, {"code": "AS10", "acct": 0, "complaint": 1, "return": 0, "leave": 5, "trash": null, "member_rate": 0.7863720073664825}, {"code": "AS12", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8244897959183674}, {"code": "AS15", "acct": 2, "complaint": 2, "return": 0, "leave": 3, "trash": null, "member_rate": 0.8569500674763832}, {"code": "AS17", "acct": 8, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8790149892933619}, {"code": "AS24", "acct": 1, "complaint": 1, "return": 0, "leave": 3, "trash": null, "member_rate": 0.675715695952616}, {"code": "AS25", "acct": 2, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8300653594771242}, {"code": "AS29", "acct": 0, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.926056338028169}, {"code": "AS35", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8103146853146853}, {"code": "AS37", "acct": 0, "complaint": 0, "return": 1, "leave": 6, "trash": null, "member_rate": 0.7290909090909091}, {"code": "AS38", "acct": 4, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8846846846846846}, {"code": "AS40", "acct": 9, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.7413101604278075}, {"code": "AS44", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8484848484848485}, {"code": "AS45", "acct": 2, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.8070994862213918}, {"code": "AS46", "acct": 0, "complaint": 1, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9586776859504132}, {"code": "AS49", "acct": 4, "complaint": 1, "return": 0, "leave": 2, "trash": null, "member_rate": 0.9267461669505963}, {"code": "AS51", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.7044776119402985}, {"code": "AS52", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8491008600469117}, {"code": "AS57", "acct": 1, "complaint": 4, "return": 0, "leave": 2, "trash": null, "member_rate": 0.636668262326472}, {"code": "AS59", "acct": 0, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8294979079497908}, {"code": "AS61", "acct": 10, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.6862068965517242}, {"code": "AS62", "acct": 4, "complaint": 2, "return": 0, "leave": 1, "trash": null, "member_rate": "改裝"}, {"code": "AS63", "acct": 0, "complaint": 2, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8540111940298507}, {"code": "AS64", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9284963196635121}, {"code": "AS66", "acct": 2, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8433476394849786}, {"code": "AS68", "acct": 0, "complaint": 0, "return": 1, "leave": 0, "trash": null, "member_rate": 0.9284253578732107}, {"code": "AS69", "acct": 0, "complaint": 0, "return": 0, "leave": 7, "trash": null, "member_rate": 0.8305732484076433}, {"code": "AS70", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.6864654333008764}, {"code": "AS71", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8755490483162518}, {"code": "AS72", "acct": 2, "complaint": 0, "return": 1, "leave": 0, "trash": null, "member_rate": 0.8310249307479224}, {"code": "AS73", "acct": 0, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.8695652173913043}, {"code": "AS77", "acct": 0, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.775047258979206}, {"code": "AS79", "acct": 0, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8888888888888888}, {"code": "AS81", "acct": 0, "complaint": 0, "return": 0, "leave": 4, "trash": null, "member_rate": 0.8768115942028986}, {"code": "AS82", "acct": 0, "complaint": -1, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8369723435225619}, {"code": "AS83", "acct": 16, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8404384896467723}, {"code": "AS84", "acct": 10, "complaint": 1, "return": 0, "leave": 6, "trash": null, "member_rate": 0.8279445727482679}, {"code": "AS86", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9354243542435424}, {"code": "AS88", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.676378772112383}, {"code": "AS89", "acct": 6, "complaint": 1, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8966165413533834}, {"code": "AS92", "acct": 8, "complaint": 2, "return": 0, "leave": 7, "trash": null, "member_rate": 0.5785876993166287}, {"code": "AS93", "acct": 15, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8292682926829268}, {"code": "AS95", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8560090702947846}, {"code": "AS96", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.844559585492228}, {"code": "AS97", "acct": 4, "complaint": 0, "return": 0, "leave": 13, "trash": null, "member_rate": 0.8650442477876106}, {"code": "AT02", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8023598820058997}, {"code": "AT03", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8448566610455311}, {"code": "AT04", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9080882352941176}, {"code": "AT05", "acct": 2, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8147321428571429}, {"code": "AT07", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.7943523634131369}, {"code": "AT08", "acct": 6, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.7146067415730337}];
+let TOTALS = [];
+
+const BASE_MANAGERS = ['含含','律廷','樺樺','LULU','RIISA','Cindy','泡泡','姚','LILY'];
+let MANAGERS = [];
+const BASE_DISPLAY_STAFF = ['包幸子'];
+let DISPLAY_STAFF = [];
+
+const ITEMS = [
+  {seq:1, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:20, unit:5, title:"陳列評核",
+   desc:"1.櫥窗人檯：穿搭完整層次穿搭符合檔期風格\n(服裝搭配符合整體風格 配件合適、腰線位置合理、衣服需平整..等)\n2.正掛展示件數(正掛最少2-3件)\n3.島桌:需量陳件數(最少2-3件),軟料材質不可陳設摺放於島桌(EX:襯衫、雪紡)\n4.IP(企劃主題區)陳設完整是否符合總部指令\n(一項未符合，即扣五分)"},
+  {seq:2, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:5, title:"活動相關文宣",
+   desc:"1.POP符合檔期活動及相關企劃需為總部官方版本(EX:商品跟衣桿POP相關,POP是否滿版不出現白邊..等等)\n2.賣場道具損毀是否完成報修與替換(EX:圓卡折損未更換/壓克力板破裂..等)\n(一項未符合，即扣五分)"},
+  {seq:3, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:2, title:"整潔度",
+   desc:"請檢視櫥窗／賣場(衣桿)／櫃台(含推放雜物)／更衣間／倉庫是否乾淨整齊\n一個區塊未符合，即扣兩分"},
+  {seq:4, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:5, unit:1, title:"硬體設備",
+   desc:"需為公播音樂 / 喇叭運作 / 燈光投射定位 / 香氛機運作 /電視牆輪播\n現場硬體損壞未完成報修\n一個項目未符合，即扣一分"},
+  {seq:5, cat:"品牌形象與顧客服務", sub:"顧客服務", max:10, unit:5, title:"服裝儀容",
+   desc:"著標準制服，妝容符合三色妝容，確實配戴(百貨)名牌\n一位同仁未符合，即扣五分"},
+  {seq:6, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, unit:1, title:"團隊觀察店櫃夥伴機會點",
+   desc:"針對五大接觸點招呼語 / 介紹試穿 / 活動介紹 / 試衣間續銷/結帳禮儀\n任一接觸點未符合，即扣一分"},
+  {seq:11, cat:"內部流程", sub:"倉庫＆庫存準確度", max:5, unit:5, title:"商品驗收入庫",
+   desc:"商品驗收確認無誤需於當日完成入庫\n(一單應入庫未入庫，即扣五分)"},
+  {seq:12, cat:"內部流程", sub:"倉庫＆庫存準確度", max:10, unit:5, title:"倉庫擺放標準",
+   desc:"1. 倉庫儲位先後順序符合重點販售品項(及是否遵守倉庫四大POP分類擺放)\n(未符合即扣五分)\n2. 庫存依分類準則擺放且安全無疑慮，賣場商品勿落地\n(未符合即扣五分)"}
+];
+
+let staged = false;
+let submitted = false;
+let currentMonth = '';
+
+/* ============================================================
+   後端設定 —— 部署 Apps Script 後，只需要把 Web App 網址貼在這裡
+   其他地方都不用改，避免像業績儀表板那樣改錯地方
+   ============================================================ */
+const CONFIG = {
+  API_URL: ''   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+};
+
+async function apiGet(action, params={}){
+  if(!CONFIG.API_URL) return null;
+  const qs = new URLSearchParams({action, ...params}).toString();
+  try{
+    const res = await fetch(`${CONFIG.API_URL}?${qs}`);
+    const json = await res.json();
+    return json && json.ok ? json : null;
+  }catch(e){ console.error('apiGet failed:', action, e); return null; }
+}
+async function apiPost(action, data={}){
+  if(!CONFIG.API_URL) return null;
+  try{
+    const res = await fetch(CONFIG.API_URL, { method:'POST', body: JSON.stringify({action, data}) });
+    const json = await res.json();
+    return json && json.ok ? json : null;
+  }catch(e){ console.error('apiPost failed:', action, e); return null; }
+}
+function backendConnected(){ return !!CONFIG.API_URL; }
+
+function monthLabel(m){
+  const [y,mm] = m.split('-');
+  return `${y}年${parseInt(mm)}月`;
+}
+function initMonthSelect(){
+  const now = new Date();
+  const months = [];
+  for(let i=-3;i<=2;i++){
+    const d = new Date(now.getFullYear(), now.getMonth()+i, 1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+  currentMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const sel = document.getElementById('monthSelect');
+  sel.innerHTML = months.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${monthLabel(m)}</option>`).join('');
+}
+async function onMonthChange(){
+  currentMonth = document.getElementById('monthSelect').value;
+  await refreshTotalsForMonth(currentMonth);
+  const activeTab = document.querySelector('.tab-panel.active').id;
+  if(activeTab==='tab2') renderHqTable();
+  if(activeTab==='tab3') renderRegionTable();
+  if(activeTab==='tab4') renderHotspot();
+  if(activeTab==='tab5') renderMaintTab();
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`.tabbar button[data-tab="${id}"]`).classList.add('active');
+  document.getElementById('scoreSummary').style.display = (id==='tab1') ? 'block' : 'none';
+  document.getElementById('monthBar').style.display = (id==='tab1') ? 'none' : 'block';
+  if(id==='tab2') renderHqTable();
+  if(id==='tab3') renderRegionTable();
+  if(id==='tab4') renderHotspot();
+  if(id==='tab5') renderMaintTab();
+}
+
+function initStoreList(){
+  const dl = document.getElementById('storeList');
+  STORES.forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s.code;
+    opt.label = `${s.code} ${s.name}`;
+    dl.appendChild(opt);
+  });
+}
+function initMgrSelect(){
+  const sel = document.getElementById('fMgr');
+  sel.innerHTML = '<option value="">請選擇</option>' + MANAGERS.map(m=>`<option value="${m}">${m}</option>`).join('');
+}
+function initDisplaySelect(){
+  const sel = document.getElementById('fDisplay');
+  sel.innerHTML = '<option value="">請選擇</option>' + DISPLAY_STAFF.map(m=>`<option value="${m}">${m}</option>`).join('');
+}
+function onStoreCodeChange(){
+  const code = document.getElementById('storeCodeInput').value.trim().toUpperCase();
+  const s = STORES.find(x=>x.code===code);
+  const el = document.getElementById('storeReadout');
+  if(s){
+    el.textContent = `✓ ${s.code}　${s.name}　｜　轄區負責人：${s.mgr}　｜　${s.region}`;
+  } else if(code){
+    el.textContent = '查無此店代號，請確認輸入是否正確';
+  } else {
+    el.textContent = '尚未帶入門市資料';
+  }
+}
+
+function renderItems(){
+  const holder = document.getElementById('itemsHolder');
+  let lastCat=null, lastSub=null;
+  ITEMS.forEach(item=>{
+    if(item.cat!==lastCat || item.sub!==lastSub){
+      const h=document.createElement('div'); h.className='cat-title';
+      h.textContent = `${item.cat} ・ ${item.sub}`;
+      holder.appendChild(h);
+      lastCat=item.cat; lastSub=item.sub;
+    }
+    const div=document.createElement('div'); div.className='item'; div.id=`item-${item.seq}`;
+    div.innerHTML = `
+      <div class="item-head">
+        <span class="no">序${item.seq}</span>
+        <span class="title">${item.title}</span>
+        <span class="max">滿分 ${item.max}</span>
+      </div>
+      <span class="desc-toggle" onclick="toggleDesc(${item.seq})">查看評分標準</span>
+      <div class="desc-body" id="desc-${item.seq}">${item.desc}</div>
+
+      <div class="deduct-row">
+        <div class="grp">
+          <label class="mini">本項扣分（固定單位：每次${item.unit}分）</label>
+          <input type="number" min="0" max="${item.max}" value="0" id="deduct-${item.seq}"
+                 oninput="onDeductChange(${item.seq})">
+        </div>
+        <div class="score-readout">
+          <span id="score-${item.seq}">${item.max}</span>
+          <small>得分</small>
+        </div>
+      </div>
+      <div id="warn-${item.seq}" style="display:none;font-size:12px;color:var(--bad-text);margin:-4px 0 8px;">⚠ 扣分不是${item.unit}的倍數，請確認是否填錯</div>
+
+      <div class="photo-row">
+        <label class="photo-btn">
+          📷 拍照存證（僅存留佐證，不做AI評分）
+          <input type="file" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(${item.seq}, this)">
+        </label>
+        <span id="thumbs-${item.seq}"></span>
+      </div>
+
+      <div class="field note-box full" id="notebox-${item.seq}">
+        <label>備註說明（扣分請說明原因）</label>
+        <textarea id="note-${item.seq}" placeholder="若滿分可不填"></textarea>
+      </div>
+    `;
+    holder.appendChild(div);
+  });
+}
+
+function toggleDesc(seq){ document.getElementById(`desc-${seq}`).classList.toggle('open'); }
+
+function onDeductChange(seq){
+  const item = ITEMS.find(i=>i.seq===seq);
+  const input = document.getElementById(`deduct-${seq}`);
+  let v = parseInt(input.value||0);
+  if(v<0) v=0; if(v>item.max) v=item.max;
+  input.value = v;
+  const score = item.max - v;
+  document.getElementById(`score-${seq}`).textContent = score;
+  const box = document.getElementById(`notebox-${seq}`);
+  if(v>0){ box.classList.remove('full'); box.classList.add('deducted'); }
+  else { box.classList.remove('deducted'); box.classList.add('full'); }
+
+  const warnEl = document.getElementById(`warn-${seq}`);
+  if(v % item.unit !== 0){
+    warnEl.style.display = 'block';
+  } else {
+    warnEl.style.display = 'none';
+  }
+
+  updateTotal();
+  staged=false; submitted=false; updateStageStatus();
+}
+
+function updateTotal(){
+  let sum=0;
+  ITEMS.forEach(i=>{ sum += (i.max - parseInt(document.getElementById(`deduct-${i.seq}`).value||0)); });
+  document.getElementById('scoreNum').textContent = sum;
+}
+
+function onPhoto(seq, input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const img = document.createElement('img'); img.className='thumb'; img.src = e.target.result;
+    document.getElementById(`thumbs-${seq}`).appendChild(img);
+  };
+  reader.readAsDataURL(file);
+  staged=false; submitted=false; updateStageStatus();
+}
+
+function updateStageStatus(){
+  const el = document.getElementById('stageStatus');
+  if(submitted){ el.textContent = '✓ 已送出給門市'; }
+  else if(staged){ el.textContent = '已暫存，尚未送出給門市'; }
+  else { el.textContent = '尚未暫存'; }
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+function gatherData(){
+  const code = document.getElementById('storeCodeInput').value.trim().toUpperCase();
+  const s = STORES.find(x=>x.code===code) || {};
+  const rows = ITEMS.map(i=>({
+    seq:i.seq, title:i.title, max:i.max,
+    deduct: parseInt(document.getElementById(`deduct-${i.seq}`).value||0),
+    score: i.max - parseInt(document.getElementById(`deduct-${i.seq}`).value||0),
+    note: document.getElementById(`note-${i.seq}`).value
+  }));
+  return {
+    storeCode: code, storeName: s.name||'', region: s.region||'',
+    date: document.getElementById('fDate').value,
+    mgr: document.getElementById('fMgr').value,
+    display: document.getElementById('fDisplay').value,
+    timeIn: document.getElementById('fIn').value,
+    timeOut: document.getElementById('fOut').value,
+    full: document.getElementById('fFull').value,
+    part: document.getElementById('fPart').value,
+    rows, total: rows.reduce((a,r)=>a+r.score,0)
+  };
+}
+
+function findDeductionWarnings(){
+  return ITEMS.filter(i=>{
+    const v = parseInt(document.getElementById(`deduct-${i.seq}`).value||0);
+    return v % i.unit !== 0;
+  });
+}
+
+function doStage(){
+  const d = gatherData();
+  if(!d.storeCode){ showToast('請先輸入門市代號'); return; }
+  if(!d.mgr){ showToast('請選擇巡店主管'); return; }
+  if(!d.display){ showToast('請選擇陳列夥伴'); return; }
+  const warns = findDeductionWarnings();
+  if(warns.length){
+    showToast(`序${warns.map(w=>w.seq).join('、')} 扣分不是固定單位，請確認後再暫存`);
+    return;
+  }
+  staged = true; submitted = false; updateStageStatus();
+  showToast('已暫存，確認無誤後可按「確認送出」');
+}
+
+function openConfirmModal(){
+  const d = gatherData();
+  if(!d.storeCode){ showToast('請先輸入門市代號'); return; }
+  const warns = findDeductionWarnings();
+  if(warns.length){
+    showToast(`序${warns.map(w=>w.seq).join('、')} 扣分不是固定單位，請確認後再送出`);
+    return;
+  }
+  if(!staged){ showToast('建議先按「暫存」確認內容後再送出'); }
+  document.getElementById('confirmModal').classList.add('show');
+}
+function closeConfirmModal(){ document.getElementById('confirmModal').classList.remove('show'); }
+
+function buildPrintView(d){
+  const rowsHtml = d.rows.map(r=>`
+    <tr><td>序${r.seq}</td><td>${r.title}</td><td>${r.score} / ${r.max}</td><td>扣${r.deduct}分</td><td>${r.note||'-'}</td></tr>`).join('');
+  document.getElementById('printView').innerHTML = `
+    <h1>AIR SPACE 巡店評分表（暫時分數）</h1>
+    <p>門市：${d.storeCode} ${d.storeName}（${d.region}）　日期：${d.date}　巡店主管：${d.mgr}　陳列：${d.display}</p>
+    <p>到店：${d.timeIn}　離店：${d.timeOut}　正職：${d.full}位　兼職：${d.part}位</p>
+    <table><tr><th>序</th><th>項目</th><th>得分</th><th>扣分</th><th>備註</th></tr>${rowsHtml}</table>
+    <h2>本次暫時分數：${d.total} / 75 分</h2>
+    <p style="font-size:11px;color:#666;">總部評核項目(帳務/會員結帳/客訴/撤貨)及請假、新人、垃圾分類調整項將於月底結算後計入正式成績。</p>
+    <p style="margin-top:30px;">稽核主管簽核：＿＿＿＿＿＿＿＿　營運主管簽核：＿＿＿＿＿＿＿＿</p>
+  `;
+}
+
+async function finishSubmit(mode){
+  const d = gatherData();
+  buildPrintView(d);
+  closeConfirmModal();
+  submitted = true; updateStageStatus();
+
+  const wantMail = (mode==='mail' || mode==='both');
+  if(backendConnected()){
+    const payload = {
+      storeCode: d.storeCode, storeName: d.storeName, region: d.region,
+      date: d.date, mgr: d.mgr, display: d.display,
+      timeIn: d.timeIn, timeOut: d.timeOut, full: d.full, part: d.part,
+      total: d.total, status: '已送出', sendMail: wantMail
+    };
+    d.rows.forEach(r=>{ payload[`seq${r.seq}_score`] = r.score; payload[`seq${r.seq}_note`] = r.note; });
+    const r = await apiPost('saveInspection', payload);
+    if(!r) showToast('⚠ 後端寫入失敗，請確認 Apps Script 網址設定是否正確');
+  }
+
+  if(mode==='print'){ window.print(); showToast(`已產生列印版，暫時分數 ${d.total} 分`); }
+  else if(mode==='mail'){ showToast(`已寄送給 ${d.storeCode} 門市信箱${backendConnected()?'':'（尚未接後端，僅示範）'}`); }
+  else { window.print(); showToast(`已列印並寄送給 ${d.storeCode} 門市${backendConnected()?'':'（尚未接後端，僅示範）'}`); }
+}
+
+// ---- Tab2 總表檢視 ----
+function computeHqScores(t){
+  const acctScore = 10 - (t.acct||0);
+  const memberScore = (typeof t.member_rate === 'number') ? (t.member_rate>=0.795 ? 5 : 0) : null;
+  const complaintScore = 5 - (t.complaint||0);
+  const returnScore = 5 - (t.return||0);
+  return {acctScore, memberScore, complaintScore, returnScore};
+}
+function renderHqTable(){
+  const table = document.getElementById('hqTable');
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>序7 帳務</th><th>序8 會員結帳</th><th>序9 客訴</th><th>序10 撤貨</th><th>四項小計</th></tr>`;
+  STORES.forEach(s=>{
+    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    if(!t){ html += `<tr><td class="left">${s.code}</td><td class="left">${s.name}</td><td colspan="5">尚無總表資料</td></tr>`; return; }
+    const sc = computeHqScores(t);
+    const memberDisp = sc.memberScore===null ? (t.member_rate||'-') : `${sc.memberScore}`;
+    const subtotal = sc.acctScore + (sc.memberScore||0) + sc.complaintScore + sc.returnScore;
+    html += `<tr>
+      <td class="left">${s.code}</td><td class="left">${s.name}</td>
+      <td>${sc.acctScore}</td><td>${memberDisp}</td><td>${sc.complaintScore}</td><td>${sc.returnScore}</td>
+      <td><b>${subtotal}</b></td>
+    </tr>`;
+  });
+  table.innerHTML = html;
+}
+
+// ---- Tab3 區域彙總 ----
+function initFilters(){
+  const mgrSel = document.getElementById('filterMgr');
+  mgrSel.innerHTML = '<option value="">全部主管</option>' + [...new Set(STORES.map(s=>s.mgr))].sort().map(m=>`<option value="${m}">${m}</option>`).join('');
+  const regionSel = document.getElementById('filterRegion');
+  regionSel.innerHTML = '<option value="">全部轄區</option>' + [...new Set(STORES.map(s=>s.region))].sort().map(r=>`<option value="${r}">${r}</option>`).join('');
+}
+function renderRegionTable(){
+  const mgr = document.getElementById('filterMgr').value;
+  const region = document.getElementById('filterRegion').value;
+  const list = STORES.filter(s=> (!mgr||s.mgr===mgr) && (!region||s.region===region) );
+  const table = document.getElementById('regionTable');
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>四項小計</th><th>請假扣分</th><th>會員結帳率</th></tr>`;
+  let sumSub=0, cnt=0;
+  list.forEach(s=>{
+    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    let subtotal='-', leave='-', rate='-';
+    if(t){
+      const sc = computeHqScores(t);
+      subtotal = sc.acctScore + (sc.memberScore||0) + sc.complaintScore + sc.returnScore;
+      leave = t.leave||0;
+      rate = (typeof t.member_rate==='number') ? (t.member_rate*100).toFixed(1)+'%' : t.member_rate;
+      sumSub += subtotal; cnt++;
+    }
+    html += `<tr><td class="left">${s.code}</td><td class="left">${s.name}</td><td>${s.mgr}</td><td>${subtotal}</td><td>${leave}</td><td>${rate}</td></tr>`;
+  });
+  if(cnt>0){
+    html += `<tr><td class="left"><b>平均</b></td><td colspan="2"></td><td><b>${(sumSub/cnt).toFixed(1)}</b></td><td colspan="2"></td></tr>`;
+  }
+  table.innerHTML = html;
+}
+
+// ---- Tab4 後台分析 ----
+function renderHotspot(){
+  const rows = STORES.map(s=>{
+    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    return {code:s.code, name:s.name, acct: t? (t.acct||0) : 0};
+  }).filter(r=>r.acct>0).sort((a,b)=>b.acct-a.acct).slice(0,8);
+  const max = Math.max(...rows.map(r=>r.acct), 1);
+  document.getElementById('hotspotAcct').innerHTML = rows.map(r=>`
+    <div class="hotspot-bar">
+      <div class="name">${r.code} ${r.name}</div>
+      <div class="bar"><div class="fill" style="width:${r.acct/max*100}%"></div></div>
+      <div class="val">${r.acct}</div>
+    </div>`).join('') || '<p style="font-size:13px;color:var(--ink-soft);">目前無帳務扣分紀錄</p>';
+
+  const warnRows = STORES.map(s=>{
+    const t = TOTALS.find(x=>x.code===s.code && x.month===currentMonth);
+    return {code:s.code, name:s.name, rate: t? t.member_rate : null};
+  }).filter(r=>typeof r.rate==='number' && r.rate<0.795).sort((a,b)=>a.rate-b.rate);
+  document.getElementById('memberWarn').innerHTML = warnRows.length ? warnRows.map(r=>`
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);">
+      <span>${r.code} ${r.name}</span>
+      <span class="badge warn">${(r.rate*100).toFixed(1)}%</span>
+    </div>`).join('') : '<p>目前所有門市會員結帳率皆達標</p>';
+}
+
+function initAiItemSelect(){
+  const sel = document.getElementById('aiItemSelect');
+  sel.innerHTML = ITEMS.map(i=>`<option value="${i.seq}">序${i.seq} ${i.title}（滿分${i.max}）</option>`).join('');
+}
+async function onAiPhoto(input){
+  const file = input.files[0]; if(!file) return;
+  const seq = parseInt(document.getElementById('aiItemSelect').value);
+  const item = ITEMS.find(i=>i.seq===seq);
+  const resultEl = document.getElementById('aiResult');
+  resultEl.textContent = 'AI 評估中...';
+
+  const reader = new FileReader();
+  reader.onload = async (e)=>{
+    const base64 = e.target.result.split(',')[1];
+    const mediaType = file.type;
+    try{
+      const prompt = `你是零售賣場陳列稽核專家。這張照片是稽核項目「${item.title}」的現場照片。\n評分標準如下：\n${item.desc}\n此項滿分為 ${item.max} 分。\n請只輸出以下JSON格式，不要有任何其他文字：\n{"suggested_score": 0到${item.max}之間的整數, "reason": "30字內的評語"}`;
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model:"claude-sonnet-4-6", max_tokens:300,
+          messages:[{role:"user", content:[
+            {type:"image", source:{type:"base64", media_type:mediaType, data:base64}},
+            {type:"text", text:prompt}
+          ]}]
+        })
+      });
+      const data = await response.json();
+      const textBlock = (data.content||[]).find(b=>b.type==='text');
+      let raw = textBlock ? textBlock.text : '{}';
+      raw = raw.replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(raw);
+      resultEl.innerHTML = `<b>AI建議：${parsed.suggested_score} / ${item.max} 分</b><br>${parsed.reason||''}`;
+    }catch(err){
+      resultEl.textContent = 'AI評估失敗，請稍後再試。';
+      console.error(err);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---- 持久化資料存取 ----
+async function loadAllData(){
+  if(backendConnected()){
+    const boot = await apiGet('bootstrap');
+    if(boot){
+      STORES = boot.stores && boot.stores.length ? boot.stores : JSON.parse(JSON.stringify(BASE_STORES));
+      MANAGERS = boot.managers && boot.managers.length ? boot.managers : [...BASE_MANAGERS];
+      DISPLAY_STAFF = boot.displayStaff && boot.displayStaff.length ? boot.displayStaff : [...BASE_DISPLAY_STAFF];
+      const tot = await apiGet('totals', {month: currentMonth});
+      TOTALS = (tot && tot.totals && tot.totals.length) ? tot.totals : BASE_TOTALS.map(t=>({...t, month: currentMonth}));
+      return;
+    }
+    // 後端連不上就自動退回本機模式，不中斷操作
+  }
+
+  try{
+    const r = await window.storage.get('stores-list');
+    STORES = r ? JSON.parse(r.value) : JSON.parse(JSON.stringify(BASE_STORES));
+  }catch(e){ STORES = JSON.parse(JSON.stringify(BASE_STORES)); }
+
+  try{
+    const r = await window.storage.get('totals-data');
+    TOTALS = r ? JSON.parse(r.value) : BASE_TOTALS.map(t=>({...t, month: currentMonth}));
+  }catch(e){ TOTALS = BASE_TOTALS.map(t=>({...t, month: currentMonth})); }
+
+  try{
+    const r = await window.storage.get('managers-list');
+    MANAGERS = r ? JSON.parse(r.value) : [...BASE_MANAGERS];
+  }catch(e){ MANAGERS = [...BASE_MANAGERS]; }
+
+  try{
+    const r = await window.storage.get('display-list');
+    DISPLAY_STAFF = r ? JSON.parse(r.value) : [...BASE_DISPLAY_STAFF];
+  }catch(e){ DISPLAY_STAFF = [...BASE_DISPLAY_STAFF]; }
+}
+
+async function refreshTotalsForMonth(month){
+  if(backendConnected()){
+    const tot = await apiGet('totals', {month});
+    if(tot){ TOTALS = TOTALS.filter(t=>t.month!==month).concat(tot.totals); return; }
+  }
+  try{
+    const r = await window.storage.get('totals-data');
+    if(r) TOTALS = JSON.parse(r.value);
+  }catch(e){ /* 保留現有 TOTALS */ }
+}
+async function persist(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), false); }
+  catch(e){ console.error('storage save failed', key, e); showToast('本機儲存失敗，請確認網路後再試'); }
+}
+
+// ---- Tab5 資料維護 ----
+function renderMaintTab(){
+  const sel = document.getElementById('maintStoreSelect');
+  sel.innerHTML = STORES.map(s=>`<option value="${s.code}">${s.code} ${s.name}</option>`).join('');
+  loadMaintFormForSelected();
+  sel.onchange = loadMaintFormForSelected;
+
+  const mgrSel = document.getElementById('newStoreMgr');
+  mgrSel.innerHTML = MANAGERS.map(m=>`<option value="${m}">${m}</option>`).join('');
+
+  document.getElementById('storeCountLabel').textContent = STORES.length;
+  renderStoreEditTable();
+  document.getElementById('mgrListLabel').textContent = MANAGERS.join('、');
+  document.getElementById('displayListLabel').textContent = DISPLAY_STAFF.join('、');
+}
+
+function loadMaintFormForSelected(){
+  const code = document.getElementById('maintStoreSelect').value;
+  const t = TOTALS.find(x=>x.code===code && x.month===currentMonth);
+  document.getElementById('mAcct').value = t ? (t.acct||0) : 0;
+  document.getElementById('mComplaint').value = t ? (t.complaint||0) : 0;
+  document.getElementById('mReturn').value = t ? (t.return||0) : 0;
+  document.getElementById('mLeave').value = t ? (t.leave||0) : 0;
+  document.getElementById('mTrash').value = t ? (t.trash||0) : 0;
+  document.getElementById('mMemberRate').value = (t && typeof t.member_rate==='number') ? (t.member_rate*100).toFixed(1) : '';
+}
+
+async function saveMaintTotal(){
+  const code = document.getElementById('maintStoreSelect').value;
+  const rateInput = document.getElementById('mMemberRate').value;
+  const entry = {
+    code,
+    month: currentMonth,
+    acct: parseInt(document.getElementById('mAcct').value||0),
+    complaint: parseInt(document.getElementById('mComplaint').value||0),
+    return: parseInt(document.getElementById('mReturn').value||0),
+    leave: parseInt(document.getElementById('mLeave').value||0),
+    trash: parseInt(document.getElementById('mTrash').value||0),
+    member_rate: rateInput==='' ? null : parseFloat(rateInput)/100
+  };
+  const idx = TOTALS.findIndex(t=>t.code===code && t.month===currentMonth);
+  if(idx>=0) TOTALS[idx] = entry; else TOTALS.push(entry);
+
+  if(backendConnected()){
+    const r = await apiPost('saveTotal', entry);
+    if(!r){ showToast('後端連線失敗，本次僅存於本機，請確認網址設定'); }
+  }
+  await persist('totals-data', TOTALS);
+  showToast(`已儲存 ${code}（${monthLabel(currentMonth)}）的月結資料`);
+}
+
+function renderStoreEditTable(){
+  const table = document.getElementById('storeEditTable');
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>轄區</th><th class="left">Email</th></tr>`;
+  STORES.forEach((s,idx)=>{
+    html += `<tr>
+      <td class="left">${s.code}</td>
+      <td class="left">${s.name}</td>
+      <td><select onchange="updateStoreMgr(${idx}, this.value)">${MANAGERS.map(m=>`<option value="${m}" ${m===s.mgr?'selected':''}>${m}</option>`).join('')}</select></td>
+      <td>${s.region}</td>
+      <td class="left"><input type="email" value="${s.email||''}" placeholder="尚未建立" style="width:150px;font-size:12px;padding:4px;"
+             onchange="updateStoreEmail(${idx}, this.value)"></td>
+    </tr>`;
+  });
+  table.innerHTML = html;
+}
+
+async function updateStoreEmail(idx, email){
+  STORES[idx].email = email;
+  if(backendConnected()){
+    await apiPost('updateStoreEmail', {code: STORES[idx].code, email});
+  }
+  await persist('stores-list', STORES);
+  showToast(`已更新 ${STORES[idx].code} 的Email`);
+}
+async function updateStoreMgr(idx, mgr){
+  STORES[idx].mgr = mgr;
+  if(backendConnected()){
+    await apiPost('updateStoreMgr', {code: STORES[idx].code, mgr});
+  }
+  await persist('stores-list', STORES);
+  showToast(`已更新 ${STORES[idx].code} 轄區負責人為 ${mgr}`);
+  initStoreList(); initFilters();
+}
+
+async function addStore(){
+  const code = document.getElementById('newStoreCode').value.trim().toUpperCase();
+  const name = document.getElementById('newStoreName').value.trim();
+  const mgr = document.getElementById('newStoreMgr').value;
+  const region = document.getElementById('newStoreRegion').value.trim();
+  if(!code || !name || !region){ showToast('請填寫完整店代號／店名／轄區'); return; }
+  if(STORES.find(s=>s.code===code)){ showToast('此店代號已存在'); return; }
+  STORES.push({code, name, mgr, region});
+  if(backendConnected()){
+    await apiPost('addStore', {code, name, mgr, region, email:''});
+  }
+  await persist('stores-list', STORES);
+  document.getElementById('newStoreCode').value='';
+  document.getElementById('newStoreName').value='';
+  document.getElementById('newStoreRegion').value='';
+  showToast(`已新增門市 ${code} ${name}`);
+  initStoreList(); initFilters(); renderMaintTab();
+}
+
+async function addManager(){
+  const name = document.getElementById('newMgrName').value.trim();
+  if(!name){ return; }
+  if(MANAGERS.includes(name)){ showToast('此主管已在名單中'); return; }
+  MANAGERS.push(name);
+  if(backendConnected()){ await apiPost('addManager', {name}); }
+  await persist('managers-list', MANAGERS);
+  document.getElementById('newMgrName').value='';
+  showToast(`已新增主管：${name}`);
+  initMgrSelect(); renderMaintTab();
+}
+async function addDisplayStaff(){
+  const name = document.getElementById('newDisplayName').value.trim();
+  if(!name){ return; }
+  if(DISPLAY_STAFF.includes(name)){ showToast('此陳列夥伴已在名單中'); return; }
+  DISPLAY_STAFF.push(name);
+  if(backendConnected()){ await apiPost('addDisplayStaff', {name}); }
+  await persist('display-list', DISPLAY_STAFF);
+  document.getElementById('newDisplayName').value='';
+  showToast(`已新增陳列夥伴：${name}`);
+  initDisplaySelect(); renderMaintTab();
+}
+
+async function main(){
+  initMonthSelect();
+  await loadAllData();
+  initStoreList();
+  initMgrSelect();
+  initDisplaySelect();
+  renderItems();
+  initFilters();
+  initAiItemSelect();
+  document.getElementById('fDate').valueAsDate = new Date();
+}
+main();
+</script>
+</body>
+</html>

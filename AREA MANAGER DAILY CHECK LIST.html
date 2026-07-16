@@ -209,6 +209,19 @@
       </div>
       <p style="font-size:12px;color:var(--ink-soft);">項目1–6、11、12（現場評核分數）需要巡店資料累積後才會顯示在此彙總，目前先顯示總部四項與請假/垃圾調整項。</p>
     </div>
+
+    <div class="card">
+      <h2>本月巡店進度</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">依「巡店紀錄」統計每家店本月是否已被評分，方便複查誰還沒巡。篩選條件跟上面主管/轄區共用。</p>
+      <div id="progressSummary" style="font-size:13.5px;font-weight:700;color:var(--brand);margin-bottom:10px;"></div>
+      <label style="font-size:12.5px;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+        <input type="checkbox" id="onlyUnvisited" onchange="renderRegionTable()">
+        只顯示尚未評分的店
+      </label>
+      <div class="scroll-x">
+        <table class="data" id="progressTable"></table>
+      </div>
+    </div>
   </div>
 
   <!-- TAB 4：後台分析 -->
@@ -372,7 +385,7 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec'   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  API_URL: ''   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
 };
 
 async function apiGet(action, params={}){
@@ -400,18 +413,26 @@ function monthLabel(m){
 }
 function initMonthSelect(){
   const now = new Date();
-  const months = [];
-  for(let i=-3;i<=2;i++){
-    const d = new Date(now.getFullYear(), now.getMonth()+i, 1);
-    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
-  }
-  currentMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const months = ['2026-07','2026-08','2026-09']; // 先只留7,8,9三個月，之後有需要再擴增
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  currentMonth = months.includes(thisMonth) ? thisMonth : months[0];
   const sel = document.getElementById('monthSelect');
   sel.innerHTML = months.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${monthLabel(m)}</option>`).join('');
 }
+let INSPECTIONS = [];
+async function loadInspectionsForMonth(){
+  if(backendConnected()){
+    const r = await apiGet('inspections', {month: currentMonth});
+    INSPECTIONS = (r && r.inspections) ? r.inspections : [];
+  } else {
+    INSPECTIONS = [];
+  }
+}
+
 async function onMonthChange(){
   currentMonth = document.getElementById('monthSelect').value;
   await refreshTotalsForMonth(currentMonth);
+  await loadInspectionsForMonth();
   const activeTab = document.querySelector('.tab-panel.active').id;
   if(activeTab==='tab2') renderHqTable();
   if(activeTab==='tab3') renderRegionTable();
@@ -419,7 +440,7 @@ async function onMonthChange(){
   if(activeTab==='tab5') renderMaintTab();
 }
 
-function switchTab(id){
+async function switchTab(id){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tabbar button').forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -427,7 +448,7 @@ function switchTab(id){
   document.getElementById('scoreSummary').style.display = (id==='tab1') ? 'block' : 'none';
   document.getElementById('monthBar').style.display = (id==='tab1') ? 'none' : 'block';
   if(id==='tab2') renderHqTable();
-  if(id==='tab3') renderRegionTable();
+  if(id==='tab3'){ await loadInspectionsForMonth(); renderRegionTable(); }
   if(id==='tab4') renderHotspot();
   if(id==='tab5') renderMaintTab();
 }
@@ -716,6 +737,46 @@ function renderRegionTable(){
     html += `<tr><td class="left"><b>平均</b></td><td colspan="2"></td><td><b>${(sumSub/cnt).toFixed(1)}</b></td><td colspan="2"></td></tr>`;
   }
   table.innerHTML = html;
+  renderProgressTable(list);
+}
+
+// 找該店在目前月份「已送出」的最後一筆巡店紀錄
+function getLatestInspection_(code){
+  const rows = INSPECTIONS.filter(r=> r.storeCode===code && r.status==='已送出');
+  if(!rows.length) return null;
+  rows.sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
+  return rows[0];
+}
+
+function renderProgressTable(list){
+  const onlyUnvisited = document.getElementById('onlyUnvisited').checked;
+  const table = document.getElementById('progressTable');
+  const summaryEl = document.getElementById('progressSummary');
+
+  let visitedCount = 0;
+  const rows = list.map(s=>{
+    const insp = getLatestInspection_(s.code);
+    if(insp) visitedCount++;
+    return {store:s, insp};
+  });
+  summaryEl.textContent = `${monthLabel(currentMonth)}：已巡 ${visitedCount} / ${list.length} 店`;
+
+  const shown = onlyUnvisited ? rows.filter(r=>!r.insp) : rows;
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>本月狀態</th><th>巡店主管</th><th>日期</th></tr>`;
+  shown.forEach(r=>{
+    if(r.insp){
+      html += `<tr>
+        <td class="left">${r.store.code}</td><td class="left">${r.store.name}</td><td>${r.store.mgr}</td>
+        <td><span class="badge ok">已評分</span></td><td>${r.insp.mgr}</td><td>${r.insp.date}</td>
+      </tr>`;
+    } else {
+      html += `<tr>
+        <td class="left">${r.store.code}</td><td class="left">${r.store.name}</td><td>${r.store.mgr}</td>
+        <td><span class="badge warn">尚未評分</span></td><td>-</td><td>-</td>
+      </tr>`;
+    }
+  });
+  table.innerHTML = html || `<tr><td colspan="6" style="text-align:center;color:var(--ink-soft);">沒有符合條件的門市</td></tr>`;
 }
 
 // ---- Tab4 後台分析 ----

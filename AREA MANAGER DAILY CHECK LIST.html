@@ -115,8 +115,10 @@
     #printView, #printView *{visibility:visible;}
     #printView{display:block;position:absolute;left:0;top:0;width:100%;padding:20px;}
   }
-  #printView table{width:100%;border-collapse:collapse;font-size:12px;}
-  #printView th, #printView td{border:1px solid #999;padding:6px 8px;text-align:left;vertical-align:top;}
+  #printView table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+  #printView th, #printView td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:middle;}
+  #printView th{background:#eee;text-align:center;}
+  #printView h1{font-size:16px;margin:0 0 10px;}
   #printView h2{margin:18px 0 6px;font-size:14px;}
 </style>
 </head>
@@ -643,17 +645,109 @@ function openConfirmModal(){
 }
 function closeConfirmModal(){ document.getElementById('confirmModal').classList.remove('show'); }
 
+// 序7-10為總部評核項目，主管不需填寫，但列印版要跟原本Excel一樣完整呈現12項
+const HQ_ITEMS_FOR_PRINT = [
+  {seq:7, cat:"品牌形象與顧客服務", sub:"顧客服務", max:10, title:"帳務管理",
+   desc:"確認零用金台幣一萬、相關帳務處理流程、訂單流程正確無誤\n以每月會計提供各門市失誤率為失分紀錄"},
+  {seq:8, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, title:"會員結帳",
+   desc:"門市當月會員結帳率需達80%\n以總部撈取的門市數據為主，達80%以上即滿分，低於79%則0分"},
+  {seq:9, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, title:"門市顧客服務體驗",
+   desc:"當月含GOOGLE無顧客抱怨案件成立\n客訴案件成立扣一分，讚美門市或人員加一分(不限加分與扣分底線)"},
+  {seq:10, cat:"內部流程", sub:"倉庫＆庫存準確度", max:5, title:"庫存撤貨",
+   desc:"撤貨流程與追蹤瑕疵處理\n以倉庫提供次數為主，任一撤貨/瑕疵不符撤貨流程即扣一分(不限加分與扣分底線)"}
+];
+// 依原本Excel列順序(序1~12)排好，供列印版使用
+function getFullOrderedItems_(){
+  return [...ITEMS.slice(0,6), ...HQ_ITEMS_FOR_PRINT, ...ITEMS.slice(6)]
+    .sort((a,b)=>a.seq-b.seq);
+}
+
+const WEIGHT_GROUPS = [
+  {seqs:[1,2], weight:'30%'},
+  {seqs:[3,4], weight:'15%'},
+  {seqs:[5,6], weight:'15%'},
+  {seqs:[7,8,9], weight:'20%'},
+  {seqs:[10,11,12], weight:'20%'}
+];
+function weightForSeq_(seq){
+  const g = WEIGHT_GROUPS.find(g=>g.seqs.includes(seq));
+  return g ? g.weight : '';
+}
+
 function buildPrintView(d){
-  const rowsHtml = d.rows.map(r=>`
-    <tr><td>序${r.seq}</td><td>${r.title}</td><td>${r.score} / ${r.max}</td><td>扣${r.deduct}分</td><td>${r.note||'-'}</td></tr>`).join('');
+  const scoreMap = {};
+  d.rows.forEach(r=>{ scoreMap[r.seq] = r; });
+  const items = getFullOrderedItems_();
+
+  // 計算 類別/項目(子分類) 的合併儲存格範圍(rowspan)，跟原本Excel merge cell的視覺一致
+  const catSpans = {}, subSpans = {};
+  items.forEach((it,i)=>{
+    catSpans[it.cat] = (catSpans[it.cat]||0) + 1;
+    const subKey = it.cat+'|'+it.sub;
+    subSpans[subKey] = (subSpans[subKey]||0) + 1;
+  });
+  const catPrinted = {}, subPrinted = {}, weightPrinted = {};
+
+  const rowsHtml = items.map(it=>{
+    const isHq = it.seq>=7 && it.seq<=10;
+    const r = scoreMap[it.seq];
+    const mDisplay = isHq ? '－' : `${r ? r.score : it.max}`;
+    const nDisplay = isHq ? '－' : `${r ? r.score : it.max}`;
+    const note = isHq ? '' : (r && r.note ? r.note : '');
+
+    let catCell = '', subCell = '', weightCell = '';
+    if(!catPrinted[it.cat]){
+      catCell = `<td rowspan="${catSpans[it.cat]}" style="text-align:center;font-weight:700;">${it.cat}</td>`;
+      catPrinted[it.cat] = true;
+    }
+    const subKey = it.cat+'|'+it.sub;
+    if(!subPrinted[subKey]){
+      subCell = `<td rowspan="${subSpans[subKey]}" style="text-align:center;">${it.sub}</td>`;
+      subPrinted[subKey] = true;
+    }
+    const w = weightForSeq_(it.seq);
+    const wGroup = WEIGHT_GROUPS.find(g=>g.seqs.includes(it.seq));
+    const wKey = wGroup ? wGroup.seqs.join(',') : it.seq;
+    if(!weightPrinted[wKey]){
+      weightCell = `<td rowspan="${wGroup?wGroup.seqs.length:1}" style="text-align:center;">${w}</td>`;
+      weightPrinted[wKey] = true;
+    }
+
+    return `<tr>
+      ${catCell}${subCell}${weightCell}
+      <td style="text-align:center;">${it.seq}</td>
+      <td style="font-size:11px;white-space:pre-line;">${it.title}：${it.desc}</td>
+      <td style="text-align:center;">${it.max}</td>
+      <td style="text-align:center;">${mDisplay}</td>
+      <td style="text-align:center;">${nDisplay}</td>
+      <td style="font-size:11px;">${note}</td>
+    </tr>`;
+  }).join('');
+
   document.getElementById('printView').innerHTML = `
-    <h1>AIR SPACE 巡店評分表（暫時分數）</h1>
-    <p>門市：${d.storeCode} ${d.storeName}（${d.region}）　日期：${d.date}　巡店主管：${d.mgr}　陳列：${d.display}</p>
-    <p>到店：${d.timeIn}　離店：${d.timeOut}　正職：${d.full}位　兼職：${d.part}位</p>
-    <table><tr><th>序</th><th>項目</th><th>得分</th><th>扣分</th><th>備註</th></tr>${rowsHtml}</table>
-    <h2>本次暫時分數：${d.total} / 75 分</h2>
-    <p style="font-size:11px;color:#666;">總部評核項目(帳務/會員結帳/客訴/撤貨)及請假、新人、垃圾分類調整項將於月底結算後計入正式成績。</p>
-    <p style="margin-top:30px;">稽核主管簽核：＿＿＿＿＿＿＿＿　營運主管簽核：＿＿＿＿＿＿＿＿</p>
+    <h1 style="text-align:center;">AREA MANAGER DAILY CHECK LIST</h1>
+    <table style="margin-bottom:10px;">
+      <tr><td><b>日期</b></td><td>${d.date}</td><td><b>稽核門市</b></td><td>${d.storeCode} ${d.storeName}（${d.region}）</td></tr>
+      <tr><td><b>巡店主管</b></td><td>${d.mgr}</td><td><b>陳列</b></td><td>${d.display}</td></tr>
+      <tr><td><b>到店時間</b></td><td>${d.timeIn}</td><td><b>離店時間</b></td><td>${d.timeOut}</td></tr>
+      <tr><td><b>當班人數</b></td><td colspan="3">正職：${d.full}位　兼職：${d.part}位</td></tr>
+    </table>
+    <table>
+      <tr>
+        <th>類別</th><th>項目</th><th>佔比</th><th>序</th><th>說明</th>
+        <th>分數</th><th>區主管<br>評核</th><th>營運<br>後端</th><th>備註說明</th>
+      </tr>
+      ${rowsHtml}
+    </table>
+    <table style="margin-top:10px;">
+      <tr>
+        <td><b>本次巡店暫時得分</b><br>(序1-6,11,12合計)</td><td style="text-align:center;font-size:16px;"><b>${d.total} / 75</b></td>
+        <td><b>總部評核四項(序7-10)</b></td><td style="text-align:center;">月結時計入</td>
+        <td><b>請假/新人/垃圾調整</b></td><td style="text-align:center;">月結時計入</td>
+      </tr>
+    </table>
+    <p style="font-size:11px;color:#666;margin-top:6px;">正式月成績＝(區主管評核+營運後端)/2 之總表現，加計總部四項評核，並套用請假扣分、新人試用期通過加分、垃圾分類扣分後，於月底結算產出，詳見月結歷史查詢。</p>
+    <p style="margin-top:30px;">稽核主管簽核：＿＿＿＿＿＿＿＿　　營運主管/區主管簽核：＿＿＿＿＿＿＿＿</p>
   `;
 }
 

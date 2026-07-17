@@ -259,8 +259,8 @@
 
     <div class="card">
       <h2>總表資料來源</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);">項目7–10(帳務/客訴/撤貨/會員結帳率)、請假、垃圾檢舉，現在<b>直接即時讀取你Google Sheet裡「總表」分頁</b>，你跟總部同事平常怎麼用VLOOKUP維護就繼續怎麼維護，不用在這個網頁另外輸入一次。「新人」試用期加分也是一樣，直接讀取「新人」分頁的樞紐欄位。</p>
-      <p style="font-size:12.5px;color:var(--ink-soft);">你在Sheet裡改完之後，回到「總表檢視」「後台分析」「月結試算」重新整理頁面，就會看到最新的數字，不需要額外同步的步驟。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);">項目7–10(帳務/客訴/撤貨/會員結帳率)、請假、垃圾檢舉，現在<b>依月份讀取對應的總表分頁</b>，命名規則是「年份後兩碼+月份+月」，例如2026年7月就叫「<b>2607月</b>」、8月叫「<b>2608月</b>」。你跟總部同事在對應月份的分頁裡繼續用VLOOKUP維護，不用在這個網頁另外輸入一次。「新人」試用期加分則直接讀取「新人」分頁的樞紐欄位。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);">上方月份選單選哪個月，就會抓那個月分頁的資料。你在Sheet裡改完之後，回到「總表檢視」「後台分析」「月結試算」重新整理頁面即可看到最新數字。如果該月分頁還沒建立，畫面會顯示無資料，不會報錯。</p>
     </div>
 
     <div class="card">
@@ -390,7 +390,7 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec'   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  API_URL: ''   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
 };
 
 async function apiGet(action, params={}){
@@ -1026,7 +1026,7 @@ async function loadAllData(){
       STORES = boot.stores && boot.stores.length ? boot.stores : JSON.parse(JSON.stringify(BASE_STORES));
       MANAGERS = boot.managers && boot.managers.length ? boot.managers : [...BASE_MANAGERS];
       DISPLAY_STAFF = boot.displayStaff && boot.displayStaff.length ? boot.displayStaff : [...BASE_DISPLAY_STAFF];
-      const tot = await apiGet('totals');
+      const tot = await apiGet('totals', {month: currentMonth});
       TOTALS = (tot && tot.totals && tot.totals.length) ? tot.totals : JSON.parse(JSON.stringify(BASE_TOTALS));
       return;
     }
@@ -1038,7 +1038,7 @@ async function loadAllData(){
     STORES = r ? JSON.parse(r.value) : JSON.parse(JSON.stringify(BASE_STORES));
   }catch(e){ STORES = JSON.parse(JSON.stringify(BASE_STORES)); }
 
-  TOTALS = JSON.parse(JSON.stringify(BASE_TOTALS)); // 未接後端時僅供demo展示，實際以Google Sheet「總表」為準
+  TOTALS = JSON.parse(JSON.stringify(BASE_TOTALS)); // 未接後端時僅供demo展示，實際以Google Sheet月份總表分頁為準
 
   try{
     const r = await window.storage.get('managers-list');
@@ -1052,9 +1052,9 @@ async function loadAllData(){
 }
 
 async function refreshTotalsForMonth(month){
-  // 總表為即時單一快照(無月份區分)，切換月份只需重新整理總表資料本身
+  // 總表現在依月份分頁(例如2607月)讀取，切換月份要重新抓對應分頁的資料
   if(backendConnected()){
-    const tot = await apiGet('totals');
+    const tot = await apiGet('totals', {month});
     if(tot){ TOTALS = tot.totals; }
   }
 }

@@ -111,15 +111,18 @@
 
   #printView{display:none;}
   @media print{
+    @page{ size: A4; margin: 8mm; }
     body *{visibility:hidden;}
     #printView, #printView *{visibility:visible;}
-    #printView{display:block;position:absolute;left:0;top:0;width:100%;padding:20px;}
+    #printView{display:block;position:absolute;left:0;top:0;width:100%;padding:0;}
+    #printView table{page-break-inside:avoid;}
   }
-  #printView table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
-  #printView th, #printView td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:middle;}
-  #printView th{background:#eee;text-align:center;}
-  #printView h1{font-size:16px;margin:0 0 10px;}
-  #printView h2{margin:18px 0 6px;font-size:14px;}
+  #printView table{width:100%;border-collapse:collapse;font-size:9.5px;margin-bottom:5px;line-height:1.25;}
+  #printView th, #printView td{border:1px solid #999;padding:2px 4px;text-align:left;vertical-align:middle;}
+  #printView th{background:#eee;text-align:center;font-size:9.5px;}
+  #printView h1{font-size:14px;margin:0 0 6px;}
+  #printView h2{margin:8px 0 4px;font-size:12px;}
+  #printView p{margin:4px 0;font-size:9.5px;}
 </style>
 </head>
 <body>
@@ -387,7 +390,7 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec'   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  API_URL: ''   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
 };
 
 async function apiGet(action, params={}){
@@ -716,7 +719,7 @@ async function buildPrintView(d){
     return `<tr>
       ${catCell}${subCell}${weightCell}
       <td style="text-align:center;">${it.seq}</td>
-      <td style="font-size:11px;white-space:pre-line;">${it.title}：${it.desc}</td>
+      <td style="font-size:9px;white-space:pre-line;line-height:1.25;">${it.title}：${it.desc}</td>
       <td style="text-align:center;">${it.max}</td>
       <td style="text-align:center;">${mDisplay}</td>
       <td style="text-align:center;">${nDisplay}</td>
@@ -770,8 +773,8 @@ async function buildPrintView(d){
         <td colspan="4" style="font-size:11px;color:#666;">此為套用目前總表即時資料試算的參考值，正式成績仍以「確認結算」後為準</td>
       </tr>
     </table>
-    <p style="font-size:11px;color:#666;margin-top:6px;">正式月成績＝(區主管評核+營運後端)/2 之總表現，加計總部四項評核，並套用請假扣分、新人試用期通過加分、垃圾分類扣分後，於月底結算產出，詳見月結歷史查詢。</p>
-    <p style="margin-top:30px;">稽核主管簽核：＿＿＿＿＿＿＿＿　　營運主管/區主管簽核：＿＿＿＿＿＿＿＿</p>
+    <p style="font-size:9px;color:#666;margin-top:4px;">正式月成績＝(區主管評核+營運後端)/2 之總表現，加計總部四項評核，並套用請假扣分、新人試用期通過加分、垃圾分類扣分後，於月底結算產出，詳見月結歷史查詢。</p>
+    <p style="margin-top:14px;font-size:10px;">稽核主管簽核：＿＿＿＿＿＿＿＿　　營運主管/區主管簽核：＿＿＿＿＿＿＿＿</p>
   `;
 }
 

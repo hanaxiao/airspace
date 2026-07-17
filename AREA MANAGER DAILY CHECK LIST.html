@@ -340,6 +340,7 @@
 <div class="modal-overlay" id="confirmModal">
   <div class="modal">
     <h3>送出給門市</h3>
+    <div id="duplicateWarning" style="display:none;background:var(--bad-bg);color:var(--bad-text);border-radius:8px;padding:10px;font-size:12.5px;margin-bottom:10px;"></div>
     <p>請選擇要進行的動作：</p>
     <button class="btn primary" onclick="finishSubmit('print')">僅列印 A4</button>
     <button class="btn gold" onclick="finishSubmit('mail')">僅寄送門市信箱</button>
@@ -634,7 +635,7 @@ function doStage(){
   showToast('已暫存，確認無誤後可按「確認送出」');
 }
 
-function openConfirmModal(){
+async function openConfirmModal(){
   const d = gatherData();
   if(!d.storeCode){ showToast('請先輸入門市代號'); return; }
   if(!d.mgr && !d.display){ showToast('巡店主管／陳列請至少選擇一位'); return; }
@@ -644,6 +645,20 @@ function openConfirmModal(){
     return;
   }
   if(!staged){ showToast('建議先按「暫存」確認內容後再送出'); }
+
+  const warnEl = document.getElementById('duplicateWarning');
+  warnEl.style.display = 'none';
+  if(backendConnected() && d.date){
+    const month = d.date.slice(0,7);
+    const r = await apiGet('inspections', {month, store: d.storeCode});
+    const existing = r && r.inspections ? r.inspections.filter(x=>x.status==='已送出') : [];
+    if(existing.length){
+      existing.sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
+      const latest = existing[0];
+      warnEl.textContent = `⚠ 這家店本月已經有${existing.length}筆送出紀錄（最近一次：${latest.date}，${latest.mgr||latest.display}評分），此次送出後將以「這次」的分數為最終依據，之前那筆僅留存紀錄。`;
+      warnEl.style.display = 'block';
+    }
+  }
   document.getElementById('confirmModal').classList.add('show');
 }
 function closeConfirmModal(){ document.getElementById('confirmModal').classList.remove('show'); }

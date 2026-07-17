@@ -243,6 +243,11 @@
   <!-- TAB 4：後台分析 -->
   <div class="tab-panel" id="tab4">
     <div class="card">
+      <h2>⚠ 零用金異常提醒</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">主管巡店時勾選序7零用金「異常」的店家，這裡會列出來並比對總表帳務扣分是否已經處理。</p>
+      <div id="cashAlerts"></div>
+    </div>
+    <div class="card">
       <h2>扣分熱點分析（依總表資料）</h2>
       <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">用來了解哪些店在總部評核項目扣最多分，作為優化依據。現場評核項目(1–6/11/12)的熱點會在巡店資料累積後一併顯示。</p>
       <div id="hotspotAcct"></div>
@@ -398,6 +403,14 @@ const ITEMS = [
    desc:"1. 倉庫儲位先後順序符合重點販售品項(及是否遵守倉庫四大POP分類擺放)\n(未符合即扣五分)\n2. 庫存依分類準則擺放且安全無疑慮，賣場商品勿落地\n(未符合即扣五分)"}
 ];
 
+// 序7-10：總部評核項目，主管不用打分數，但可以現場記錄狀況備註
+const HQ_NOTE_ITEMS = [
+  {seq:7, title:"帳務管理", desc:"確認零用金台幣一萬、相關帳務處理流程、訂單流程正確無誤", hasCashCheck:true},
+  {seq:8, title:"會員結帳", desc:"門市當月會員結帳率需達80%"},
+  {seq:9, title:"門市顧客服務體驗", desc:"當月含GOOGLE無顧客抱怨案件成立"},
+  {seq:10, title:"庫存撤貨", desc:"撤貨流程與追蹤瑕疵處理"}
+];
+
 let staged = false;
 let submitted = false;
 let currentMonth = '';
@@ -407,8 +420,8 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
-  LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
+  API_URL: '',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  LOGIN_PASSWORD: '請設定共用密碼'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
 function checkLoginGate(){
@@ -481,7 +494,7 @@ async function onMonthChange(){
   const activeTab = document.querySelector('.tab-panel.active').id;
   if(activeTab==='tab2') renderHqTable();
   if(activeTab==='tab3') renderRegionTable();
-  if(activeTab==='tab4') renderHotspot();
+  if(activeTab==='tab4'){ await loadInspectionsForMonth(); renderHotspot(); renderCashAlerts(); }
   if(activeTab==='tab5') renderMaintTab();
 }
 
@@ -494,7 +507,7 @@ async function switchTab(id){
   document.getElementById('monthBar').style.display = (id==='tab1') ? 'none' : 'block';
   if(id==='tab2') renderHqTable();
   if(id==='tab3'){ await loadInspectionsForMonth(); renderRegionTable(); }
-  if(id==='tab4') renderHotspot();
+  if(id==='tab4'){ await loadInspectionsForMonth(); renderHotspot(); renderCashAlerts(); }
   if(id==='tab5') renderMaintTab();
 }
 
@@ -528,10 +541,46 @@ function onStoreCodeChange(){
   }
 }
 
+function renderHqNoteCard(item){
+  const div=document.createElement('div'); div.className='item'; div.id=`hqitem-${item.seq}`;
+  const cashCheckHtml = item.hasCashCheck ? `
+      <div class="field" style="margin-top:8px;">
+        <label class="mini">零用金1萬元確認</label>
+        <select id="cashCheck" onchange="onCashCheckChange()">
+          <option value="正常">正常</option>
+          <option value="異常">異常（請務必填寫下方備註說明狀況）</option>
+        </select>
+      </div>` : '';
+  div.innerHTML = `
+    <div class="item-head">
+      <span class="no">序${item.seq}</span>
+      <span class="title">${item.title}</span>
+      <span class="max" style="color:var(--gold);">總部評核</span>
+    </div>
+    <div class="desc-body open" style="margin-bottom:8px;">${item.desc}</div>
+    ${cashCheckHtml}
+    <div class="field note-box full" id="hqnotebox-${item.seq}">
+      <label>現場觀察備註（選填，供總部月結扣分參考）</label>
+      <textarea id="hqnote-${item.seq}" placeholder="例如：發現零用金短少500元 / 客訴：顧客反應商品瑕疵"></textarea>
+    </div>
+  `;
+  return div;
+}
+
 function renderItems(){
   const holder = document.getElementById('itemsHolder');
   let lastCat=null, lastSub=null;
+  let hqInserted = false;
   ITEMS.forEach(item=>{
+    if(item.seq===11 && !hqInserted){
+      const hqHeader = document.createElement('div');
+      hqHeader.className = 'cat-title';
+      hqHeader.textContent = '總部評核項目（唯讀，僅供現場備註）';
+      holder.appendChild(hqHeader);
+      HQ_NOTE_ITEMS.forEach(hqItem=> holder.appendChild(renderHqNoteCard(hqItem)));
+      hqInserted = true;
+      lastCat=null; lastSub=null; // 讓後面的「內部流程」類別標題正常重新顯示
+    }
     if(item.cat!==lastCat || item.sub!==lastSub){
       const h=document.createElement('div'); h.className='cat-title';
       h.textContent = `${item.cat} ・ ${item.sub}`;
@@ -577,6 +626,14 @@ function renderItems(){
     holder.appendChild(div);
   });
 }
+
+function onCashCheckChange(){
+  const sel = document.getElementById('cashCheck');
+  const box = document.getElementById('hqnotebox-7');
+  if(sel.value==='異常'){ box.classList.remove('full'); box.classList.add('deducted'); }
+  else{ box.classList.remove('deducted'); box.classList.add('full'); }
+}
+
 
 function toggleDesc(seq){ document.getElementById(`desc-${seq}`).classList.toggle('open'); }
 
@@ -641,6 +698,11 @@ function gatherData(){
     score: i.max - parseInt(document.getElementById(`deduct-${i.seq}`).value||0),
     note: document.getElementById(`note-${i.seq}`).value
   }));
+  const hqNotes = HQ_NOTE_ITEMS.map(hq=>({
+    seq: hq.seq, title: hq.title,
+    note: document.getElementById(`hqnote-${hq.seq}`).value
+  }));
+  const cashCheck = document.getElementById('cashCheck') ? document.getElementById('cashCheck').value : '正常';
   return {
     storeCode: code, storeName: s.name||'', region: s.region||'',
     date: document.getElementById('fDate').value,
@@ -650,7 +712,7 @@ function gatherData(){
     timeOut: document.getElementById('fOut').value,
     full: document.getElementById('fFull').value,
     part: document.getElementById('fPart').value,
-    rows, total: rows.reduce((a,r)=>a+r.score,0)
+    rows, hqNotes, cashCheck, total: rows.reduce((a,r)=>a+r.score,0)
   };
 }
 
@@ -682,6 +744,10 @@ async function openConfirmModal(){
   if(warns.length){
     showToast(`序${warns.map(w=>w.seq).join('、')} 扣分不是固定單位，請確認後再送出`);
     return;
+  }
+  if(d.cashCheck==='異常'){
+    const cashNote = (d.hqNotes.find(h=>h.seq===7)||{}).note || '';
+    if(!cashNote.trim()){ showToast('零用金異常，請填寫序7的備註說明狀況'); return; }
   }
   if(!staged){ showToast('建議先按「暫存」確認內容後再送出'); }
 
@@ -734,6 +800,8 @@ function weightForSeq_(seq){
 async function buildPrintView(d){
   const scoreMap = {};
   d.rows.forEach(r=>{ scoreMap[r.seq] = r; });
+  const hqNoteMap = {};
+  (d.hqNotes||[]).forEach(h=>{ hqNoteMap[h.seq] = h.note; });
   const items = getFullOrderedItems_();
 
   // 計算 類別/項目(子分類) 的合併儲存格範圍(rowspan)，跟原本Excel merge cell的視覺一致
@@ -750,7 +818,14 @@ async function buildPrintView(d){
     const r = scoreMap[it.seq];
     const mDisplay = isHq ? '－' : `${r ? r.score : it.max}`;
     const nDisplay = isHq ? '－' : `${r ? r.score : it.max}`;
-    const note = isHq ? '' : (r && r.note ? r.note : '');
+    let note;
+    if(isHq){
+      const hqNote = hqNoteMap[it.seq] || '';
+      const cashFlag = (it.seq===7 && d.cashCheck==='異常') ? '⚠零用金異常　' : '';
+      note = (cashFlag + hqNote) || '－';
+    } else {
+      note = (r && r.note) ? r.note : '';
+    }
 
     let catCell = '', subCell = '', weightCell = '';
     if(!catPrinted[it.cat]){
@@ -844,9 +919,11 @@ async function finishSubmit(mode){
       storeCode: d.storeCode, storeName: d.storeName, region: d.region,
       date: d.date, mgr: d.mgr, display: d.display,
       timeIn: d.timeIn, timeOut: d.timeOut, full: d.full, part: d.part,
-      total: d.total, status: '已送出', sendMail: wantMail
+      total: d.total, status: '已送出', sendMail: wantMail,
+      cashCheck: d.cashCheck
     };
     d.rows.forEach(r=>{ payload[`seq${r.seq}_score`] = r.score; payload[`seq${r.seq}_note`] = r.note; });
+    d.hqNotes.forEach(h=>{ payload[`seq${h.seq}_note`] = h.note; });
     const r = await apiPost('saveInspection', payload);
     if(!r) showToast('⚠ 後端寫入失敗，請確認 Apps Script 網址設定是否正確');
   }
@@ -955,6 +1032,30 @@ function renderProgressTable(list){
 }
 
 // ---- Tab4 後台分析 ----
+function renderCashAlerts(){
+  const el = document.getElementById('cashAlerts');
+  const flagged = STORES.filter(s=>{
+    const insp = getLatestInspection_(s.code);
+    return insp && insp.cashCheck==='異常';
+  });
+  if(!flagged.length){
+    el.innerHTML = '<p style="font-size:13px;color:var(--ink-soft);">目前沒有零用金異常回報</p>';
+    return;
+  }
+  el.innerHTML = flagged.map(s=>{
+    const insp = getLatestInspection_(s.code);
+    const t = TOTALS.find(x=>x.code===s.code);
+    const handled = t && (t.acct||0) > 0;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;">
+      <div>
+        <b>${s.code} ${s.name}</b><br>
+        <span style="font-size:12px;color:var(--ink-soft);">${insp.date}　${insp.mgr||insp.display||''}　${insp.seq7_note||''}</span>
+      </div>
+      <span class="badge ${handled?'ok':'warn'}">${handled?'已處理':'尚待處理'}</span>
+    </div>`;
+  }).join('');
+}
+
 function renderHotspot(){
   const rows = STORES.map(s=>{
     const t = TOTALS.find(x=>x.code===s.code);

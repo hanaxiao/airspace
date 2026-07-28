@@ -147,6 +147,7 @@
     <button data-tab="tab3" onclick="switchTab('tab3')">區域彙總</button>
     <button data-tab="tab4" onclick="switchTab('tab4')">後台分析</button>
     <button data-tab="tab5" onclick="switchTab('tab5')">資料維護</button>
+    <button data-tab="tab6" onclick="switchTab('tab6')">歷史查詢</button>
   </div>
   <div id="monthBar" style="display:none;padding:8px 12px 12px;">
     <select id="monthSelect" onchange="onMonthChange()" style="width:100%;padding:8px;border-radius:8px;border:none;font-size:13px;"></select>
@@ -341,6 +342,33 @@
 
   </div>
 
+  <!-- TAB 6：歷史查詢儀表板 -->
+  <div class="tab-panel" id="tab6">
+    <div class="card">
+      <h2>店家歷史稽核查詢</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">選擇店家與月份，查看完整評分明細（跟寄給店家的PDF一樣的格式），如果該月已經完成結算，下方會顯示最終正式分數。</p>
+      <div class="row2">
+        <div class="field">
+          <label>店家</label>
+          <input type="text" id="dashStoreInput" list="storeList" placeholder="輸入店代號">
+        </div>
+        <div class="field">
+          <label>月份</label>
+          <select id="dashMonthSelect"></select>
+        </div>
+      </div>
+      <button class="btn primary" style="width:100%;" onclick="loadStoreDashboard()">查詢</button>
+    </div>
+
+    <div class="card" id="dashResultCard" style="display:none;">
+      <h2 id="dashTitle"></h2>
+      <div id="dashFinalScore" style="margin-bottom:12px;"></div>
+      <div class="scroll-x">
+        <table class="data" id="dashTable"></table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 底部操作列，僅在巡店評分頁顯示 -->
@@ -420,8 +448,8 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
-  LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
+  API_URL: '',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  LOGIN_PASSWORD: '請設定共用密碼'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
 function checkLoginGate(){
@@ -504,11 +532,111 @@ async function switchTab(id){
   document.getElementById(id).classList.add('active');
   document.querySelector(`.tabbar button[data-tab="${id}"]`).classList.add('active');
   document.getElementById('scoreSummary').style.display = (id==='tab1') ? 'block' : 'none';
-  document.getElementById('monthBar').style.display = (id==='tab1') ? 'none' : 'block';
+  document.getElementById('monthBar').style.display = (id==='tab1' || id==='tab6') ? 'none' : 'block';
   if(id==='tab2') renderHqTable();
   if(id==='tab3'){ await loadInspectionsForMonth(); renderRegionTable(); }
   if(id==='tab4'){ await loadInspectionsForMonth(); renderHotspot(); renderCashAlerts(); }
   if(id==='tab5') renderMaintTab();
+  if(id==='tab6') initDashMonthSelect();
+}
+
+// ---- Tab6 歷史查詢儀表板 ----
+function initDashMonthSelect(){
+  const sel = document.getElementById('dashMonthSelect');
+  if(sel.options.length) return; // 已經初始化過
+  const months = ['2026-07','2026-08','2026-09'];
+  sel.innerHTML = months.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${monthLabel(m)}</option>`).join('');
+}
+
+function buildBreakdownRowsHtml_(record, cashCheck){
+  const items = getFullOrderedItems_();
+  const catSpans = {}, subSpans = {};
+  items.forEach(it=>{
+    catSpans[it.cat] = (catSpans[it.cat]||0)+1;
+    const k = it.cat+'|'+it.sub;
+    subSpans[k] = (subSpans[k]||0)+1;
+  });
+  const catPrinted={}, subPrinted={}, weightPrinted={};
+
+  return items.map(it=>{
+    const isHq = it.seq>=7 && it.seq<=10;
+    const score = record[`seq${it.seq}_score`];
+    const mDisplay = isHq ? '－' : (score!==undefined && score!=='' ? score : it.max);
+    let note;
+    if(isHq){
+      const cashFlag = (it.seq===7 && cashCheck==='異常') ? '⚠零用金異常　' : '';
+      note = cashFlag + (record[`seq${it.seq}_note`] || '－');
+    } else {
+      note = record[`seq${it.seq}_note`] || '';
+    }
+
+    let catCell='', subCell='', weightCell='';
+    if(!catPrinted[it.cat]){ catCell = `<td rowspan="${catSpans[it.cat]}" style="text-align:center;font-weight:700;">${it.cat}</td>`; catPrinted[it.cat]=true; }
+    const subKey = it.cat+'|'+it.sub;
+    if(!subPrinted[subKey]){ subCell = `<td rowspan="${subSpans[subKey]}" style="text-align:center;">${it.sub}</td>`; subPrinted[subKey]=true; }
+    const wGroup = WEIGHT_GROUPS.find(g=>g.seqs.includes(it.seq));
+    const wKey = wGroup ? wGroup.seqs.join(',') : it.seq;
+    if(!weightPrinted[wKey]){ weightCell = `<td rowspan="${wGroup?wGroup.seqs.length:1}" style="text-align:center;">${wGroup?wGroup.weight:''}</td>`; weightPrinted[wKey]=true; }
+
+    return `<tr>
+      ${catCell}${subCell}${weightCell}
+      <td style="text-align:center;">${it.seq}</td>
+      <td class="left" style="font-size:11px;">${it.title}</td>
+      <td style="text-align:center;">${it.max}</td>
+      <td style="text-align:center;">${mDisplay}</td>
+      <td class="left" style="font-size:11px;">${note}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadStoreDashboard(){
+  const code = document.getElementById('dashStoreInput').value.trim().toUpperCase();
+  const month = document.getElementById('dashMonthSelect').value;
+  if(!code){ showToast('請輸入店代號'); return; }
+  const s = STORES.find(x=>x.code===code);
+  if(!s){ showToast('查無此店代號'); return; }
+  if(!backendConnected()){ showToast('尚未連接後端，無法查詢歷史資料'); return; }
+
+  const [inspRes, histRes] = await Promise.all([
+    apiGet('inspections', {month, store: code}),
+    apiGet('settlementHistory', {month, store: code})
+  ]);
+
+  const card = document.getElementById('dashResultCard');
+  card.style.display = 'block';
+  document.getElementById('dashTitle').textContent = `${code} ${s.name} － ${monthLabel(month)} 稽核紀錄`;
+
+  const submitted = (inspRes && inspRes.inspections ? inspRes.inspections : []).filter(r=>r.status==='已送出');
+  if(!submitted.length){
+    document.getElementById('dashFinalScore').innerHTML = `<p style="color:var(--ink-soft);">這家店這個月還沒有已送出的巡店紀錄。</p>`;
+    document.getElementById('dashTable').innerHTML = '';
+    return;
+  }
+  submitted.sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
+  const latest = submitted[0];
+
+  const historyRows = histRes && histRes.history ? histRes.history : [];
+  const finalRow = historyRows[0];
+
+  if(finalRow){
+    document.getElementById('dashFinalScore').innerHTML = `
+      <div style="background:var(--good-bg);border-radius:10px;padding:12px;">
+        <b style="color:var(--good-text);font-size:18px;">最終正式分數：${finalRow.finalScore} / 100</b><br>
+        <span style="font-size:12px;color:var(--ink-soft);">評核小計 ${finalRow.manualSubtotal} ＋ 總部四項 ${finalRow.hqSubtotal} － 請假 ${finalRow.leaveDeduct} ＋ 新人加分 ${finalRow.newHireBonus} － 垃圾扣分 ${finalRow.trashDeduct}</span>
+      </div>`;
+  } else {
+    document.getElementById('dashFinalScore').innerHTML = `
+      <div style="background:var(--bad-bg);border-radius:10px;padding:12px;">
+        <b style="color:var(--bad-text);">本月尚未完成結算</b><br>
+        <span style="font-size:12px;color:var(--ink-soft);">目前暫時分數（序1-6,11,12合計）：${latest.total} / 75，正式分數需等後台按「確認結算」後才會出現。</span>
+      </div>`;
+  }
+
+  const rowsHtml = buildBreakdownRowsHtml_(latest, latest.cashCheck);
+  document.getElementById('dashTable').innerHTML = `
+    <tr><th>類別</th><th>子項目</th><th>佔比</th><th>序</th><th class="left">項目名稱</th><th>滿分</th><th>得分</th><th class="left">備註</th></tr>
+    ${rowsHtml}
+  `;
 }
 
 function initStoreList(){

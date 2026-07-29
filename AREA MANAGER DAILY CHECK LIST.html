@@ -294,6 +294,7 @@
         <table class="data" id="settlementTable"></table>
       </div>
       <button class="btn gold" style="width:100%;margin-top:10px;" onclick="confirmSettlement()" id="confirmSettleBtn" disabled>確認結算並存檔</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px;" onclick="exportMonthlyDetail()">匯出本月完整明細（獨立分頁，不依賴此網頁）</button>
     </div>
 
     <div class="card">
@@ -415,8 +416,8 @@ let DISPLAY_STAFF = [];
 const ITEMS = [
   {seq:1, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:20, unit:5, title:"陳列評核",
    desc:"1.櫥窗人檯：穿搭完整層次穿搭符合檔期風格\n(服裝搭配符合整體風格 配件合適、腰線位置合理、衣服需平整..等)\n2.正掛展示件數(正掛最少2-3件)\n3.島桌:需量陳件數(最少2-3件),軟料材質不可陳設摺放於島桌(EX:襯衫、雪紡)\n4.IP(企劃主題區)陳設完整是否符合總部指令\n(一項未符合，即扣五分)"},
-  {seq:2, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:5, title:"活動相關文宣",
-   desc:"1.POP符合檔期活動及相關企劃需為總部官方版本(EX:商品跟衣桿POP相關,POP是否滿版不出現白邊..等等)\n2.賣場道具損毀是否完成報修與替換(EX:圓卡折損未更換/壓克力板破裂..等)\n(一項未符合，即扣五分)"},
+  {seq:2, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:2, title:"活動相關文宣",
+   desc:"1.宣傳POP：官方版本、滿版不出白邊\n2.衣桿展示牌：是否完成報修與替換\n3.衣架吊牌：是否完成報修與替換\n4.櫃台：是否完成報修與替換\n5.其他項目：其他賣場道具或勘查紀錄\n(EX:圓卡折損未更換/壓克力板破裂..等)\n(一項未符合，即扣兩分)"},
   {seq:3, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:2, title:"整潔度",
    desc:"請檢視櫥窗／賣場(衣桿)／櫃台(含推放雜物)／更衣間／倉庫是否乾淨整齊\n一個區塊未符合，即扣兩分"},
   {seq:4, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:5, unit:1, title:"硬體設備",
@@ -448,8 +449,8 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
-  LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
+  API_URL: '',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  LOGIN_PASSWORD: '請設定共用密碼'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
 function checkLoginGate(){
@@ -851,6 +852,77 @@ function findDeductionWarnings(){
   });
 }
 
+function collectDraftState_(){
+  const draft = {
+    storeCode: document.getElementById('storeCodeInput').value,
+    mgr: document.getElementById('fMgr').value,
+    display: document.getElementById('fDisplay').value,
+    date: document.getElementById('fDate').value,
+    timeIn: document.getElementById('fIn').value,
+    timeOut: document.getElementById('fOut').value,
+    full: document.getElementById('fFull').value,
+    part: document.getElementById('fPart').value,
+    items: {},
+    hqNotes: {},
+    cashCheck: document.getElementById('cashCheck') ? document.getElementById('cashCheck').value : '正常'
+  };
+  ITEMS.forEach(i=>{
+    draft.items[i.seq] = {
+      deduct: document.getElementById(`deduct-${i.seq}`).value,
+      note: document.getElementById(`note-${i.seq}`).value
+    };
+  });
+  HQ_NOTE_ITEMS.forEach(hq=>{
+    draft.hqNotes[hq.seq] = document.getElementById(`hqnote-${hq.seq}`).value;
+  });
+  return draft;
+}
+
+function saveDraftToStorage(){
+  try{ localStorage.setItem('als_draft', JSON.stringify(collectDraftState_())); }
+  catch(e){ console.error('draft save failed', e); }
+}
+
+function restoreDraftFromStorage(){
+  let draft;
+  try{ draft = JSON.parse(localStorage.getItem('als_draft') || 'null'); }
+  catch(e){ return; }
+  if(!draft) return;
+
+  document.getElementById('storeCodeInput').value = draft.storeCode || '';
+  onStoreCodeChange();
+  document.getElementById('fMgr').value = draft.mgr || '';
+  document.getElementById('fDisplay').value = draft.display || '';
+  if(draft.date) document.getElementById('fDate').value = draft.date;
+  document.getElementById('fIn').value = draft.timeIn || '';
+  document.getElementById('fOut').value = draft.timeOut || '';
+  document.getElementById('fFull').value = draft.full || 0;
+  document.getElementById('fPart').value = draft.part || 0;
+
+  ITEMS.forEach(i=>{
+    const saved = draft.items ? draft.items[i.seq] : null;
+    if(!saved) return;
+    document.getElementById(`deduct-${i.seq}`).value = saved.deduct || 0;
+    document.getElementById(`note-${i.seq}`).value = saved.note || '';
+    onDeductChange(i.seq);
+  });
+  HQ_NOTE_ITEMS.forEach(hq=>{
+    const val = draft.hqNotes ? draft.hqNotes[hq.seq] : '';
+    if(val) document.getElementById(`hqnote-${hq.seq}`).value = val;
+  });
+  if(draft.cashCheck && document.getElementById('cashCheck')){
+    document.getElementById('cashCheck').value = draft.cashCheck;
+    onCashCheckChange();
+  }
+
+  staged = true; updateStageStatus();
+  showToast('已自動恢復上次暫存的巡店紀錄');
+}
+
+function clearDraftStorage(){
+  try{ localStorage.removeItem('als_draft'); }catch(e){}
+}
+
 function doStage(){
   const d = gatherData();
   if(!d.storeCode){ showToast('請先輸入門市代號'); return; }
@@ -861,7 +933,8 @@ function doStage(){
     return;
   }
   staged = true; submitted = false; updateStageStatus();
-  showToast('已暫存，確認無誤後可按「確認送出」');
+  saveDraftToStorage();
+  showToast('已暫存（就算關掉畫面，重新打開也會自動恢復）');
 }
 
 async function openConfirmModal(){
@@ -1054,6 +1127,7 @@ async function finishSubmit(mode){
     d.hqNotes.forEach(h=>{ payload[`seq${h.seq}_note`] = h.note; });
     const r = await apiPost('saveInspection', payload);
     if(!r) showToast('⚠ 後端寫入失敗，請確認 Apps Script 網址設定是否正確');
+    else clearDraftStorage();
   }
 
   if(mode==='print'){ window.print(); showToast(`已產生列印版，暫時分數 ${d.total} 分`); }
@@ -1287,6 +1361,14 @@ async function confirmSettlement(){
   renderSettlementTable(r.settlement);
 }
 
+async function exportMonthlyDetail(){
+  if(!backendConnected()){ showToast('尚未接後端，無法匯出'); return; }
+  showToast('匯出中，請稍候...');
+  const r = await apiPost('exportMonthlyDetail', {month: currentMonth});
+  if(!r){ showToast('匯出失敗，請確認後端連線'); return; }
+  showToast(`已匯出到分頁「${r.sheetName}」，共${r.storeCount}店，可直接到Google Sheet查看`);
+}
+
 // ---- 持久化資料存取 ----
 async function loadAllData(){
   if(backendConnected()){
@@ -1429,6 +1511,7 @@ async function main(){
   initFilters();
   initAiItemSelect();
   document.getElementById('fDate').valueAsDate = new Date();
+  restoreDraftFromStorage();
 }
 main();
 </script>

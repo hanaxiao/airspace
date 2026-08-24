@@ -1,0 +1,2558 @@
+{
+  "meta": {
+    "week": "26W35",
+    "period": "08/20（四）－ 08/23（日）",
+    "generated": "2026-08-24"
+  },
+  "stores": [
+    {
+      "code": "AS04",
+      "name": "敦南AS店"
+    },
+    {
+      "code": "AS05",
+      "name": "敦南LADY店"
+    },
+    {
+      "code": "AS07",
+      "name": "南西大碼店"
+    },
+    {
+      "code": "AS10",
+      "name": "大安店"
+    },
+    {
+      "code": "AS12",
+      "name": "西門大碼店"
+    },
+    {
+      "code": "AS15",
+      "name": "逢甲店"
+    },
+    {
+      "code": "AS17",
+      "name": "一中店"
+    },
+    {
+      "code": "AS24",
+      "name": "南西LADY店"
+    },
+    {
+      "code": "AS25",
+      "name": "一中LADY店"
+    },
+    {
+      "code": "AS29",
+      "name": "一中大碼店"
+    },
+    {
+      "code": "AS35",
+      "name": "新竹巨城LADY店"
+    },
+    {
+      "code": "AS37",
+      "name": "南港CITYLINK店"
+    },
+    {
+      "code": "AS38",
+      "name": "南紡LADY店"
+    },
+    {
+      "code": "AS40",
+      "name": "中山一店"
+    },
+    {
+      "code": "AS44",
+      "name": "文心大碼店"
+    },
+    {
+      "code": "AS45",
+      "name": "高雄夢時代店"
+    },
+    {
+      "code": "AS46",
+      "name": "岡山LADY店"
+    },
+    {
+      "code": "AS49",
+      "name": "敦南大碼店"
+    },
+    {
+      "code": "AS51",
+      "name": "麗寶OUTLET店"
+    },
+    {
+      "code": "AS52",
+      "name": "中港新光店"
+    },
+    {
+      "code": "AS57",
+      "name": "南西AS店"
+    },
+    {
+      "code": "AS59",
+      "name": "左營新光店"
+    },
+    {
+      "code": "AS61",
+      "name": "西門店"
+    },
+    {
+      "code": "AS62",
+      "name": "南西IP店"
+    },
+    {
+      "code": "AS63",
+      "name": "華泰OUTLET店"
+    },
+    {
+      "code": "AS64",
+      "name": "夢時代大碼店"
+    },
+    {
+      "code": "AS66",
+      "name": "台中遠百店"
+    },
+    {
+      "code": "AS68",
+      "name": "樹林大碼店"
+    },
+    {
+      "code": "AS69",
+      "name": "文心LADY店"
+    },
+    {
+      "code": "AS70",
+      "name": "西門IP店"
+    },
+    {
+      "code": "AS71",
+      "name": "中和環球店"
+    },
+    {
+      "code": "AS72",
+      "name": "桃園統領店"
+    },
+    {
+      "code": "AS73",
+      "name": "新莊宏匯店"
+    },
+    {
+      "code": "AS77",
+      "name": "忠孝CHIC.A店"
+    },
+    {
+      "code": "AS79",
+      "name": "高雄漢神CHIC.A店"
+    },
+    {
+      "code": "AS81",
+      "name": "高雄漢神LADY店"
+    },
+    {
+      "code": "AS82",
+      "name": "高雄夢時代CHIC.A店"
+    },
+    {
+      "code": "AS83",
+      "name": "三多遠百店"
+    },
+    {
+      "code": "AS84",
+      "name": "嘉義秀泰店"
+    },
+    {
+      "code": "AS86",
+      "name": "統領大碼店"
+    },
+    {
+      "code": "AS88",
+      "name": "士林一店"
+    },
+    {
+      "code": "AS89",
+      "name": "桃園大江店"
+    },
+    {
+      "code": "AS92",
+      "name": "信義ATT店"
+    },
+    {
+      "code": "AS93",
+      "name": "嘉義文化一店"
+    },
+    {
+      "code": "AS95",
+      "name": "桃園台茂店"
+    },
+    {
+      "code": "AS96",
+      "name": "桃園台茂AS店"
+    },
+    {
+      "code": "AS97",
+      "name": "嘉義大碼店"
+    },
+    {
+      "code": "AS99",
+      "name": "AS99"
+    },
+    {
+      "code": "AT02",
+      "name": "板橋遠百LADY店"
+    },
+    {
+      "code": "AT03",
+      "name": "新台南FOCUS店"
+    },
+    {
+      "code": "AT04",
+      "name": "大江大碼店"
+    },
+    {
+      "code": "AT05",
+      "name": "南紡店"
+    },
+    {
+      "code": "AT07",
+      "name": "台中漢神店"
+    },
+    {
+      "code": "AT08",
+      "name": "台南三井OUTLET店"
+    },
+    {
+      "code": "AT10",
+      "name": "夢時代IP店"
+    },
+    {
+      "code": "AT11",
+      "name": "一中IP店"
+    }
+  ],
+  "products": {
+    "AS": [
+      {
+        "product_id": "2630121005",
+        "sku": "ZX11511",
+        "name": "亨利領短袖短版羅紋上衣",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 99,
+        "inventory": 611,
+        "store_sales": {
+          "AS04": 2,
+          "AS10": 3,
+          "AS15": 3,
+          "AS40": 7,
+          "AS45": 6,
+          "AS52": 2,
+          "AS57": 8,
+          "AS59": 7,
+          "AS61": 8,
+          "AS66": 8,
+          "AS72": 2,
+          "AS73": 7,
+          "AS83": 3,
+          "AS84": 1,
+          "AS88": 8,
+          "AS89": 6,
+          "AS92": 9,
+          "AS96": 2,
+          "AT03": 3,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS04": 35,
+          "AS10": 18,
+          "AS15": 14,
+          "AS17": 30,
+          "AS40": 23,
+          "AS45": 49,
+          "AS52": 35,
+          "AS57": 72,
+          "AS59": 16,
+          "AS61": 14,
+          "AS66": 14,
+          "AS72": 20,
+          "AS73": 23,
+          "AS83": 18,
+          "AS84": 20,
+          "AS88": 8,
+          "AS89": 22,
+          "AS92": 27,
+          "AS93": 28,
+          "AS96": 39,
+          "AT03": 25,
+          "AT05": 28,
+          "AT07": 33
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630121005/9aecde33-f1d9-4b48-a080-8cbb41221ac8.webp"
+      },
+      {
+        "product_id": "2630123003",
+        "sku": "ICH3406",
+        "name": "【纖女級2.0】高腰收腹長腿喇叭褲",
+        "category": "褲子",
+        "grade": "A",
+        "total_sales": 31,
+        "inventory": 487,
+        "store_sales": {
+          "AS17": 1,
+          "AS45": 2,
+          "AS52": 2,
+          "AS57": 2,
+          "AS59": 2,
+          "AS66": 2,
+          "AS72": 1,
+          "AS73": 2,
+          "AS84": 4,
+          "AS89": 5,
+          "AS93": 2,
+          "AS96": 2,
+          "AT05": 3,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS04": 26,
+          "AS10": 16,
+          "AS15": 10,
+          "AS17": 21,
+          "AS40": 22,
+          "AS45": 36,
+          "AS52": 24,
+          "AS57": 56,
+          "AS59": 14,
+          "AS61": 16,
+          "AS66": 14,
+          "AS72": 15,
+          "AS73": 20,
+          "AS83": 16,
+          "AS84": 12,
+          "AS88": 11,
+          "AS89": 17,
+          "AS92": 26,
+          "AS93": 20,
+          "AS96": 29,
+          "AT03": 22,
+          "AT05": 19,
+          "AT07": 25
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630123003/07af1ea6-d2ae-481b-8ce3-d45f4a6268f5.webp"
+      },
+      {
+        "product_id": "2630134002",
+        "sku": "ICH3407",
+        "name": "【纖女級2.0】高腰收腹微開衩傘擺褲裙",
+        "category": "褲裙",
+        "grade": "A",
+        "total_sales": 22,
+        "inventory": 497,
+        "store_sales": {
+          "AS17": 2,
+          "AS40": 1,
+          "AS45": 1,
+          "AS52": 1,
+          "AS57": 1,
+          "AS59": 1,
+          "AS61": 1,
+          "AS72": 2,
+          "AS73": 3,
+          "AS83": 2,
+          "AS84": 1,
+          "AS93": 1,
+          "AS96": 2,
+          "AT03": 2,
+          "AT05": 1
+        },
+        "store_inventory": {
+          "AS04": 27,
+          "AS10": 17,
+          "AS15": 13,
+          "AS17": 18,
+          "AS40": 19,
+          "AS45": 38,
+          "AS52": 26,
+          "AS57": 61,
+          "AS59": 16,
+          "AS61": 15,
+          "AS66": 16,
+          "AS72": 14,
+          "AS73": 17,
+          "AS83": 14,
+          "AS84": 15,
+          "AS88": 12,
+          "AS89": 20,
+          "AS92": 27,
+          "AS93": 19,
+          "AS96": 29,
+          "AT03": 18,
+          "AT05": 19,
+          "AT07": 27
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630134002/a9974f9f-4ec0-47ec-a303-232d740c213f.webp"
+      },
+      {
+        "product_id": "2630124001",
+        "sku": "RCI001",
+        "name": "V領抓皺寬肩帶後鏤空抽繩背心微透膚長洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 33,
+        "inventory": 300,
+        "store_sales": {
+          "AS04": 3,
+          "AS10": 3,
+          "AS17": 4,
+          "AS40": 1,
+          "AS45": 1,
+          "AS52": 3,
+          "AS57": 4,
+          "AS59": 2,
+          "AS61": 1,
+          "AS66": 1,
+          "AS88": 2,
+          "AS89": 1,
+          "AS93": 3,
+          "AS96": 1,
+          "AT07": 3
+        },
+        "store_inventory": {
+          "AS04": 13,
+          "AS10": 7,
+          "AS15": 8,
+          "AS17": 12,
+          "AS40": 14,
+          "AS45": 23,
+          "AS52": 14,
+          "AS57": 31,
+          "AS59": 8,
+          "AS61": 9,
+          "AS66": 9,
+          "AS72": 9,
+          "AS73": 16,
+          "AS83": 9,
+          "AS84": 9,
+          "AS88": 6,
+          "AS89": 14,
+          "AS92": 17,
+          "AS93": 12,
+          "AS96": 19,
+          "AT03": 13,
+          "AT05": 13,
+          "AT07": 15
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630124001/f86aadda-a8ac-44ca-a2d2-53bb1213eed2.webp"
+      },
+      {
+        "product_id": "2630127001",
+        "sku": "EB20230",
+        "name": "透膚網紗抽皺綁帶長袖罩衫V領細肩帶BRA背心套裝",
+        "category": "套裝",
+        "grade": "B",
+        "total_sales": 71,
+        "inventory": 305,
+        "store_sales": {
+          "AS04": 3,
+          "AS10": 2,
+          "AS17": 2,
+          "AS40": 4,
+          "AS45": 3,
+          "AS52": 3,
+          "AS57": 18,
+          "AS59": 3,
+          "AS61": 6,
+          "AS66": 1,
+          "AS72": 2,
+          "AS83": 1,
+          "AS84": 5,
+          "AS88": 1,
+          "AS89": 4,
+          "AS92": 2,
+          "AS93": 4,
+          "AS96": 2,
+          "AT03": 4,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS04": 16,
+          "AS10": 10,
+          "AS15": 9,
+          "AS17": 13,
+          "AS40": 10,
+          "AS45": 27,
+          "AS52": 16,
+          "AS57": 28,
+          "AS59": 9,
+          "AS61": 6,
+          "AS66": 9,
+          "AS72": 8,
+          "AS73": 15,
+          "AS83": 9,
+          "AS84": 5,
+          "AS88": 8,
+          "AS89": 12,
+          "AS92": 17,
+          "AS93": 11,
+          "AS96": 21,
+          "AT03": 12,
+          "AT05": 16,
+          "AT07": 18
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630127001/cb6bd58b-79e3-4321-a69f-ed00b471b924.webp"
+      },
+      {
+        "product_id": "2630121020",
+        "sku": "ZX11502",
+        "name": "美背透膚蕾絲拼接落肩長袖寬版襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 51,
+        "inventory": 325,
+        "store_sales": {
+          "AS04": 1,
+          "AS10": 1,
+          "AS17": 2,
+          "AS40": 1,
+          "AS45": 1,
+          "AS52": 5,
+          "AS57": 8,
+          "AS61": 4,
+          "AS66": 1,
+          "AS72": 3,
+          "AS73": 6,
+          "AS83": 2,
+          "AS84": 2,
+          "AS88": 1,
+          "AS89": 2,
+          "AS92": 1,
+          "AS96": 3,
+          "AT05": 2,
+          "AT07": 5
+        },
+        "store_inventory": {
+          "AS04": 19,
+          "AS10": 10,
+          "AS15": 8,
+          "AS17": 13,
+          "AS40": 14,
+          "AS45": 30,
+          "AS52": 15,
+          "AS57": 37,
+          "AS59": 11,
+          "AS61": 7,
+          "AS66": 10,
+          "AS72": 8,
+          "AS73": 9,
+          "AS83": 9,
+          "AS84": 9,
+          "AS88": 7,
+          "AS89": 13,
+          "AS92": 19,
+          "AS93": 15,
+          "AS96": 20,
+          "AT03": 15,
+          "AT05": 13,
+          "AT07": 14
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630121020/7030d945-c2f9-4b06-ab8a-7df348c2c484.webp"
+      },
+      {
+        "product_id": "2630122004",
+        "sku": "ZX11503",
+        "name": "睫毛蕾絲滾邊A字短裙",
+        "category": "裙子",
+        "grade": "B",
+        "total_sales": 49,
+        "inventory": 366,
+        "store_sales": {
+          "AS10": 1,
+          "AS15": 1,
+          "AS40": 1,
+          "AS45": 3,
+          "AS52": 7,
+          "AS57": 7,
+          "AS59": 1,
+          "AS61": 4,
+          "AS72": 2,
+          "AS73": 3,
+          "AS83": 2,
+          "AS84": 2,
+          "AS89": 3,
+          "AS92": 2,
+          "AS96": 4,
+          "AT05": 2,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS04": 21,
+          "AS10": 11,
+          "AS15": 11,
+          "AS17": 17,
+          "AS40": 16,
+          "AS45": 28,
+          "AS52": 14,
+          "AS57": 41,
+          "AS59": 11,
+          "AS61": 8,
+          "AS66": 12,
+          "AS72": 11,
+          "AS73": 14,
+          "AS83": 10,
+          "AS84": 11,
+          "AS88": 12,
+          "AS89": 13,
+          "AS92": 19,
+          "AS93": 17,
+          "AS96": 21,
+          "AT03": 17,
+          "AT05": 15,
+          "AT07": 16
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630122004/8873199c-d61a-46bf-bf04-e276741e4bdd.webp"
+      },
+      {
+        "product_id": "2630121015",
+        "sku": "EB20229",
+        "name": "小V切口一字領蕾絲繞頸綁帶短袖短版BRA TOP",
+        "category": "上衣",
+        "grade": "D",
+        "total_sales": 61,
+        "inventory": 156,
+        "store_sales": {
+          "AS04": 4,
+          "AS10": 1,
+          "AS40": 4,
+          "AS45": 16,
+          "AS52": 8,
+          "AS57": 1,
+          "AS61": 6,
+          "AS72": 1,
+          "AS92": 1,
+          "AS93": 3,
+          "AS96": 6,
+          "AT03": 2,
+          "AT07": 8
+        },
+        "store_inventory": {
+          "AS04": 16,
+          "AS10": 12,
+          "AS40": 5,
+          "AS45": 0,
+          "AS52": 8,
+          "AS57": 16,
+          "AS61": 14,
+          "AS72": 14,
+          "AS83": 12,
+          "AS92": 15,
+          "AS93": 13,
+          "AS96": 14,
+          "AT03": 12,
+          "AT07": 5
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630121015/5b9064a7-560e-49e9-b80c-84e5acde475d.webp"
+      },
+      {
+        "product_id": "2630124014",
+        "sku": "XY62955",
+        "name": "透紗綁帶一字領花苞短洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "D",
+        "total_sales": 10,
+        "inventory": 396,
+        "store_sales": {
+          "AS04": 1,
+          "AS10": 1,
+          "AS45": 2,
+          "AS52": 1,
+          "AS57": 1,
+          "AS72": 1,
+          "AS92": 1,
+          "AS93": 1,
+          "AS96": 1
+        },
+        "store_inventory": {
+          "AS04": 36,
+          "AS10": 23,
+          "AS40": 6,
+          "AS45": 26,
+          "AS52": 28,
+          "AS57": 49,
+          "AS61": 35,
+          "AS72": 28,
+          "AS83": 24,
+          "AS92": 28,
+          "AS93": 28,
+          "AS96": 36,
+          "AT03": 24,
+          "AT07": 25
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630124014/4239e0ec-7207-41df-825b-3a8365d95c50.webp"
+      }
+    ],
+    "CA": [
+      {
+        "product_id": "2630721001",
+        "sku": "EB20279A",
+        "name": "亨利領短版羅紋BRA背心",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 36,
+        "inventory": 319,
+        "store_sales": {
+          "AS17": 2,
+          "AS52": 6,
+          "AS77": 3,
+          "AS79": 4,
+          "AS82": 3,
+          "AS89": 4,
+          "AS92": 8,
+          "AT05": 6
+        },
+        "store_inventory": {
+          "AS17": 24,
+          "AS37": 14,
+          "AS52": 31,
+          "AS71": 17,
+          "AS77": 29,
+          "AS79": 37,
+          "AS82": 57,
+          "AS89": 28,
+          "AS92": 24,
+          "AS95": 35,
+          "AT05": 23
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630721001/732415a2-fb6f-4c77-b1dc-77d1bc6cf74f.webp"
+      },
+      {
+        "product_id": "2630721002",
+        "sku": "EB20281A",
+        "name": "不對稱領肩部抓皺蕾絲下擺短版上衣",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 43,
+        "inventory": 345,
+        "store_sales": {
+          "AS17": 1,
+          "AS37": 1,
+          "AS52": 11,
+          "AS77": 7,
+          "AS79": 3,
+          "AS82": 3,
+          "AS89": 2,
+          "AS92": 3,
+          "AS95": 11,
+          "AT05": 1
+        },
+        "store_inventory": {
+          "AS17": 26,
+          "AS37": 15,
+          "AS52": 31,
+          "AS71": 16,
+          "AS77": 28,
+          "AS79": 42,
+          "AS82": 63,
+          "AS89": 33,
+          "AS92": 32,
+          "AS95": 28,
+          "AT05": 31
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630721002/f0d4fd18-4a29-45fd-ae3d-408692b32ec3.webp"
+      },
+      {
+        "product_id": "2630734001",
+        "sku": "XY62977A",
+        "name": "層次側開衩A字西裝短褲裙",
+        "category": "褲裙",
+        "grade": "A",
+        "total_sales": 18,
+        "inventory": 380,
+        "store_sales": {
+          "AS37": 1,
+          "AS52": 4,
+          "AS79": 2,
+          "AS82": 3,
+          "AS89": 1,
+          "AS92": 2,
+          "AS95": 4,
+          "AT05": 1
+        },
+        "store_inventory": {
+          "AS17": 27,
+          "AS37": 12,
+          "AS52": 40,
+          "AS71": 17,
+          "AS77": 36,
+          "AS79": 47,
+          "AS82": 64,
+          "AS89": 35,
+          "AS92": 34,
+          "AS95": 37,
+          "AT05": 31
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630734001/69cb75c4-3ed2-49f1-a3bd-b584319330b7.webp"
+      },
+      {
+        "product_id": "2630721003",
+        "sku": "SHY558A",
+        "name": "U領削肩羅紋BRA背心",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 52,
+        "inventory": 422,
+        "store_sales": {
+          "AS17": 3,
+          "AS37": 7,
+          "AS52": 9,
+          "AS71": 1,
+          "AS77": 3,
+          "AS79": 5,
+          "AS82": 3,
+          "AS89": 8,
+          "AS92": 3,
+          "AS95": 6,
+          "AT05": 4
+        },
+        "store_inventory": {
+          "AS17": 30,
+          "AS37": 7,
+          "AS52": 44,
+          "AS71": 19,
+          "AS77": 40,
+          "AS79": 51,
+          "AS82": 82,
+          "AS89": 35,
+          "AS92": 40,
+          "AS95": 41,
+          "AT05": 33
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630721003/47c2df9e-9333-4b11-95b6-97ad7a493e09.webp"
+      },
+      {
+        "product_id": "2630721004",
+        "sku": "AF12783A",
+        "name": "V領長袖蕾絲滾邊木耳邊短版羅紋開襟衫",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 37,
+        "inventory": 321,
+        "store_sales": {
+          "AS17": 1,
+          "AS37": 2,
+          "AS52": 4,
+          "AS71": 1,
+          "AS77": 7,
+          "AS79": 6,
+          "AS82": 1,
+          "AS89": 2,
+          "AS92": 9,
+          "AS95": 4
+        },
+        "store_inventory": {
+          "AS17": 24,
+          "AS37": 13,
+          "AS52": 34,
+          "AS71": 14,
+          "AS77": 25,
+          "AS79": 36,
+          "AS82": 59,
+          "AS89": 30,
+          "AS92": 23,
+          "AS95": 33,
+          "AT05": 30
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630721004/53516f9c-d672-4d8d-929f-1c5b55c172f3.webp"
+      },
+      {
+        "product_id": "2630722001",
+        "sku": "EB20280A",
+        "name": "鬆緊腰抓皺綁帶後開衩A字長裙",
+        "category": "裙子",
+        "grade": "B",
+        "total_sales": 29,
+        "inventory": 144,
+        "store_sales": {
+          "AS17": 2,
+          "AS52": 5,
+          "AS79": 3,
+          "AS82": 2,
+          "AS89": 3,
+          "AS92": 7,
+          "AT05": 7
+        },
+        "store_inventory": {
+          "AS17": 11,
+          "AS37": 10,
+          "AS52": 12,
+          "AS71": 10,
+          "AS77": 16,
+          "AS79": 16,
+          "AS82": 23,
+          "AS89": 13,
+          "AS92": 9,
+          "AS95": 17,
+          "AT05": 7
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630722001/9a7dad59-5755-4a5d-9d3a-d169e9806219.webp"
+      },
+      {
+        "product_id": "2630723001",
+        "sku": "ZX11515A",
+        "name": "雙扣打褶口袋鉚釘西裝寬褲",
+        "category": "褲子",
+        "grade": "B",
+        "total_sales": 22,
+        "inventory": 189,
+        "store_sales": {
+          "AS17": 2,
+          "AS37": 2,
+          "AS52": 5,
+          "AS71": 1,
+          "AS79": 1,
+          "AS82": 8,
+          "AS92": 2,
+          "AS95": 1
+        },
+        "store_inventory": {
+          "AS17": 14,
+          "AS37": 9,
+          "AS52": 17,
+          "AS71": 10,
+          "AS77": 18,
+          "AS79": 24,
+          "AS82": 24,
+          "AS89": 19,
+          "AS92": 17,
+          "AS95": 21,
+          "AT05": 16
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630723001/7974ac0b-84fc-4e87-9037-c47db2d99c69.webp"
+      },
+      {
+        "product_id": "2630721009",
+        "sku": "ML116885A",
+        "name": "V型翻領抓褶澎袖蕾絲滾邊直線織紋短版襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 35,
+        "inventory": 218,
+        "store_sales": {
+          "AS37": 2,
+          "AS52": 5,
+          "AS71": 3,
+          "AS77": 2,
+          "AS79": 2,
+          "AS82": 6,
+          "AS89": 7,
+          "AS92": 3,
+          "AS95": 4,
+          "AT05": 1
+        },
+        "store_inventory": {
+          "AS17": 17,
+          "AS37": 8,
+          "AS52": 21,
+          "AS71": 8,
+          "AS77": 21,
+          "AS79": 28,
+          "AS82": 36,
+          "AS89": 18,
+          "AS92": 20,
+          "AS95": 22,
+          "AT05": 19
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630721009/3b7d9b36-b39a-471b-ab1d-56284f407d48.webp"
+      },
+      {
+        "product_id": "2630728001",
+        "sku": "ZX11516A",
+        "name": "多WAY 平口細肩帶倒V打褶連身寬褲(附胸墊)",
+        "category": "連身褲",
+        "grade": "B",
+        "total_sales": 22,
+        "inventory": 188,
+        "store_sales": {
+          "AS37": 1,
+          "AS52": 4,
+          "AS71": 2,
+          "AS79": 3,
+          "AS82": 3,
+          "AS89": 4,
+          "AS92": 1,
+          "AS95": 4
+        },
+        "store_inventory": {
+          "AS17": 16,
+          "AS37": 8,
+          "AS52": 19,
+          "AS71": 7,
+          "AS77": 18,
+          "AS79": 22,
+          "AS82": 29,
+          "AS89": 16,
+          "AS92": 19,
+          "AS95": 17,
+          "AT05": 17
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630728001/519361c0-bd4e-421f-934a-41319d3081ba.webp"
+      }
+    ],
+    "IP": [
+      {
+        "product_id": "2630221008",
+        "sku": "EB-20373K",
+        "name": "【迪士尼系列】愛麗絲 牡蠣寶寶款印花圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 27,
+        "inventory": 268,
+        "store_sales": {
+          "AS05": 4,
+          "AS62": 4,
+          "AS70": 2,
+          "AS72": 1,
+          "AS84": 2,
+          "AS89": 3,
+          "AT03": 2,
+          "AT07": 5,
+          "AT10": 3,
+          "AT11": 1
+        },
+        "store_inventory": {
+          "AS05": 7,
+          "AS59": 14,
+          "AS62": 47,
+          "AS70": 46,
+          "AS72": 13,
+          "AS84": 9,
+          "AS89": 11,
+          "AS92": 15,
+          "AT03": 8,
+          "AT07": 10,
+          "AT10": 40,
+          "AT11": 48
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221008/300e0bb2-592f-447a-9f35-3c84ee99c079.webp"
+      },
+      {
+        "product_id": "2630229001",
+        "sku": "GT-D9150K",
+        "name": "【迪士尼系列】愛麗絲 牡蠣寶寶款毛巾繡圓領短袖短版針織衫",
+        "category": "針織",
+        "grade": "A",
+        "total_sales": 23,
+        "inventory": 309,
+        "store_sales": {
+          "AS05": 5,
+          "AS70": 1,
+          "AS72": 6,
+          "AS84": 1,
+          "AS89": 2,
+          "AS92": 1,
+          "AT03": 2,
+          "AT10": 3,
+          "AT11": 2
+        },
+        "store_inventory": {
+          "AS05": 8,
+          "AS59": 15,
+          "AS62": 59,
+          "AS70": 54,
+          "AS72": 10,
+          "AS84": 12,
+          "AS89": 13,
+          "AS92": 14,
+          "AT03": 11,
+          "AT07": 15,
+          "AT10": 45,
+          "AT11": 53
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630229001/7b5cc833-f6b0-4dbd-82ef-98a86f554281.webp"
+      },
+      {
+        "product_id": "2630221010",
+        "sku": "GT-D9152K",
+        "name": "【迪士尼系列】愛麗絲 小花刺繡蕾絲綁結肩帶平口短版BRA背心",
+        "category": "上衣",
+        "grade": "A",
+        "total_sales": 47,
+        "inventory": 241,
+        "store_sales": {
+          "AS05": 5,
+          "AS59": 3,
+          "AS62": 6,
+          "AS70": 7,
+          "AS72": 8,
+          "AS84": 1,
+          "AS89": 4,
+          "AS92": 6,
+          "AT07": 5,
+          "AT10": 1,
+          "AT11": 1
+        },
+        "store_inventory": {
+          "AS05": 5,
+          "AS59": 10,
+          "AS62": 44,
+          "AS70": 41,
+          "AS72": 6,
+          "AS84": 11,
+          "AS89": 8,
+          "AS92": 7,
+          "AT03": 9,
+          "AT07": 9,
+          "AT10": 44,
+          "AT11": 47
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221010/a17883b6-7ced-40ae-b5b3-18ac45eeda3a.webp"
+      },
+      {
+        "product_id": "2630222001",
+        "sku": "GT-D9153K",
+        "name": "【迪士尼系列】愛麗絲 直線愛心織紋蕾絲花邊蛋糕短裙",
+        "category": "裙子",
+        "grade": "A",
+        "total_sales": 39,
+        "inventory": 269,
+        "store_sales": {
+          "AS05": 3,
+          "AS59": 1,
+          "AS62": 6,
+          "AS70": 7,
+          "AS72": 5,
+          "AS84": 3,
+          "AS92": 3,
+          "AT03": 1,
+          "AT07": 5,
+          "AT11": 5
+        },
+        "store_inventory": {
+          "AS05": 9,
+          "AS59": 13,
+          "AS62": 48,
+          "AS70": 44,
+          "AS72": 7,
+          "AS84": 10,
+          "AS89": 14,
+          "AS92": 10,
+          "AT03": 12,
+          "AT07": 8,
+          "AT10": 49,
+          "AT11": 45
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630222001/8d8117ae-3fff-4aa8-b28d-65bc2e1f2f59.webp"
+      },
+      {
+        "product_id": "2630221001",
+        "sku": "CHY-004K",
+        "name": "【迪士尼系列】愛麗絲 刺繡條紋澎袖短版襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 17,
+        "inventory": 129,
+        "store_sales": {
+          "AS05": 3,
+          "AS62": 2,
+          "AS72": 2,
+          "AS84": 2,
+          "AS92": 2,
+          "AT07": 2,
+          "AT11": 4
+        },
+        "store_inventory": {
+          "AS05": 2,
+          "AS59": 8,
+          "AS62": 28,
+          "AS70": 28,
+          "AS72": 6,
+          "AS84": 4,
+          "AS89": 10,
+          "AS92": 8,
+          "AT03": 5,
+          "AT07": 8,
+          "AT10": 25,
+          "AT11": -3
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221001/11d66bda-4579-4c4b-8c18-6546a68a139e.webp"
+      },
+      {
+        "product_id": "2630221002",
+        "sku": "CHY-005K",
+        "name": "【迪士尼系列】愛麗絲 妙妙貓款美背印花圓領短袖寬版TEE (男款)",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 1,
+        "inventory": 33,
+        "store_sales": {
+          "AS62": 1
+        },
+        "store_inventory": {
+          "AS62": 10,
+          "AS70": 12,
+          "AT10": 11
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221002/eea11b8e-f67c-4093-bb6d-1e78e4720064.webp"
+      },
+      {
+        "product_id": "2630221003",
+        "sku": "GT-D9151K",
+        "name": "【迪士尼系列】愛麗絲 貼布繡圓領短袖寬版TEE",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 17,
+        "inventory": 172,
+        "store_sales": {
+          "AS59": 1,
+          "AS70": 2,
+          "AS72": 1,
+          "AS84": 1,
+          "AS89": 1,
+          "AT03": 2,
+          "AT07": 5,
+          "AT11": 4
+        },
+        "store_inventory": {
+          "AS05": 6,
+          "AS59": 8,
+          "AS62": 34,
+          "AS70": 31,
+          "AS72": 7,
+          "AS84": 6,
+          "AS89": 7,
+          "AS92": 8,
+          "AT03": 5,
+          "AT07": 4,
+          "AT10": 28,
+          "AT11": 28
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221003/2356cda9-9141-4d7a-89d3-eddb1d4e7b89.webp"
+      },
+      {
+        "product_id": "2630221004",
+        "sku": "XFL-0085K",
+        "name": "【迪士尼系列】愛麗絲 午茶派對印花圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 8,
+        "inventory": 99,
+        "store_sales": {
+          "AS05": 1,
+          "AS62": 1,
+          "AS70": 2,
+          "AS72": 1,
+          "AS84": 1,
+          "AS89": 1,
+          "AT11": 1
+        },
+        "store_inventory": {
+          "AS05": 5,
+          "AS59": 4,
+          "AS62": 23,
+          "AS70": 20,
+          "AS72": 3,
+          "AS84": 3,
+          "AS89": 6,
+          "AS92": 7,
+          "AT03": 3,
+          "AT07": 5,
+          "AT10": 21,
+          "AT11": -1
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221004/b75937a3-fa95-4475-a679-3dc24d9c1b41.webp"
+      },
+      {
+        "product_id": "2630221005",
+        "sku": "GT-D9154K",
+        "name": "【迪士尼系列】愛麗絲 貼布繡圓領短袖TEE(兒童款)",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 11,
+        "inventory": 53,
+        "store_sales": {
+          "AS70": 6,
+          "AT11": 5
+        },
+        "store_inventory": {
+          "AS62": 17,
+          "AS70": 9,
+          "AT10": 15,
+          "AT11": 12
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221005/69d59cf1-be94-4d1b-8049-7f07fc9abdc3.webp"
+      },
+      {
+        "product_id": "2630221006",
+        "sku": "LF-011K",
+        "name": "【迪士尼系列】愛麗絲 妙妙貓款刺繡圖案圓領短袖寬版TEE",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 29,
+        "inventory": 151,
+        "store_sales": {
+          "AS05": 2,
+          "AS62": 3,
+          "AS70": 4,
+          "AS72": 4,
+          "AS84": 1,
+          "AS89": 3,
+          "AS92": 3,
+          "AT03": 1,
+          "AT07": 6,
+          "AT11": 2
+        },
+        "store_inventory": {
+          "AS05": 3,
+          "AS59": 6,
+          "AS62": 35,
+          "AS70": 30,
+          "AS72": 2,
+          "AS84": 3,
+          "AS89": 3,
+          "AS92": 4,
+          "AT03": 3,
+          "AT10": 30,
+          "AT11": 32
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221006/b6c5b3de-fc0e-4fcb-9d36-bbee6ef94ca4.webp"
+      },
+      {
+        "product_id": "2630221007",
+        "sku": "LF-012K",
+        "name": "【迪士尼系列】愛麗絲 印花圓領短袖寬版TEE(男款)",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 0,
+        "inventory": 108,
+        "store_sales": {},
+        "store_inventory": {
+          "AS62": 27,
+          "AS70": 27,
+          "AT10": 26,
+          "AT11": 28
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221007/aa1e43b9-6a42-4dbf-8f4e-578034e36674.webp"
+      },
+      {
+        "product_id": "2630227001",
+        "sku": "GT-D9156K",
+        "name": "【迪士尼系列】愛麗絲  滿版印花短袖上衣短褲家居服套裝",
+        "category": "套裝",
+        "grade": "B",
+        "total_sales": 33,
+        "inventory": 157,
+        "store_sales": {
+          "AS05": 3,
+          "AS62": 5,
+          "AS70": 6,
+          "AS72": 2,
+          "AS84": 3,
+          "AS92": 4,
+          "AT03": 4,
+          "AT07": 3,
+          "AT10": 2,
+          "AT11": 1
+        },
+        "store_inventory": {
+          "AS05": 5,
+          "AS59": 10,
+          "AS62": 27,
+          "AS70": 22,
+          "AS72": 7,
+          "AS84": 5,
+          "AS89": 9,
+          "AS92": 6,
+          "AT03": 4,
+          "AT07": 7,
+          "AT10": 26,
+          "AT11": 29
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630227001/2fe369f5-5de0-4e0b-acf7-fbb0bcd501e8.webp"
+      },
+      {
+        "product_id": "2630221009",
+        "sku": "GT-D9149K",
+        "name": "【迪士尼系列】愛麗絲 發泡印字印花一字領短袖短版TEE(附胸墊)",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 10,
+        "inventory": 205,
+        "store_sales": {
+          "AS05": 1,
+          "AS62": 1,
+          "AS70": 2,
+          "AS72": 3,
+          "AS89": 1,
+          "AT03": 1,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS05": 7,
+          "AS59": 11,
+          "AS62": 36,
+          "AS70": 31,
+          "AS72": 6,
+          "AS84": 9,
+          "AS89": 11,
+          "AS92": 11,
+          "AT03": 8,
+          "AT07": 9,
+          "AT10": 33,
+          "AT11": 33
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221009/1e4842b5-eb09-4757-bd8f-71979b4af569.webp"
+      },
+      {
+        "product_id": "2630222002",
+        "sku": "GT-D9155K",
+        "name": "【迪士尼系列】愛麗絲 直線愛心織紋蕾絲花邊蛋糕短裙(兒童款)",
+        "category": "裙子",
+        "grade": "B",
+        "total_sales": 12,
+        "inventory": 102,
+        "store_sales": {
+          "AS62": 1,
+          "AS70": 7,
+          "AT11": 4
+        },
+        "store_inventory": {
+          "AS62": 28,
+          "AS70": 21,
+          "AT10": 28,
+          "AT11": 25
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630222002/e48d98b0-5011-4333-825c-f075ec17fdda.webp"
+      },
+      {
+        "product_id": "2630221011",
+        "sku": "CHY-003K",
+        "name": "【迪士尼系列】愛麗絲 毛巾繡字印花圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 29,
+        "inventory": 107,
+        "store_sales": {
+          "AS05": 1,
+          "AS59": 1,
+          "AS62": 4,
+          "AS70": 4,
+          "AS72": 4,
+          "AS84": 3,
+          "AS92": 3,
+          "AT03": 2,
+          "AT07": 5,
+          "AT11": 2
+        },
+        "store_inventory": {
+          "AS05": 3,
+          "AS59": 6,
+          "AS62": 21,
+          "AS70": 19,
+          "AS72": 3,
+          "AS84": 2,
+          "AS92": 5,
+          "AT03": 2,
+          "AT07": 2,
+          "AT10": 21,
+          "AT11": 23
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630221011/6a96179c-f909-4adf-9048-78cb384a6e5d.webp"
+      }
+    ],
+    "IP配件": [
+      {
+        "product_id": "2630225004",
+        "sku": "SHY-260704KC",
+        "name": "【迪士尼系列】愛麗絲 妙妙貓款刺繡造型洗臉髮帶",
+        "category": "配件",
+        "grade": "衝",
+        "total_sales": 1,
+        "inventory": 59,
+        "store_sales": {
+          "AS70": 1
+        },
+        "store_inventory": {
+          "AS62": 24,
+          "AS70": 11,
+          "AT10": 12,
+          "AT11": 12
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225004/fb2dbaae-390e-43f7-82ad-60136cd128c8.webp"
+      },
+      {
+        "product_id": "2630225006",
+        "sku": "CZS-260701KC",
+        "name": "【迪士尼系列】愛麗絲 妙妙貓款花朵刺繡圖案中筒襪",
+        "category": "配件",
+        "grade": "衝",
+        "total_sales": 26,
+        "inventory": 326,
+        "store_sales": {
+          "AS05": 1,
+          "AS59": 2,
+          "AS62": 5,
+          "AS70": 2,
+          "AS72": 11,
+          "AS84": 2,
+          "AS92": 1,
+          "AT07": 2
+        },
+        "store_inventory": {
+          "AS05": 11,
+          "AS59": 14,
+          "AS62": 59,
+          "AS70": 58,
+          "AS72": 5,
+          "AS84": 10,
+          "AS89": 16,
+          "AS92": 15,
+          "AT03": 12,
+          "AT07": 14,
+          "AT10": 52,
+          "AT11": 60
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225006/8d45d00f-997d-42ab-bd1b-c339753a14f3.webp"
+      },
+      {
+        "product_id": "2630225008",
+        "sku": "SHY-260702KC",
+        "name": "【迪士尼系列】愛麗絲 絨毛茶杯收納購物袋吊飾",
+        "category": "配件",
+        "grade": "衝",
+        "total_sales": 2,
+        "inventory": 98,
+        "store_sales": {
+          "AS62": 1,
+          "AT11": 1
+        },
+        "store_inventory": {
+          "AS62": 39,
+          "AS70": 20,
+          "AT10": 20,
+          "AT11": 19
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225008/74f51db6-90c5-4041-8b47-bc7ac6c896bc.webp"
+      },
+      {
+        "product_id": "2630225009",
+        "sku": "SHY-260705KC",
+        "name": "【迪士尼系列】 愛麗絲 絨毛娃娃吊飾 妙妙貓款/牡蠣寶寶款",
+        "category": "配件",
+        "grade": "衝",
+        "total_sales": 1,
+        "inventory": 99,
+        "store_sales": {
+          "AS70": 1
+        },
+        "store_inventory": {
+          "AS62": 40,
+          "AS70": 19,
+          "AT10": 20,
+          "AT11": 20
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225009/c6dc40ca-cbde-4b1b-971c-82459437b9a3.webp"
+      },
+      {
+        "product_id": "2630225010",
+        "sku": "SHY-260707KC",
+        "name": "【迪士尼系列】愛麗絲 牡蠣寶寶款造型荷葉邊收納包",
+        "category": "配件",
+        "grade": "衝",
+        "total_sales": 5,
+        "inventory": 55,
+        "store_sales": {
+          "AS62": 1,
+          "AS70": 3,
+          "AT10": 1
+        },
+        "store_inventory": {
+          "AS62": 23,
+          "AS70": 9,
+          "AT10": 11,
+          "AT11": 12
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225010/9e968765-cb95-4cc4-85fd-a46c9136e782.webp"
+      },
+      {
+        "product_id": "2630225013",
+        "sku": "SHY-260709KC",
+        "name": "【迪士尼系列】愛麗絲 牡蠣寶寶款絨毛吊飾手機手環(附手機墊片)",
+        "category": "配件",
+        "grade": "衝",
+        "total_sales": 3,
+        "inventory": 47,
+        "store_sales": {
+          "AS62": 3
+        },
+        "store_inventory": {
+          "AS62": 17,
+          "AS70": 10,
+          "AT10": 10,
+          "AT11": 10
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225013/d6529f13-7ee8-4171-9d0b-22962dff478c.webp"
+      },
+      {
+        "product_id": "2630225005",
+        "sku": "SHY-260703KC",
+        "name": "【迪士尼系列】愛麗絲 刺繡圖文iPad收納包",
+        "category": "配件",
+        "grade": "A",
+        "total_sales": 2,
+        "inventory": 48,
+        "store_sales": {
+          "AS70": 2
+        },
+        "store_inventory": {
+          "AS62": 20,
+          "AS70": 8,
+          "AT10": 10,
+          "AT11": 10
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225005/d11b1864-541d-4167-a4de-fe40b008db4e.webp"
+      },
+      {
+        "product_id": "2630225007",
+        "sku": "SHY-260701KC",
+        "name": "【迪士尼系列】愛麗絲 妙妙貓款刺繡圖案棒球帽",
+        "category": "配件",
+        "grade": "A",
+        "total_sales": 7,
+        "inventory": 298,
+        "store_sales": {
+          "AS05": 1,
+          "AS59": 1,
+          "AS89": 2,
+          "AS92": 1,
+          "AT07": 1,
+          "AT10": 1
+        },
+        "store_inventory": {
+          "AS05": 9,
+          "AS59": 13,
+          "AS62": 54,
+          "AS70": 53,
+          "AS72": 14,
+          "AS84": 10,
+          "AS89": 12,
+          "AS92": 13,
+          "AT03": 10,
+          "AT07": 13,
+          "AT10": 45,
+          "AT11": 52
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225007/bae9a8c2-ae2b-4dc0-9e8e-9e1fa61f8773.webp"
+      },
+      {
+        "product_id": "2630225011",
+        "sku": "SHY-260708KC",
+        "name": "【迪士尼系列】愛麗絲 牡蠣寶寶款荷葉邊造型提把小托特包",
+        "category": "配件",
+        "grade": "A",
+        "total_sales": 0,
+        "inventory": 0,
+        "store_sales": {},
+        "store_inventory": {},
+        "image_url": "https://images.airspaceonline.com/photo/2630225011/c1a1ee8a-c1fe-41fc-bf2a-d22193474ab4.webp"
+      },
+      {
+        "product_id": "2630225012",
+        "sku": "SHY-260706KC",
+        "name": "【迪士尼系列】愛麗絲 妙妙貓款絨毛吊飾手機手環 (附手機墊片)",
+        "category": "配件",
+        "grade": "A",
+        "total_sales": 1,
+        "inventory": 28,
+        "store_sales": {
+          "AS62": 1
+        },
+        "store_inventory": {
+          "AS62": 11,
+          "AS70": 6,
+          "AT10": 5,
+          "AT11": 6
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630225012/1a39a69f-1e57-45db-8595-e37a1282342a.webp"
+      },
+      {
+        "product_id": "2630225002",
+        "sku": "GH-26026KC-YZ",
+        "name": "5\"愛麗絲夢遊仙境票卡包",
+        "category": "配件",
+        "grade": "C",
+        "total_sales": 7,
+        "inventory": 53,
+        "store_sales": {
+          "AS62": 1,
+          "AS70": 1,
+          "AT10": 2,
+          "AT11": 3
+        },
+        "store_inventory": {
+          "AS62": 15,
+          "AS70": 13,
+          "AT10": 12,
+          "AT11": 13
+        }
+      },
+      {
+        "product_id": "2630225003",
+        "sku": "GH-26027KC-YZ",
+        "name": "6\"愛麗絲夢遊仙境-牡蠣寶寶",
+        "category": "配件",
+        "grade": "C",
+        "total_sales": 35,
+        "inventory": 125,
+        "store_sales": {
+          "AS62": 10,
+          "AS70": 9,
+          "AT10": 9,
+          "AT11": 7
+        },
+        "store_inventory": {
+          "AS62": 30,
+          "AS70": 31,
+          "AT10": 31,
+          "AT11": 33
+        }
+      },
+      {
+        "product_id": "2630225038",
+        "sku": "RN-26013KC-YZ",
+        "name": "迪士尼不鏽鋼酷涼杯(愛麗絲)",
+        "category": "配件",
+        "grade": "C",
+        "total_sales": 1,
+        "inventory": 47,
+        "store_sales": {
+          "AT11": 1
+        },
+        "store_inventory": {
+          "AS62": 12,
+          "AS70": 12,
+          "AT10": 12,
+          "AT11": 11
+        }
+      },
+      {
+        "product_id": "2630225039",
+        "sku": "RN-26016KC-YZ",
+        "name": "迪士尼矽膠行李吊牌(牡蠣寶寶)",
+        "category": "配件",
+        "grade": "C",
+        "total_sales": 4,
+        "inventory": 28,
+        "store_sales": {
+          "AS62": 2,
+          "AS70": 2
+        },
+        "store_inventory": {
+          "AS62": 6,
+          "AS70": 6,
+          "AT10": 8,
+          "AT11": 8
+        }
+      }
+    ],
+    "OL": [
+      {
+        "product_id": "2631822002",
+        "sku": "ZX11508Q",
+        "name": "細格紋荷葉邊層次蛋糕短裙",
+        "category": "裙子",
+        "grade": "B",
+        "total_sales": 58,
+        "inventory": 566,
+        "store_sales": {
+          "AS10": 1,
+          "AS24": 7,
+          "AS35": 2,
+          "AS37": 1,
+          "AS38": 3,
+          "AS40": 1,
+          "AS45": 2,
+          "AS46": 5,
+          "AS59": 4,
+          "AS61": 2,
+          "AS69": 2,
+          "AS71": 4,
+          "AS72": 3,
+          "AS81": 4,
+          "AS83": 2,
+          "AS84": 2,
+          "AS89": 5,
+          "AS92": 2,
+          "AS93": 1,
+          "AS95": 1,
+          "AT02": 2,
+          "AT07": 2
+        },
+        "store_inventory": {
+          "AS05": 20,
+          "AS10": 13,
+          "AS15": 14,
+          "AS24": 32,
+          "AS25": 20,
+          "AS35": 31,
+          "AS37": 13,
+          "AS38": 22,
+          "AS40": 23,
+          "AS45": 26,
+          "AS46": 28,
+          "AS59": 16,
+          "AS61": 18,
+          "AS66": 14,
+          "AS69": 26,
+          "AS71": 16,
+          "AS72": 11,
+          "AS73": 28,
+          "AS81": 25,
+          "AS83": 12,
+          "AS84": 12,
+          "AS88": 20,
+          "AS89": 14,
+          "AS92": 22,
+          "AS93": 19,
+          "AS95": 19,
+          "AT02": 18,
+          "AT03": 16,
+          "AT07": 18
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631822002/ca67ac9e-8238-4064-9fea-a4d2a248204f.webp"
+      },
+      {
+        "product_id": "2631821004",
+        "sku": "ZX11509Q",
+        "name": "細格紋下擺抽繩長袖短版雙口袋襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 78,
+        "inventory": 518,
+        "store_sales": {
+          "AS24": 10,
+          "AS35": 8,
+          "AS37": 1,
+          "AS38": 2,
+          "AS40": 5,
+          "AS45": 2,
+          "AS46": 5,
+          "AS59": 3,
+          "AS61": 3,
+          "AS69": 1,
+          "AS71": 4,
+          "AS72": 4,
+          "AS73": 6,
+          "AS81": 5,
+          "AS83": 2,
+          "AS89": 6,
+          "AS92": 3,
+          "AS95": 2,
+          "AT02": 4,
+          "AT07": 2
+        },
+        "store_inventory": {
+          "AS05": 19,
+          "AS10": 13,
+          "AS15": 13,
+          "AS24": 26,
+          "AS25": 19,
+          "AS35": 24,
+          "AS37": 12,
+          "AS38": 21,
+          "AS40": 19,
+          "AS45": 25,
+          "AS46": 27,
+          "AS59": 16,
+          "AS61": 16,
+          "AS66": 13,
+          "AS69": 27,
+          "AS71": 15,
+          "AS72": 9,
+          "AS73": 21,
+          "AS81": 25,
+          "AS83": 11,
+          "AS84": 13,
+          "AS88": 19,
+          "AS89": 13,
+          "AS92": 21,
+          "AS93": 19,
+          "AS95": 17,
+          "AT02": 15,
+          "AT03": 13,
+          "AT07": 17
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631821004/fd43a363-feea-448a-8b94-73200e8a383a.webp"
+      },
+      {
+        "product_id": "2631821005",
+        "sku": "GT9167Q",
+        "name": "撞色層次拼接圓領短袖短版TEE",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 75,
+        "inventory": 453,
+        "store_sales": {
+          "AS24": 2,
+          "AS25": 2,
+          "AS35": 6,
+          "AS37": 4,
+          "AS38": 6,
+          "AS40": 1,
+          "AS45": 4,
+          "AS46": 6,
+          "AS59": 1,
+          "AS61": 2,
+          "AS66": 7,
+          "AS71": 2,
+          "AS73": 7,
+          "AS81": 2,
+          "AS83": 1,
+          "AS84": 2,
+          "AS89": 4,
+          "AS92": 2,
+          "AS95": 4,
+          "AT02": 6,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS05": 16,
+          "AS10": 12,
+          "AS15": 11,
+          "AS24": 32,
+          "AS25": 14,
+          "AS35": 23,
+          "AS37": 7,
+          "AS38": 15,
+          "AS40": 20,
+          "AS45": 21,
+          "AS46": 23,
+          "AS59": 15,
+          "AS61": 15,
+          "AS66": 5,
+          "AS69": 25,
+          "AS71": 14,
+          "AS72": 12,
+          "AS73": 18,
+          "AS81": 24,
+          "AS83": 10,
+          "AS84": 9,
+          "AS88": 15,
+          "AS89": 13,
+          "AS92": 19,
+          "AS93": 17,
+          "AS95": 12,
+          "AT02": 11,
+          "AT03": 12,
+          "AT07": 13
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631821005/169ba7bc-bac0-4d0d-9128-f6c592c3af1a.webp"
+      },
+      {
+        "product_id": "2631823011",
+        "sku": "ICH3570Q",
+        "name": "打褶A字西裝短褲(附皮帶)",
+        "category": "褲子",
+        "grade": "B",
+        "total_sales": 118,
+        "inventory": 1088,
+        "store_sales": {
+          "AS05": 3,
+          "AS10": 3,
+          "AS15": 2,
+          "AS24": 7,
+          "AS25": 4,
+          "AS35": 10,
+          "AS37": 2,
+          "AS38": 5,
+          "AS45": 6,
+          "AS46": 16,
+          "AS61": 5,
+          "AS66": 2,
+          "AS69": 6,
+          "AS71": 2,
+          "AS72": 2,
+          "AS73": 1,
+          "AS81": 6,
+          "AS83": 3,
+          "AS84": 1,
+          "AS88": 2,
+          "AS89": 5,
+          "AS92": 7,
+          "AS93": 3,
+          "AS95": 1,
+          "AT02": 3,
+          "AT03": 2,
+          "AT07": 9
+        },
+        "store_inventory": {
+          "AS05": 35,
+          "AS10": 24,
+          "AS15": 25,
+          "AS24": 69,
+          "AS25": 34,
+          "AS35": 55,
+          "AS37": 25,
+          "AS38": 43,
+          "AS40": 48,
+          "AS45": 49,
+          "AS46": 49,
+          "AS59": 39,
+          "AS61": 33,
+          "AS66": 25,
+          "AS69": 49,
+          "AS71": 36,
+          "AS72": 25,
+          "AS73": 54,
+          "AS81": 49,
+          "AS83": 24,
+          "AS84": 26,
+          "AS88": 36,
+          "AS89": 34,
+          "AS92": 40,
+          "AS93": 36,
+          "AS95": 37,
+          "AT02": 34,
+          "AT03": 25,
+          "AT07": 30
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631823011/5bcf7122-2e83-4269-9d14-bab57c531a01.webp"
+      },
+      {
+        "product_id": "2631824005",
+        "sku": "ICH3571Q",
+        "name": "金屬LOGO方領寬肩帶百褶短洋裝(附皮帶)",
+        "category": "洋裝",
+        "grade": "B",
+        "total_sales": 85,
+        "inventory": 542,
+        "store_sales": {
+          "AS05": 1,
+          "AS10": 1,
+          "AS15": 1,
+          "AS24": 6,
+          "AS35": 9,
+          "AS37": 2,
+          "AS38": 4,
+          "AS40": 1,
+          "AS45": 4,
+          "AS46": 7,
+          "AS59": 6,
+          "AS66": 4,
+          "AS69": 3,
+          "AS71": 1,
+          "AS72": 1,
+          "AS73": 1,
+          "AS81": 2,
+          "AS83": 6,
+          "AS84": 5,
+          "AS89": 4,
+          "AS92": 3,
+          "AS93": 4,
+          "AS95": 3,
+          "AT02": 5,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS05": 19,
+          "AS10": 13,
+          "AS15": 11,
+          "AS24": 35,
+          "AS25": 19,
+          "AS35": 26,
+          "AS37": 10,
+          "AS38": 22,
+          "AS40": 25,
+          "AS45": 26,
+          "AS46": 28,
+          "AS59": 13,
+          "AS61": 20,
+          "AS66": 10,
+          "AS69": 27,
+          "AS71": 18,
+          "AS72": 13,
+          "AS73": 29,
+          "AS81": 28,
+          "AS83": 8,
+          "AS84": 7,
+          "AS88": 20,
+          "AS89": 15,
+          "AS92": 23,
+          "AS93": 15,
+          "AS95": 16,
+          "AT02": 14,
+          "AT03": 14,
+          "AT07": 18
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631824005/8fd2e9ab-6334-4584-b41e-b8dffbe3c4bb.webp"
+      },
+      {
+        "product_id": "2631821018",
+        "sku": "XY62963Q",
+        "name": "鏤空愛心高領長袖短版木耳邊微透膚上衣",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 147,
+        "inventory": 780,
+        "store_sales": {
+          "AS05": 4,
+          "AS10": 2,
+          "AS15": 2,
+          "AS24": 9,
+          "AS35": 15,
+          "AS37": 5,
+          "AS38": 3,
+          "AS40": 1,
+          "AS45": 19,
+          "AS46": 15,
+          "AS59": 5,
+          "AS61": 4,
+          "AS66": 2,
+          "AS69": 5,
+          "AS71": 4,
+          "AS72": 2,
+          "AS73": 4,
+          "AS81": 3,
+          "AS83": 6,
+          "AS84": 5,
+          "AS88": 1,
+          "AS89": 8,
+          "AS92": 1,
+          "AS93": 6,
+          "AS95": 2,
+          "AT02": 3,
+          "AT03": 4,
+          "AT07": 7
+        },
+        "store_inventory": {
+          "AS05": 25,
+          "AS10": 18,
+          "AS15": 18,
+          "AS24": 49,
+          "AS25": 27,
+          "AS35": 37,
+          "AS37": 15,
+          "AS38": 34,
+          "AS40": 37,
+          "AS45": 26,
+          "AS46": 37,
+          "AS59": 24,
+          "AS61": 25,
+          "AS66": 18,
+          "AS69": 40,
+          "AS71": 23,
+          "AS72": 18,
+          "AS73": 41,
+          "AS81": 43,
+          "AS83": 14,
+          "AS84": 15,
+          "AS88": 28,
+          "AS89": 21,
+          "AS92": 37,
+          "AS93": 23,
+          "AS95": 25,
+          "AT02": 24,
+          "AT03": 16,
+          "AT07": 22
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631821018/e73092d6-d022-47bc-a0f7-ed05612e069c.webp"
+      },
+      {
+        "product_id": "2631821003",
+        "sku": "ZX11507Q",
+        "name": "細格紋V型荷葉下擺短版細肩帶背心(附胸墊)",
+        "category": "上衣",
+        "grade": "C",
+        "total_sales": 31,
+        "inventory": 192,
+        "store_sales": {
+          "AS24": 7,
+          "AS35": 4,
+          "AS40": 3,
+          "AS45": 2,
+          "AS46": 2,
+          "AS59": 2,
+          "AS61": 3,
+          "AS69": 2,
+          "AS89": 4,
+          "AT07": 2
+        },
+        "store_inventory": {
+          "AS05": 17,
+          "AS24": 19,
+          "AS35": 16,
+          "AS40": 11,
+          "AS45": 15,
+          "AS46": 20,
+          "AS59": 11,
+          "AS61": 10,
+          "AS69": 18,
+          "AS73": 18,
+          "AS84": 13,
+          "AS89": 13,
+          "AT07": 11
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631821003/e1002793-7d1b-4721-a205-76f1dbb59e6d.webp"
+      },
+      {
+        "product_id": "2631823009",
+        "sku": "SHY9911Q",
+        "name": "復古水洗錐形牛仔褲(略短褲長)",
+        "category": "褲子",
+        "grade": "C",
+        "total_sales": 65,
+        "inventory": 181,
+        "store_sales": {
+          "AS24": 2,
+          "AS35": 12,
+          "AS40": 8,
+          "AS45": 6,
+          "AS46": 7,
+          "AS59": 4,
+          "AS61": 2,
+          "AS69": 4,
+          "AS73": 2,
+          "AS84": 7,
+          "AS89": 7,
+          "AT07": 4
+        },
+        "store_inventory": {
+          "AS05": 17,
+          "AS24": 24,
+          "AS35": 10,
+          "AS40": 9,
+          "AS45": 11,
+          "AS46": 18,
+          "AS59": 12,
+          "AS61": 14,
+          "AS69": 18,
+          "AS73": 17,
+          "AS84": 9,
+          "AS89": 10,
+          "AT07": 12
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631823009/07148714-ec91-40b0-9868-8619ea775fc7.webp"
+      },
+      {
+        "product_id": "2631823010",
+        "sku": "SHY8722Q",
+        "name": "復古水洗錐形牛仔褲(標準褲長)",
+        "category": "褲子",
+        "grade": "C",
+        "total_sales": 133,
+        "inventory": 684,
+        "store_sales": {
+          "AS05": 2,
+          "AS24": 5,
+          "AS35": 8,
+          "AS40": 4,
+          "AS45": 16,
+          "AS46": 15,
+          "AS59": 7,
+          "AS61": 1,
+          "AS69": 12,
+          "AS73": 8,
+          "AS84": 9,
+          "AS89": 20,
+          "AS93": 4,
+          "AT07": 22
+        },
+        "store_inventory": {
+          "AS05": 56,
+          "AS24": 97,
+          "AS35": 68,
+          "AS40": 46,
+          "AS45": 42,
+          "AS46": 69,
+          "AS59": 42,
+          "AS61": 49,
+          "AS69": 63,
+          "AS73": 57,
+          "AS84": 29,
+          "AS89": 38,
+          "AT07": 28
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631823010/a6ac680b-d85a-4774-93d4-5720ba489374.webp"
+      },
+      {
+        "product_id": "2631821020",
+        "sku": "GT9181Q",
+        "name": "2WAY 法式反摺V領抓皺排扣澎袖蕾絲邊短版上衣",
+        "category": "上衣",
+        "grade": "D",
+        "total_sales": 20,
+        "inventory": 568,
+        "store_sales": {
+          "AS24": 3,
+          "AS35": 7,
+          "AS45": 2,
+          "AS61": 1,
+          "AS69": 4,
+          "AS84": 2,
+          "AT07": 1
+        },
+        "store_inventory": {
+          "AS05": 42,
+          "AS24": 73,
+          "AS35": 46,
+          "AS40": 36,
+          "AS45": 39,
+          "AS46": 58,
+          "AS59": 36,
+          "AS61": 35,
+          "AS69": 48,
+          "AS73": 45,
+          "AS84": 33,
+          "AS89": 42,
+          "AT07": 35
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2631821020/95443624-0ac9-4b4b-b062-f92069c95ef9.webp"
+      }
+    ],
+    "PLUS": [
+      {
+        "product_id": "2630823002",
+        "sku": "ICH3406F",
+        "name": "【纖女級2.0】高腰收腹長腿喇叭褲",
+        "category": "褲子",
+        "grade": "B",
+        "total_sales": 17,
+        "inventory": 321,
+        "store_sales": {
+          "AS12": 1,
+          "AS29": 4,
+          "AS68": 4,
+          "AS86": 3,
+          "AS97": 1,
+          "AT03": 3,
+          "AT04": 1
+        },
+        "store_inventory": {
+          "AS07": 38,
+          "AS12": 28,
+          "AS29": 30,
+          "AS44": 29,
+          "AS49": 29,
+          "AS64": 53,
+          "AS68": 24,
+          "AS86": 31,
+          "AS97": 23,
+          "AT03": 17,
+          "AT04": 19
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630823002/3a4fd5bc-b673-4b1b-aeb2-9f8800d926b6.webp"
+      },
+      {
+        "product_id": "2630834002",
+        "sku": "ICH3407F",
+        "name": "【纖女級2.0】高腰收腹微開衩傘擺褲裙",
+        "category": "褲裙",
+        "grade": "B",
+        "total_sales": 17,
+        "inventory": 319,
+        "store_sales": {
+          "AS07": 2,
+          "AS12": 3,
+          "AS29": 2,
+          "AS44": 1,
+          "AS49": 2,
+          "AS64": 5,
+          "AS97": 1,
+          "AT04": 1
+        },
+        "store_inventory": {
+          "AS07": 39,
+          "AS12": 24,
+          "AS29": 32,
+          "AS44": 26,
+          "AS49": 26,
+          "AS64": 49,
+          "AS68": 28,
+          "AS86": 34,
+          "AS97": 22,
+          "AT03": 20,
+          "AT04": 19
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630834002/0b8e7bb5-4bc0-427b-b6ea-1f21e84741cb.webp"
+      },
+      {
+        "product_id": "2630821007",
+        "sku": "GE90958AF",
+        "name": "圓領長袖雙頭拉鍊開襟短版羅紋針織衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 37,
+        "inventory": 242,
+        "store_sales": {
+          "AS07": 2,
+          "AS12": 8,
+          "AS29": 6,
+          "AS44": 4,
+          "AS49": 1,
+          "AS64": 5,
+          "AS68": 3,
+          "AS86": 3,
+          "AS97": 3,
+          "AT04": 2
+        },
+        "store_inventory": {
+          "AS07": 31,
+          "AS12": 14,
+          "AS29": 23,
+          "AS44": 18,
+          "AS49": 21,
+          "AS64": 41,
+          "AS68": 19,
+          "AS86": 26,
+          "AS97": 18,
+          "AT03": 17,
+          "AT04": 14
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630821007/7f249764-04aa-4096-bf06-f218cc0b7a06.webp"
+      },
+      {
+        "product_id": "2630821009",
+        "sku": "ZX11502F",
+        "name": "美背透膚蕾絲拼接落肩長袖寬版襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 16,
+        "inventory": 211,
+        "store_sales": {
+          "AS07": 4,
+          "AS44": 3,
+          "AS64": 1,
+          "AS68": 1,
+          "AS86": 3,
+          "AS97": 2,
+          "AT03": 1,
+          "AT04": 1
+        },
+        "store_inventory": {
+          "AS07": 24,
+          "AS12": 19,
+          "AS29": 22,
+          "AS44": 15,
+          "AS49": 18,
+          "AS64": 36,
+          "AS68": 17,
+          "AS86": 20,
+          "AS97": 14,
+          "AT03": 13,
+          "AT04": 13
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630821009/23df5c10-9d77-47b5-828a-b23022bc962b.webp"
+      },
+      {
+        "product_id": "2630821013",
+        "sku": "SHY179F",
+        "name": "後綁帶開衩透膚天絲長袖寬版襯衫",
+        "category": "上衣",
+        "grade": "B",
+        "total_sales": 55,
+        "inventory": 206,
+        "store_sales": {
+          "AS07": 6,
+          "AS12": 9,
+          "AS29": 4,
+          "AS44": 8,
+          "AS49": 3,
+          "AS64": 3,
+          "AS68": 9,
+          "AS86": 8,
+          "AS97": 4,
+          "AT04": 1
+        },
+        "store_inventory": {
+          "AS07": 26,
+          "AS12": 11,
+          "AS29": 23,
+          "AS44": 12,
+          "AS49": 17,
+          "AS64": 42,
+          "AS68": 11,
+          "AS86": 19,
+          "AS97": 14,
+          "AT03": 16,
+          "AT04": 15
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630821013/bbf2e1bd-e7f6-491b-b49f-06893cafd8a5.webp"
+      },
+      {
+        "product_id": "2630821008",
+        "sku": "XY62963QF",
+        "name": "鏤空愛心高領長袖短版木耳邊微透膚上衣",
+        "category": "上衣",
+        "grade": "C",
+        "total_sales": 9,
+        "inventory": 97,
+        "store_sales": {
+          "AS07": 2,
+          "AS12": 1,
+          "AS29": 2,
+          "AS49": 1,
+          "AS64": 3
+        },
+        "store_inventory": {
+          "AS07": 19,
+          "AS29": 11,
+          "AS44": 12,
+          "AS49": 11,
+          "AS64": 18,
+          "AS97": 12,
+          "AT03": 14
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630821008/f01a7e69-c802-49b2-af22-2fe9607cbb50.webp"
+      },
+      {
+        "product_id": "2630822001",
+        "sku": "ZX11503F",
+        "name": "睫毛蕾絲滾邊A字短裙",
+        "category": "裙子",
+        "grade": "C",
+        "total_sales": 12,
+        "inventory": 127,
+        "store_sales": {
+          "AS07": 5,
+          "AS29": 1,
+          "AS44": 3,
+          "AS97": 2,
+          "AT03": 1
+        },
+        "store_inventory": {
+          "AS07": 20,
+          "AS29": 18,
+          "AS44": 16,
+          "AS49": 16,
+          "AS64": 24,
+          "AS97": 16,
+          "AT03": 17
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630822001/a09c686d-c696-4794-b64c-49e15363865d.webp"
+      },
+      {
+        "product_id": "2630824004",
+        "sku": "MS67907F",
+        "name": "斜裁荷葉蛋糕裙襬點點細肩帶短洋裝(附胸墊)",
+        "category": "洋裝",
+        "grade": "D",
+        "total_sales": 9,
+        "inventory": 277,
+        "store_sales": {
+          "AS07": 2,
+          "AS44": 1,
+          "AS49": 4,
+          "AS64": 2
+        },
+        "store_inventory": {
+          "AS07": 48,
+          "AS29": 36,
+          "AS44": 35,
+          "AS49": 32,
+          "AS64": 56,
+          "AS97": 36,
+          "AT03": 34
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630824004/511bb6f8-16c8-4858-a4fd-f853ed16a131.webp"
+      }
+    ]
+  }
+}

@@ -353,7 +353,8 @@
       <div class="row2">
         <div class="field">
           <label>店家</label>
-          <input type="text" id="dashStoreInput" list="storeList" placeholder="輸入店代號">
+          <input type="text" id="dashStoreInput" list="allStoreList" placeholder="輸入店代號">
+          <datalist id="allStoreList"></datalist>
         </div>
         <div class="field">
           <label>月份</label>
@@ -721,10 +722,21 @@ async function generateAllStoresPdf(){
 
 function initStoreList(){
   const dl = document.getElementById('storeList');
-  STORES.forEach(s=>{
+  dl.innerHTML = '';
+  STORES.filter(s=>s.status!=='已結束').forEach(s=>{
     const opt = document.createElement('option');
     opt.value = s.code;
     opt.label = `${s.code} ${s.name}`;
+    dl.appendChild(opt);
+  });
+}
+function initAllStoreList(){
+  const dl = document.getElementById('allStoreList');
+  dl.innerHTML = '';
+  STORES.forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s.code;
+    opt.label = `${s.code} ${s.name}${s.status==='已結束'?'（已結束營業）':''}`;
     dl.appendChild(opt);
   });
 }
@@ -821,7 +833,7 @@ function renderItems(){
       <div class="photo-row">
         <label class="photo-btn">
           📷 拍照存證（僅存留佐證，不做AI評分）
-          <input type="file" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(${item.seq}, this)">
+          <input type="file" accept="image/*" style="display:none" onchange="onPhoto(${item.seq}, this)">
         </label>
         <span id="thumbs-${item.seq}"></span>
       </div>
@@ -1505,18 +1517,33 @@ function renderMaintTab(){
 
 function renderStoreEditTable(){
   const table = document.getElementById('storeEditTable');
-  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>轄區</th><th class="left">Email</th></tr>`;
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>轄區</th><th class="left">Email</th><th>狀態</th></tr>`;
   STORES.forEach((s,idx)=>{
-    html += `<tr>
+    const isClosed = s.status==='已結束';
+    html += `<tr style="${isClosed?'opacity:0.5;':''}">
       <td class="left">${s.code}</td>
       <td class="left">${s.name}</td>
       <td><select onchange="updateStoreMgr(${idx}, this.value)">${MANAGERS.map(m=>`<option value="${m}" ${m===s.mgr?'selected':''}>${m}</option>`).join('')}</select></td>
       <td>${s.region}</td>
       <td class="left"><input type="email" value="${s.email||''}" placeholder="尚未建立" style="width:150px;font-size:12px;padding:4px;"
              onchange="updateStoreEmail(${idx}, this.value)"></td>
+      <td><select onchange="updateStoreStatus(${idx}, this.value)">
+        <option value="營業中" ${!isClosed?'selected':''}>營業中</option>
+        <option value="已結束" ${isClosed?'selected':''}>已結束營業</option>
+      </select></td>
     </tr>`;
   });
   table.innerHTML = html;
+}
+
+async function updateStoreStatus(idx, status){
+  STORES[idx].status = status;
+  if(backendConnected()){
+    await apiPost('updateStoreStatus', {code: STORES[idx].code, status});
+  }
+  await persist('stores-list', STORES);
+  showToast(`已將 ${STORES[idx].code} 標記為「${status}」`);
+  initStoreList(); initAllStoreList(); initFilters();
 }
 
 async function updateStoreEmail(idx, email){
@@ -1534,7 +1561,7 @@ async function updateStoreMgr(idx, mgr){
   }
   await persist('stores-list', STORES);
   showToast(`已更新 ${STORES[idx].code} 轄區負責人為 ${mgr}`);
-  initStoreList(); initFilters();
+  initStoreList(); initAllStoreList(); initFilters();
 }
 
 async function addStore(){
@@ -1553,7 +1580,7 @@ async function addStore(){
   document.getElementById('newStoreName').value='';
   document.getElementById('newStoreRegion').value='';
   showToast(`已新增門市 ${code} ${name}`);
-  initStoreList(); initFilters(); renderMaintTab();
+  initStoreList(); initAllStoreList(); initFilters(); renderMaintTab();
 }
 
 async function addManager(){
@@ -1583,6 +1610,7 @@ async function main(){
   initMonthSelect();
   await loadAllData();
   initStoreList();
+  initAllStoreList();
   initMgrSelect();
   initDisplaySelect();
   renderItems();

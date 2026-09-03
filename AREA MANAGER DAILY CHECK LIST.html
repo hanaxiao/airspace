@@ -130,7 +130,7 @@
   <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:340px;width:100%;text-align:center;">
     <div style="font-size:12px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">AIR SPACE</div>
     <h2 style="margin:0 0 18px;color:var(--brand);font-size:18px;">巡店評核系統登入</h2>
-    <input type="password" id="loginPassword" placeholder="請輸入終極密碼" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:10px;box-sizing:border-box;"
+    <input type="password" id="loginPassword" placeholder="請輸入密碼" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:10px;box-sizing:border-box;"
            onkeydown="if(event.key==='Enter') doLogin()">
     <button class="btn primary" style="width:100%;" onclick="doLogin()">登入</button>
     <div id="loginError" style="color:var(--bad-text);font-size:12.5px;margin-top:10px;display:none;">密碼錯誤，請再試一次</div>
@@ -224,7 +224,7 @@
       <div class="scroll-x">
         <table class="data" id="regionTable"></table>
       </div>
-      <p style="font-size:12px;color:var(--ink-soft);">項目1–6、11、12（現場評核分數）需要巡店資料累積後才會顯示在此彙總，目前先顯示總部四項與請假/垃圾調整項。</p>
+      <p style="font-size:12px;color:var(--ink-soft);">項目1–5、10、11（現場評核分數）需要巡店資料累積後才會顯示在此彙總，目前先顯示總部四項與請假/業績達成調整項。</p>
     </div>
 
     <div class="card">
@@ -282,13 +282,13 @@
 
     <div class="card">
       <h2>總表資料來源</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);">項目7–10(帳務/客訴/撤貨/會員結帳率)、請假、垃圾檢舉，現在<b>依月份讀取對應的總表分頁</b>，命名規則是「年份後兩碼+月份+月」，例如2026年7月就叫「<b>2607月</b>」、8月叫「<b>2608月</b>」。你跟總部同事在對應月份的分頁裡繼續用VLOOKUP維護，不用在這個網頁另外輸入一次。「新人」試用期加分則直接讀取「新人」分頁的樞紐欄位。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);">項目6–9(帳務/客訴/撤貨/會員結帳率)、請假、業績達成率，現在<b>依月份讀取對應的總表分頁</b>，命名規則是「年份後兩碼+月份+月」，例如2026年7月就叫「<b>2607月</b>」、8月叫「<b>2608月</b>」。你跟總部同事在對應月份的分頁裡繼續用VLOOKUP維護，不用在這個網頁另外輸入一次。「新人」試用期加分則直接讀取「新人」分頁的樞紐欄位。</p>
       <p style="font-size:12.5px;color:var(--ink-soft);">上方月份選單選哪個月，就會抓那個月分頁的資料。你在Sheet裡改完之後，回到「總表檢視」「後台分析」「月結試算」重新整理頁面即可看到最新數字。如果該月分頁還沒建立，畫面會顯示無資料，不會報錯。</p>
     </div>
 
     <div class="card">
       <h2>月結試算（整合成正式成績）</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">整合「巡店評分」(本月最後一次送出)＋「總表」四項＋新人加分/請假/垃圾調整，算出每店正式成績。確認無誤後按「確認結算」會寫入月結歷史，供各店查詢歷史分數使用。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">整合「巡店評分」(本月最後一次送出)＋「總表」四項＋新人加分/請假/業績達成調整，算出每店正式成績。確認無誤後按「確認結算」會寫入月結歷史，供各店查詢歷史分數使用。</p>
       <button class="btn primary" style="width:100%;" onclick="previewSettlement()">試算本月成績</button>
       <div class="scroll-x" style="margin-top:12px;">
         <table class="data" id="settlementTable"></table>
@@ -414,30 +414,28 @@ const BASE_DISPLAY_STAFF = ['包幸子'];
 let DISPLAY_STAFF = [];
 
 const ITEMS = [
-  {seq:1, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:20, unit:5, title:"陳列評核",
-   desc:"1.櫥窗人檯：穿搭完整層次穿搭符合檔期風格\n(服裝搭配符合整體風格 配件合適、腰線位置合理、衣服需平整..等)\n2.正掛展示件數(正掛最少2-3件)\n3.島桌:需量陳件數(最少2-3件),軟料材質不可陳設摺放於島桌(EX:襯衫、雪紡)\n4.IP(企劃主題區)陳設完整是否符合總部指令\n(一項未符合，即扣五分)"},
-  {seq:2, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:2, title:"活動相關文宣",
-   desc:"1.宣傳POP：官方版本、滿版不出白邊\n2.衣桿展示牌：是否完成報修與替換\n3.衣架吊牌：是否完成報修與替換\n4.櫃台：是否完成報修與替換\n5.其他項目：其他賣場道具或勘查紀錄\n(EX:圓卡折損未更換/壓克力板破裂..等)\n(一項未符合，即扣兩分)"},
-  {seq:3, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:2, title:"整潔度",
+  {seq:1, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:30, unit:3, title:"陳列評核",
+   desc:"1. 衣架間距符合規範(春夏3指/秋冬4指)\n2. 正掛件數：衣牆正掛桿同款同色2套/無遮蔽桿同款不同色共4套)\n3. 櫥窗人檯與島桌：主題風格完整/遵照規範擺放及穿著\n　(人檯穿著商品陳列於島桌或是鄰近衣桿上、主題風格一致)\n4. 島桌摺3件 / 厚款2件，軟料材質不可陳設摺放於島桌\n　(EX：軟襯衫、雪紡)\n5. 鞋牆或層櫃符合規範(鞋子雙數/IP層/不可擺放雜物)\n6. IP指定規範、新品＆企劃桿陳設完整且符合總部指定桿數\n7. 燈光調整 (是否無效打燈/刺眼/報修)\n8. 陳列道具正確使用\n9. 不可在非陳列空間任意擺放商品 (EX：櫃台、電視縫隙…等)\n10. POP官方版本、圓卡不使用綠黏土及衣桿展示牌相關損壞申請\n　(EX：POP滿版不出白邊、圓卡折損未更換/壓克力板破裂..等)\n(一項未符合，即扣三分)"},
+  {seq:2, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:10, unit:2, title:"整潔度",
    desc:"請檢視櫥窗／賣場(衣桿)／櫃台(含推放雜物)／更衣間／倉庫是否乾淨整齊\n一個區塊未符合，即扣兩分"},
-  {seq:4, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:5, unit:1, title:"硬體設備",
+  {seq:3, cat:"品牌形象與顧客服務", sub:"陳列準則＆賣場環境", max:5, unit:1, title:"硬體設備",
    desc:"需為公播音樂 / 喇叭運作 / 燈光投射定位 / 香氛機運作 /電視牆輪播\n現場硬體損壞未完成報修\n一個項目未符合，即扣一分"},
-  {seq:5, cat:"品牌形象與顧客服務", sub:"顧客服務", max:10, unit:5, title:"服裝儀容",
+  {seq:4, cat:"品牌形象與顧客服務", sub:"顧客服務", max:10, unit:5, title:"服裝儀容",
    desc:"著標準制服，妝容符合三色妝容，確實配戴(百貨)名牌\n一位同仁未符合，即扣五分"},
-  {seq:6, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, unit:1, title:"團隊觀察店櫃夥伴機會點",
+  {seq:5, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, unit:1, title:"團隊觀察店櫃夥伴機會點",
    desc:"針對五大接觸點招呼語 / 介紹試穿 / 活動介紹 / 試衣間續銷/結帳禮儀\n任一接觸點未符合，即扣一分"},
-  {seq:11, cat:"內部流程", sub:"倉庫＆庫存準確度", max:5, unit:5, title:"商品驗收入庫",
-   desc:"商品驗收確認無誤需於當日完成入庫\n(一單應入庫未入庫，即扣五分)"},
-  {seq:12, cat:"內部流程", sub:"倉庫＆庫存準確度", max:10, unit:5, title:"倉庫擺放標準",
-   desc:"1. 倉庫儲位先後順序符合重點販售品項(及是否遵守倉庫四大POP分類擺放)\n(未符合即扣五分)\n2. 庫存依分類準則擺放且安全無疑慮，賣場商品勿落地\n(未符合即扣五分)"}
+  {seq:10, cat:"內部流程", sub:"倉庫＆庫存準確度", max:5, unit:5, title:"商品驗收入庫",
+   desc:"商品驗收確認無誤需於當日完成入庫，3天內的調撥單完成入庫\n(一單應入庫未入庫，即扣五分)"},
+  {seq:11, cat:"內部流程", sub:"倉庫＆庫存準確度", max:10, unit:5, title:"倉庫擺放標準",
+   desc:"1. 倉庫儲位先後順序符合重點販售品項(及是否遵守倉庫四大POP分類擺放)\n (未符合即扣五分)上衣 /下身各類 有沒有擺放整\n2. 庫存依分類準則擺放且安全無疑慮，賣場商品勿落地 (未符合即扣五分)"}
 ];
 
-// 序7-10：總部評核項目，主管不用打分數，但可以現場記錄狀況備註
+// 序6-9：總部評核項目，主管不用打分數，但可以現場記錄狀況備註
 const HQ_NOTE_ITEMS = [
-  {seq:7, title:"帳務管理", desc:"確認零用金台幣一萬、相關帳務處理流程、訂單流程正確無誤", hasCashCheck:true},
-  {seq:8, title:"會員結帳", desc:"門市當月會員結帳率需達80%"},
-  {seq:9, title:"門市顧客服務體驗", desc:"當月含GOOGLE無顧客抱怨案件成立"},
-  {seq:10, title:"庫存撤貨", desc:"撤貨流程與追蹤瑕疵處理"}
+  {seq:6, title:"帳務管理", desc:"確認零用金台幣一萬、相關帳務處理流程、訂單流程正確無誤", hasCashCheck:true},
+  {seq:7, title:"會員結帳", desc:"門市當月會員結帳率需達80%"},
+  {seq:8, title:"門市顧客服務體驗", desc:"當月含GOOGLE無顧客抱怨案件成立"},
+  {seq:9, title:"庫存撤貨", desc:"撤貨流程與追蹤瑕疵處理"}
 ];
 
 let staged = false;
@@ -449,8 +447,8 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
-  LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
+  API_URL: '',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  LOGIN_PASSWORD: '請設定共用密碼'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
 function checkLoginGate(){
@@ -560,12 +558,12 @@ function buildBreakdownRowsHtml_(record, cashCheck){
   const catPrinted={}, subPrinted={}, weightPrinted={};
 
   return items.map(it=>{
-    const isHq = it.seq>=7 && it.seq<=10;
+    const isHq = it.seq>=6 && it.seq<=9;
     const score = record[`seq${it.seq}_score`];
     const mDisplay = isHq ? '－' : (score!==undefined && score!=='' ? score : it.max);
     let note;
     if(isHq){
-      const cashFlag = (it.seq===7 && cashCheck==='異常') ? '⚠零用金異常　' : '';
+      const cashFlag = (it.seq===6 && cashCheck==='異常') ? '⚠零用金異常　' : '';
       note = cashFlag + (record[`seq${it.seq}_note`] || '－');
     } else {
       note = record[`seq${it.seq}_note`] || '';
@@ -623,13 +621,13 @@ async function loadStoreDashboard(){
     document.getElementById('dashFinalScore').innerHTML = `
       <div style="background:var(--good-bg);border-radius:10px;padding:12px;">
         <b style="color:var(--good-text);font-size:18px;">最終正式分數：${finalRow.finalScore} / 100</b><br>
-        <span style="font-size:12px;color:var(--ink-soft);">評核小計 ${finalRow.manualSubtotal} ＋ 總部四項 ${finalRow.hqSubtotal} － 請假 ${finalRow.leaveDeduct} ＋ 新人加分 ${finalRow.newHireBonus} － 垃圾扣分 ${finalRow.trashDeduct}</span>
+        <span style="font-size:12px;color:var(--ink-soft);">評核小計 ${finalRow.manualSubtotal} ＋ 總部四項 ${finalRow.hqSubtotal} － 請假 ${finalRow.leaveDeduct} ＋ 新人加分 ${finalRow.newHireBonus} ＋ 業績達成 ${finalRow.achievementBonus}</span>
       </div>`;
   } else {
     document.getElementById('dashFinalScore').innerHTML = `
       <div style="background:var(--bad-bg);border-radius:10px;padding:12px;">
         <b style="color:var(--bad-text);">本月尚未完成結算</b><br>
-        <span style="font-size:12px;color:var(--ink-soft);">目前暫時分數（序1-6,11,12合計）：${latest.total} / 75，正式分數需等後台按「確認結算」後才會出現。</span>
+        <span style="font-size:12px;color:var(--ink-soft);">目前暫時分數（序1-5,10,11合計）：${latest.total} / 75，正式分數需等後台按「確認結算」後才會出現。</span>
       </div>`;
   }
 
@@ -701,7 +699,7 @@ function renderItems(){
   let lastCat=null, lastSub=null;
   let hqInserted = false;
   ITEMS.forEach(item=>{
-    if(item.seq===11 && !hqInserted){
+    if(item.seq===10 && !hqInserted){
       const hqHeader = document.createElement('div');
       hqHeader.className = 'cat-title';
       hqHeader.textContent = '總部評核項目（唯讀，僅供現場備註）';
@@ -758,7 +756,7 @@ function renderItems(){
 
 function onCashCheckChange(){
   const sel = document.getElementById('cashCheck');
-  const box = document.getElementById('hqnotebox-7');
+  const box = document.getElementById('hqnotebox-6');
   if(sel.value==='異常'){ box.classList.remove('full'); box.classList.add('deducted'); }
   else{ box.classList.remove('deducted'); box.classList.add('full'); }
 }
@@ -947,7 +945,7 @@ async function openConfirmModal(){
     return;
   }
   if(d.cashCheck==='異常'){
-    const cashNote = (d.hqNotes.find(h=>h.seq===7)||{}).note || '';
+    const cashNote = (d.hqNotes.find(h=>h.seq===6)||{}).note || '';
     if(!cashNote.trim()){ showToast('零用金異常，請填寫序7的備註說明狀況'); return; }
   }
   if(!staged){ showToast('建議先按「暫存」確認內容後再送出'); }
@@ -969,29 +967,28 @@ async function openConfirmModal(){
 }
 function closeConfirmModal(){ document.getElementById('confirmModal').classList.remove('show'); }
 
-// 序7-10為總部評核項目，主管不需填寫，但列印版要跟原本Excel一樣完整呈現12項
+// 序6-9為總部評核項目，主管不需填寫，但列印版要跟Excel一樣完整呈現11項
 const HQ_ITEMS_FOR_PRINT = [
-  {seq:7, cat:"品牌形象與顧客服務", sub:"顧客服務", max:10, title:"帳務管理",
+  {seq:6, cat:"品牌形象與顧客服務", sub:"顧客服務", max:10, title:"帳務管理",
    desc:"確認零用金台幣一萬、相關帳務處理流程、訂單流程正確無誤\n以每月會計提供各門市失誤率為失分紀錄"},
-  {seq:8, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, title:"會員結帳",
+  {seq:7, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, title:"會員結帳",
    desc:"門市當月會員結帳率需達80%\n以總部撈取的門市數據為主，達80%以上即滿分，低於79%則0分"},
-  {seq:9, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, title:"門市顧客服務體驗",
+  {seq:8, cat:"品牌形象與顧客服務", sub:"顧客服務", max:5, title:"門市顧客服務體驗",
    desc:"當月含GOOGLE無顧客抱怨案件成立\n客訴案件成立扣一分，讚美門市或人員加一分(不限加分與扣分底線)"},
-  {seq:10, cat:"內部流程", sub:"倉庫＆庫存準確度", max:5, title:"庫存撤貨",
+  {seq:9, cat:"內部流程", sub:"倉庫＆庫存準確度", max:5, title:"庫存撤貨",
    desc:"撤貨流程與追蹤瑕疵處理\n以倉庫提供次數為主，任一撤貨/瑕疵不符撤貨流程即扣一分(不限加分與扣分底線)"}
 ];
-// 依原本Excel列順序(序1~12)排好，供列印版使用
+// 依Excel列順序(序1~11)排好，供列印版使用；用sort而非固定切割，避免結構調整時對不上
 function getFullOrderedItems_(){
-  return [...ITEMS.slice(0,6), ...HQ_ITEMS_FOR_PRINT, ...ITEMS.slice(6)]
-    .sort((a,b)=>a.seq-b.seq);
+  return [...ITEMS, ...HQ_ITEMS_FOR_PRINT].sort((a,b)=>a.seq-b.seq);
 }
 
 const WEIGHT_GROUPS = [
-  {seqs:[1,2], weight:'30%'},
-  {seqs:[3,4], weight:'15%'},
-  {seqs:[5,6], weight:'15%'},
-  {seqs:[7,8,9], weight:'20%'},
-  {seqs:[10,11,12], weight:'20%'}
+  {seqs:[1], weight:'30%'},
+  {seqs:[2,3], weight:'15%'},
+  {seqs:[4,5], weight:'15%'},
+  {seqs:[6,7,8], weight:'20%'},
+  {seqs:[9,10,11], weight:'20%'}
 ];
 function weightForSeq_(seq){
   const g = WEIGHT_GROUPS.find(g=>g.seqs.includes(seq));
@@ -1015,14 +1012,14 @@ async function buildPrintView(d){
   const catPrinted = {}, subPrinted = {}, weightPrinted = {};
 
   const rowsHtml = items.map(it=>{
-    const isHq = it.seq>=7 && it.seq<=10;
+    const isHq = it.seq>=6 && it.seq<=9;
     const r = scoreMap[it.seq];
     const mDisplay = isHq ? '－' : `${r ? r.score : it.max}`;
     const nDisplay = isHq ? '－' : `${r ? r.score : it.max}`;
     let note;
     if(isHq){
       const hqNote = hqNoteMap[it.seq] || '';
-      const cashFlag = (it.seq===7 && d.cashCheck==='異常') ? '⚠零用金異常　' : '';
+      const cashFlag = (it.seq===6 && d.cashCheck==='異常') ? '⚠零用金異常　' : '';
       note = (cashFlag + hqNote) || '－';
     } else {
       note = (r && r.note) ? r.note : '';
@@ -1094,16 +1091,16 @@ async function buildPrintView(d){
     </table>
     <table style="margin-top:10px;">
       <tr>
-        <td><b>本次巡店暫時得分</b><br>(序1-6,11,12合計)</td><td style="text-align:center;font-size:16px;"><b>${d.total} / 75</b></td>
-        <td><b>總部評核四項(序7-10)</b></td><td style="text-align:center;">月結時計入</td>
-        <td><b>請假/新人/垃圾調整</b></td><td style="text-align:center;">月結時計入</td>
+        <td><b>本次巡店暫時得分</b><br>(序1-5,10,11合計)</td><td style="text-align:center;font-size:16px;"><b>${d.total} / 75</b></td>
+        <td><b>總部評核四項(序6-9)</b></td><td style="text-align:center;">月結時計入</td>
+        <td><b>請假/新人/業績達成調整</b></td><td style="text-align:center;">月結時計入</td>
       </tr>
       <tr>
         ${liveTotalHtml}
         <td colspan="4" style="font-size:11px;color:#666;">此為套用目前總表即時資料試算的參考值，正式成績仍以「確認結算」後為準</td>
       </tr>
     </table>
-    <p style="font-size:9px;color:#666;margin-top:4px;">正式月成績＝(區主管評核+營運後端)/2 之總表現，加計總部四項評核，並套用請假扣分、新人試用期通過加分、垃圾分類扣分後，於月底結算產出，詳見月結歷史查詢。</p>
+    <p style="font-size:9px;color:#666;margin-top:4px;">正式月成績＝(區主管評核+營運後端)/2 之總表現，加計總部四項評核，並套用請假扣分、新人試用期通過加分、業績達成加分後，於月底結算產出，詳見月結歷史查詢。</p>
     <p style="margin-top:14px;font-size:10px;">稽核主管簽核：＿＿＿＿＿＿＿＿　　營運主管/區主管簽核：＿＿＿＿＿＿＿＿</p>
   `;
 }
@@ -1338,7 +1335,7 @@ async function previewSettlement(){
 }
 function renderSettlementTable(rows){
   const table = document.getElementById('settlementTable');
-  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>評核小計</th><th>總部小計</th><th>請假</th><th>新人加分</th><th>垃圾扣分</th><th>正式成績</th></tr>`;
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>評核小計</th><th>總部小計</th><th>請假</th><th>新人加分</th><th>業績達成</th><th>正式成績</th></tr>`;
   rows.forEach(r=>{
     if(!r.hasData){
       html += `<tr><td class="left">${r.code}</td><td class="left">${r.name}</td><td colspan="6" style="color:var(--ink-soft);">本月尚無巡店紀錄或總表資料，暫不列入</td></tr>`;
@@ -1347,7 +1344,7 @@ function renderSettlementTable(rows){
     html += `<tr>
       <td class="left">${r.code}</td><td class="left">${r.name}</td>
       <td>${r.manualSubtotal}</td><td>${r.hqSubtotal}</td>
-      <td>-${r.leaveDeduct}</td><td>+${r.newHireBonus}</td><td>-${r.trashDeduct}</td>
+      <td>-${r.leaveDeduct}</td><td>+${r.newHireBonus}</td><td>+${r.achievementBonus}</td>
       <td><b>${r.finalScore}</b></td>
     </tr>`;
   });

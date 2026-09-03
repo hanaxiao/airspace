@@ -112,6 +112,8 @@
   #printView{display:none;}
   @media print{
     @page{ size: A4; margin: 8mm; }
+    .pdf-page{ page-break-after: always; }
+    .pdf-page:last-child{ page-break-after: auto; }
     body > *{ display:none !important; }
     body > #printView{ display:block !important; }
     #printView table{page-break-inside:avoid;}
@@ -359,6 +361,7 @@
         </div>
       </div>
       <button class="btn primary" style="width:100%;" onclick="loadStoreDashboard()">查詢</button>
+      <button class="btn gold" style="width:100%;margin-top:8px;" onclick="generateAllStoresPdf()">產生本月「全店合併」PDF（一店一頁）</button>
     </div>
 
     <div class="card" id="dashResultCard" style="display:none;">
@@ -499,7 +502,7 @@ function monthLabel(m){
 }
 function initMonthSelect(){
   const now = new Date();
-  const months = ['2026-08','2026-09','2026-10']; // 先只留7,8,9三個月，之後有需要再擴增
+  const months = ['2026-07','2026-08','2026-09']; // 先只留7,8,9三個月，之後有需要再擴增
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   currentMonth = months.includes(thisMonth) ? thisMonth : months[0];
   const sel = document.getElementById('monthSelect');
@@ -665,6 +668,54 @@ function downloadDashboardPdf(){
     </table>
     ${finalHtml}
   `;
+  window.print();
+}
+
+async function generateAllStoresPdf(){
+  const month = document.getElementById('dashMonthSelect').value;
+  if(!backendConnected()){ showToast('尚未接後端，無法產生'); return; }
+  showToast('整理資料中，請稍候...');
+
+  const [inspRes, histRes] = await Promise.all([
+    apiGet('inspections', {month}),
+    apiGet('settlementHistory', {month})
+  ]);
+  const allInsp = (inspRes && inspRes.inspections ? inspRes.inspections : []).filter(r=>r.status==='已送出');
+  const allHist = histRes && histRes.history ? histRes.history : [];
+
+  const pages = [];
+  STORES.forEach(s=>{
+    const rows = allInsp.filter(r=>r.storeCode===s.code);
+    if(!rows.length) return; // 這個月沒有巡店紀錄的店，不放進合併PDF
+    rows.sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
+    const latest = rows[0];
+    const finalRow = allHist.find(h=>h.code===s.code);
+
+    const rowsHtml = buildBreakdownRowsHtml_(latest, latest.cashCheck);
+    const finalHtml = finalRow
+      ? `<h2>最終正式分數：${finalRow.finalScore} / 100</h2>
+         <p style="font-size:11px;color:#666;">評核小計 ${finalRow.manualSubtotal} ＋ 總部四項 ${finalRow.hqSubtotal} － 請假 ${finalRow.leaveDeduct} ＋ 新人加分 ${finalRow.newHireBonus} ＋ 業績達成 ${finalRow.achievementBonus}</p>`
+      : `<h2>暫時分數：${latest.total} / 75</h2>
+         <p style="font-size:11px;color:#666;">本月尚未完成結算。</p>`;
+
+    pages.push(`
+      <div class="pdf-page">
+        <h1 style="text-align:center;">AREA MANAGER DAILY CHECK LIST</h1>
+        <p>門市：${s.code} ${s.name}（${s.region||''}）　月份：${monthLabel(month)}</p>
+        <p>日期：${latest.date||''}　巡店主管：${latest.mgr||'-'}　陳列：${latest.display||'-'}</p>
+        <table>
+          <tr><th>類別</th><th>子項目</th><th>佔比</th><th>序</th><th class="left">項目名稱</th><th>滿分</th><th>得分</th><th class="left">備註</th></tr>
+          ${rowsHtml}
+        </table>
+        ${finalHtml}
+      </div>
+    `);
+  });
+
+  if(!pages.length){ showToast(`${monthLabel(month)}沒有任何店家的巡店紀錄，無法產生`); return; }
+
+  document.getElementById('printView').innerHTML = pages.join('');
+  showToast(`已整理${pages.length}店，準備列印/另存PDF`);
   window.print();
 }
 

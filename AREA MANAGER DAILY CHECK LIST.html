@@ -245,7 +245,7 @@
   <div class="tab-panel" id="tab4">
     <div class="card">
       <h2>⚠ 零用金異常提醒</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">主管巡店時勾選序7零用金「異常」的店家，這裡會列出來並比對總表帳務扣分是否已經處理。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">主管巡店時勾選序6零用金「異常」的店家，這裡會列出來並比對總表帳務扣分是否已經處理。</p>
       <div id="cashAlerts"></div>
     </div>
     <div class="card">
@@ -367,6 +367,7 @@
       <div class="scroll-x">
         <table class="data" id="dashTable"></table>
       </div>
+      <button class="btn primary" style="width:100%;margin-top:12px;" onclick="downloadDashboardPdf()">下載/列印 PDF（一店一頁A4）</button>
     </div>
   </div>
 
@@ -498,7 +499,7 @@ function monthLabel(m){
 }
 function initMonthSelect(){
   const now = new Date();
-  const months = ['2026-07','2026-08','2026-09']; // 先只留7,8,9三個月，之後有需要再擴增
+  const months = ['2026-08','2026-09','2026-10']; // 先只留7,8,9三個月，之後有需要再擴增
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   currentMonth = months.includes(thisMonth) ? thisMonth : months[0];
   const sel = document.getElementById('monthSelect');
@@ -588,6 +589,8 @@ function buildBreakdownRowsHtml_(record, cashCheck){
   }).join('');
 }
 
+let lastDashLatest = null, lastDashFinalRow = null, lastDashStore = null, lastDashMonth = null;
+
 async function loadStoreDashboard(){
   const code = document.getElementById('dashStoreInput').value.trim().toUpperCase();
   const month = document.getElementById('dashMonthSelect').value;
@@ -606,16 +609,20 @@ async function loadStoreDashboard(){
   document.getElementById('dashTitle').textContent = `${code} ${s.name} － ${monthLabel(month)} 稽核紀錄`;
 
   const submitted = (inspRes && inspRes.inspections ? inspRes.inspections : []).filter(r=>r.status==='已送出');
+  lastDashStore = s; lastDashMonth = month;
   if(!submitted.length){
     document.getElementById('dashFinalScore').innerHTML = `<p style="color:var(--ink-soft);">這家店這個月還沒有已送出的巡店紀錄。</p>`;
     document.getElementById('dashTable').innerHTML = '';
+    lastDashLatest = null; lastDashFinalRow = null;
     return;
   }
   submitted.sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
   const latest = submitted[0];
+  lastDashLatest = latest;
 
   const historyRows = histRes && histRes.history ? histRes.history : [];
   const finalRow = historyRows[0];
+  lastDashFinalRow = finalRow || null;
 
   if(finalRow){
     document.getElementById('dashFinalScore').innerHTML = `
@@ -636,6 +643,29 @@ async function loadStoreDashboard(){
     <tr><th>類別</th><th>子項目</th><th>佔比</th><th>序</th><th class="left">項目名稱</th><th>滿分</th><th>得分</th><th class="left">備註</th></tr>
     ${rowsHtml}
   `;
+}
+
+function downloadDashboardPdf(){
+  if(!lastDashLatest || !lastDashStore){ showToast('請先查詢一家店的資料'); return; }
+  const latest = lastDashLatest, finalRow = lastDashFinalRow, s = lastDashStore;
+  const rowsHtml = buildBreakdownRowsHtml_(latest, latest.cashCheck);
+  const finalHtml = finalRow
+    ? `<h2>最終正式分數：${finalRow.finalScore} / 100</h2>
+       <p style="font-size:11px;color:#666;">評核小計 ${finalRow.manualSubtotal} ＋ 總部四項 ${finalRow.hqSubtotal} － 請假 ${finalRow.leaveDeduct} ＋ 新人加分 ${finalRow.newHireBonus} ＋ 業績達成 ${finalRow.achievementBonus}</p>`
+    : `<h2>暫時分數：${latest.total} / 75</h2>
+       <p style="font-size:11px;color:#666;">本月尚未完成結算，正式分數需等後台按「確認結算」後才會出現。</p>`;
+
+  document.getElementById('printView').innerHTML = `
+    <h1 style="text-align:center;">AREA MANAGER DAILY CHECK LIST</h1>
+    <p>門市：${s.code} ${s.name}（${s.region||''}）　月份：${monthLabel(lastDashMonth)}</p>
+    <p>日期：${latest.date||''}　巡店主管：${latest.mgr||'-'}　陳列：${latest.display||'-'}</p>
+    <table>
+      <tr><th>類別</th><th>子項目</th><th>佔比</th><th>序</th><th class="left">項目名稱</th><th>滿分</th><th>得分</th><th class="left">備註</th></tr>
+      ${rowsHtml}
+    </table>
+    ${finalHtml}
+  `;
+  window.print();
 }
 
 function initStoreList(){
@@ -946,7 +976,7 @@ async function openConfirmModal(){
   }
   if(d.cashCheck==='異常'){
     const cashNote = (d.hqNotes.find(h=>h.seq===6)||{}).note || '';
-    if(!cashNote.trim()){ showToast('零用金異常，請填寫序7的備註說明狀況'); return; }
+    if(!cashNote.trim()){ showToast('零用金異常，請填寫序6的備註說明狀況'); return; }
   }
   if(!staged){ showToast('建議先按「暫存」確認內容後再送出'); }
 
@@ -1142,7 +1172,7 @@ function computeHqScores(t){
 }
 function renderHqTable(){
   const table = document.getElementById('hqTable');
-  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>序7 帳務</th><th>序8 會員結帳</th><th>序9 客訴</th><th>序10 撤貨</th><th>四項小計</th></tr>`;
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>序6 帳務</th><th>序7 會員結帳</th><th>序8 客訴</th><th>序9 撤貨</th><th>四項小計</th></tr>`;
   STORES.forEach(s=>{
     const t = TOTALS.find(x=>x.code===s.code);
     if(!t){ html += `<tr><td class="left">${s.code}</td><td class="left">${s.name}</td><td colspan="5">尚無總表資料</td></tr>`; return; }

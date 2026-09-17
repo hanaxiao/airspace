@@ -452,7 +452,7 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
   LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
@@ -685,7 +685,8 @@ async function downloadAllStoresExcel(){
   showToast('整理資料並產生Excel中，請稍候（店數較多可能需要幾秒）...');
 
   const r = await apiPost('exportAllStoresExcel', {month});
-  if(!r || !r.base64){ showToast('產生失敗，請確認後端連線'); return; }
+  if(!r){ showToast('產生失敗，請確認後端連線'); return; }
+  if(r.empty || !r.base64){ showToast(`${monthLabel(month)}沒有任何店家的巡店紀錄，無法產生`); return; }
 
   try{
     const byteChars = atob(r.base64);

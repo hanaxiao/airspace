@@ -684,8 +684,20 @@ async function downloadAllStoresExcel(){
   if(!backendConnected()){ showToast('尚未接後端，無法產生'); return; }
   showToast('整理資料並產生Excel中，請稍候（店數較多可能需要幾秒）...');
 
-  const r = await apiPost('exportAllStoresExcel', {month});
-  if(!r){ showToast('產生失敗，請確認後端連線'); return; }
+  let r;
+  try{
+    const res = await fetch(CONFIG.API_URL, { method:'POST', body: JSON.stringify({action:'exportAllStoresExcel', data:{month}}) });
+    r = await res.json();
+  }catch(e){
+    console.error('exportAllStoresExcel request failed', e);
+    showToast('連線失敗，請確認網路或後端網址設定');
+    return;
+  }
+  if(!r || !r.ok){
+    console.error('exportAllStoresExcel error:', r ? r.error : '(no response)');
+    showToast(`產生失敗：${r && r.error ? r.error : '未知錯誤，請看Console'}`);
+    return;
+  }
   if(r.empty || !r.base64){ showToast(`${monthLabel(month)}沒有任何店家的巡店紀錄，無法產生`); return; }
 
   try{

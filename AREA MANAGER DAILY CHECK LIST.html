@@ -362,7 +362,7 @@
         </div>
       </div>
       <button class="btn primary" style="width:100%;" onclick="loadStoreDashboard()">查詢</button>
-      <button class="btn gold" style="width:100%;margin-top:8px;" onclick="generateAllStoresPdf()">產生本月「全店合併」PDF（一店一頁）</button>
+      <button class="btn gold" style="width:100%;margin-top:8px;" onclick="downloadAllStoresExcel()">下載本月「全店合併」Excel（可另存新檔）</button>
     </div>
 
     <div class="card" id="dashResultCard" style="display:none;">
@@ -452,8 +452,8 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
-  LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
+  API_URL: '',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  LOGIN_PASSWORD: '請設定共用密碼'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
 function checkLoginGate(){
@@ -603,9 +603,10 @@ async function loadStoreDashboard(){
   if(!s){ showToast('查無此店代號'); return; }
   if(!backendConnected()){ showToast('尚未連接後端，無法查詢歷史資料'); return; }
 
-  const [inspRes, histRes] = await Promise.all([
+  const [inspRes, histRes, liveRes] = await Promise.all([
     apiGet('inspections', {month, store: code}),
-    apiGet('settlementHistory', {month, store: code})
+    apiGet('settlementHistory', {month, store: code}),
+    apiGet('settlement', {month})
   ]);
 
   const card = document.getElementById('dashResultCard');
@@ -625,20 +626,26 @@ async function loadStoreDashboard(){
   lastDashLatest = latest;
 
   const historyRows = histRes && histRes.history ? histRes.history : [];
-  const finalRow = historyRows[0];
+  const confirmedRow = historyRows[0];
+  const liveRow = (liveRes && liveRes.settlement) ? liveRes.settlement.find(x=>x.code===code) : null;
+  // 優先用「已確認結算」的封存資料；沒有的話改用「即時試算」(總表填好就會有數字，不用等按確認結算)
+  const finalRow = confirmedRow || (liveRow && liveRow.hasData ? liveRow : null);
   lastDashFinalRow = finalRow || null;
 
   if(finalRow){
+    const tag = confirmedRow ? '最終正式分數' : '即時試算分數(尚未按確認結算)';
+    const boxColor = confirmedRow ? 'var(--good-bg)' : 'var(--brand-soft)';
+    const textColor = confirmedRow ? 'var(--good-text)' : 'var(--brand)';
     document.getElementById('dashFinalScore').innerHTML = `
-      <div style="background:var(--good-bg);border-radius:10px;padding:12px;">
-        <b style="color:var(--good-text);font-size:18px;">最終正式分數：${finalRow.finalScore} / 100</b><br>
+      <div style="background:${boxColor};border-radius:10px;padding:12px;">
+        <b style="color:${textColor};font-size:18px;">${tag}：${finalRow.finalScore} / 100</b><br>
         <span style="font-size:12px;color:var(--ink-soft);">評核小計 ${finalRow.manualSubtotal} ＋ 總部四項 ${finalRow.hqSubtotal} － 請假 ${finalRow.leaveDeduct} ＋ 新人加分 ${finalRow.newHireBonus} ＋ 業績達成 ${finalRow.achievementBonus}</span>
       </div>`;
   } else {
     document.getElementById('dashFinalScore').innerHTML = `
       <div style="background:var(--bad-bg);border-radius:10px;padding:12px;">
-        <b style="color:var(--bad-text);">本月尚未完成結算</b><br>
-        <span style="font-size:12px;color:var(--ink-soft);">目前暫時分數（序1-5,10,11合計）：${latest.total} / 75，正式分數需等後台按「確認結算」後才會出現。</span>
+        <b style="color:var(--bad-text);">總表資料尚未齊全</b><br>
+        <span style="font-size:12px;color:var(--ink-soft);">目前暫時分數（序1-5,10,11合計）：${latest.total} / 75，需要先填好本月「總表」分頁的資料才能算出總分。</span>
       </div>`;
   }
 
@@ -672,52 +679,33 @@ function downloadDashboardPdf(){
   window.print();
 }
 
-async function generateAllStoresPdf(){
+async function downloadAllStoresExcel(){
   const month = document.getElementById('dashMonthSelect').value;
   if(!backendConnected()){ showToast('尚未接後端，無法產生'); return; }
-  showToast('整理資料中，請稍候...');
+  showToast('整理資料並產生Excel中，請稍候（店數較多可能需要幾秒）...');
 
-  const [inspRes, histRes] = await Promise.all([
-    apiGet('inspections', {month}),
-    apiGet('settlementHistory', {month})
-  ]);
-  const allInsp = (inspRes && inspRes.inspections ? inspRes.inspections : []).filter(r=>r.status==='已送出');
-  const allHist = histRes && histRes.history ? histRes.history : [];
+  const r = await apiPost('exportAllStoresExcel', {month});
+  if(!r || !r.base64){ showToast('產生失敗，請確認後端連線'); return; }
 
-  const pages = [];
-  STORES.forEach(s=>{
-    const rows = allInsp.filter(r=>r.storeCode===s.code);
-    if(!rows.length) return; // 這個月沒有巡店紀錄的店，不放進合併PDF
-    rows.sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
-    const latest = rows[0];
-    const finalRow = allHist.find(h=>h.code===s.code);
-
-    const rowsHtml = buildBreakdownRowsHtml_(latest, latest.cashCheck);
-    const finalHtml = finalRow
-      ? `<h2>最終正式分數：${finalRow.finalScore} / 100</h2>
-         <p style="font-size:11px;color:#666;">評核小計 ${finalRow.manualSubtotal} ＋ 總部四項 ${finalRow.hqSubtotal} － 請假 ${finalRow.leaveDeduct} ＋ 新人加分 ${finalRow.newHireBonus} ＋ 業績達成 ${finalRow.achievementBonus}</p>`
-      : `<h2>暫時分數：${latest.total} / 75</h2>
-         <p style="font-size:11px;color:#666;">本月尚未完成結算。</p>`;
-
-    pages.push(`
-      <div class="pdf-page">
-        <h1 style="text-align:center;">AREA MANAGER DAILY CHECK LIST</h1>
-        <p>門市：${s.code} ${s.name}（${s.region||''}）　月份：${monthLabel(month)}</p>
-        <p>日期：${latest.date||''}　巡店主管：${latest.mgr||'-'}　陳列：${latest.display||'-'}</p>
-        <table>
-          <tr><th>類別</th><th>子項目</th><th>佔比</th><th>序</th><th class="left">項目名稱</th><th>滿分</th><th>得分</th><th class="left">備註</th></tr>
-          ${rowsHtml}
-        </table>
-        ${finalHtml}
-      </div>
-    `);
-  });
-
-  if(!pages.length){ showToast(`${monthLabel(month)}沒有任何店家的巡店紀錄，無法產生`); return; }
-
-  document.getElementById('printView').innerHTML = pages.join('');
-  showToast(`已整理${pages.length}店，準備列印/另存PDF`);
-  window.print();
+  try{
+    const byteChars = atob(r.base64);
+    const byteNumbers = new Array(byteChars.length);
+    for(let i=0; i<byteChars.length; i++){ byteNumbers[i] = byteChars.charCodeAt(i); }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = r.filename || `巡店月結明細-${monthLabel(month)}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`已下載：${r.filename}`);
+  }catch(e){
+    console.error(e);
+    showToast('下載檔案時發生錯誤，請確認瀏覽器允許下載');
+  }
 }
 
 function initStoreList(){

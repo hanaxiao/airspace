@@ -362,7 +362,16 @@
         </div>
       </div>
       <button class="btn primary" style="width:100%;" onclick="loadStoreDashboard()">查詢</button>
+      <button class="btn gold" style="width:100%;margin-top:8px;" onclick="loadOverview()">看本月「全店總覽」（一眼確認全部分數）</button>
       <button class="btn gold" style="width:100%;margin-top:8px;" onclick="downloadAllStoresExcel()">下載本月「全店合併」Excel（可另存新檔）</button>
+    </div>
+
+    <div class="card" id="overviewCard" style="display:none;">
+      <h2>本月全店總覽</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">達成率不到80%的店會用紅字標示，方便快速抓出需要留意的店家。</p>
+      <div class="scroll-x">
+        <table class="data" id="overviewTable"></table>
+      </div>
     </div>
 
     <div class="card" id="dashResultCard" style="display:none;">
@@ -452,7 +461,7 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',
   LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
@@ -677,6 +686,50 @@ function downloadDashboardPdf(){
     ${finalHtml}
   `;
   window.print();
+}
+
+async function loadOverview(){
+  const month = document.getElementById('dashMonthSelect').value;
+  if(!backendConnected()){ showToast('尚未接後端，無法查詢'); return; }
+  showToast('整理全店資料中...');
+
+  await refreshTotalsForMonth(month); // 確保TOTALS是這個月的資料，不是目前currentMonth
+  const settleRes = await apiGet('settlement', {month});
+  const settleMap = {};
+  (settleRes && settleRes.settlement ? settleRes.settlement : []).forEach(r=>{ settleMap[r.code] = r; });
+
+  document.getElementById('overviewCard').style.display = 'block';
+  const table = document.getElementById('overviewTable');
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區</th><th>轄區負責人</th>
+    <th>最終分數</th><th>評核小計</th><th>總部小計</th><th>帳務</th><th>客訴</th><th>撤貨</th><th>請假</th>
+    <th>會員結帳率</th><th>達成率</th><th>達成加分</th></tr>`;
+
+  STORES.forEach(s=>{
+    const t = TOTALS.find(x=>x.code===s.code);
+    const settle = settleMap[s.code];
+    const settled = settle && settle.hasData;
+    const rate = t && typeof t.achievementRate==='number' ? t.achievementRate : null;
+    const rateDisp = rate!==null ? (rate*100).toFixed(1)+'%' : '-';
+    const memberDisp = (t && typeof t.member_rate==='number') ? (t.member_rate*100).toFixed(1)+'%' : '-';
+    const rateStyle = (rate!==null && rate<0.8) ? 'color:var(--bad-text);font-weight:700;' : '';
+    const finalStyle = settled ? 'color:var(--good-text);font-weight:700;' : 'color:var(--bad-text);';
+
+    html += `<tr>
+      <td class="left">${s.code}</td><td class="left">${s.name}</td><td>${s.region||''}</td><td>${s.mgr||''}</td>
+      <td style="${finalStyle}">${settled ? settle.finalScore : '-'}</td>
+      <td>${settle ? settle.manualSubtotal : '-'}</td>
+      <td>${settle ? settle.hqSubtotal : '-'}</td>
+      <td>${t ? (t.acct||0) : '-'}</td>
+      <td>${t ? (t.complaint||0) : '-'}</td>
+      <td>${t ? (t.return||0) : '-'}</td>
+      <td>${t ? (t.leave||0) : '-'}</td>
+      <td>${memberDisp}</td>
+      <td style="${rateStyle}">${rateDisp}</td>
+      <td>${settle ? '+'+settle.achievementBonus : '-'}</td>
+    </tr>`;
+  });
+  table.innerHTML = html;
+  showToast('已更新全店總覽');
 }
 
 async function downloadAllStoresExcel(){

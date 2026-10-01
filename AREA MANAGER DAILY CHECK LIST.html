@@ -512,7 +512,7 @@ function monthLabel(m){
 }
 function initMonthSelect(){
   const now = new Date();
-  const months = ['2026-07','2026-08','2026-09']; // 先只留7,8,9三個月，之後有需要再擴增
+  const months = ['2026-10','2026-11','2026-12']; // 從10月開始，之後有需要再擴增
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   currentMonth = months.includes(thisMonth) ? thisMonth : months[0];
   const sel = document.getElementById('monthSelect');
@@ -557,7 +557,7 @@ async function switchTab(id){
 function initDashMonthSelect(){
   const sel = document.getElementById('dashMonthSelect');
   if(sel.options.length) return; // 已經初始化過
-  const months = ['2026-07','2026-08','2026-09'];
+  const months = ['2026-10','2026-11','2026-12'];
   sel.innerHTML = months.map(m=>`<option value="${m}" ${m===currentMonth?'selected':''}>${monthLabel(m)}</option>`).join('');
 }
 
@@ -1565,8 +1565,14 @@ function renderMaintTab(){
 
   document.getElementById('storeCountLabel').textContent = STORES.length;
   renderStoreEditTable();
-  document.getElementById('mgrListLabel').textContent = MANAGERS.join('、');
-  document.getElementById('displayListLabel').textContent = DISPLAY_STAFF.join('、');
+  document.getElementById('mgrListLabel').innerHTML = MANAGERS.map(m=>
+    `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--brand-soft);color:var(--brand);border-radius:12px;padding:3px 8px;margin:2px 4px 2px 0;font-size:12px;">
+      ${m}<span style="cursor:pointer;font-weight:700;color:var(--bad-text);" onclick="removeManager('${m}')">✕</span>
+    </span>`).join('');
+  document.getElementById('displayListLabel').innerHTML = DISPLAY_STAFF.map(m=>
+    `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--brand-soft);color:var(--brand);border-radius:12px;padding:3px 8px;margin:2px 4px 2px 0;font-size:12px;">
+      ${m}<span style="cursor:pointer;font-weight:700;color:var(--bad-text);" onclick="removeDisplayStaff('${m}')">✕</span>
+    </span>`).join('');
 }
 
 function renderStoreEditTable(){
@@ -1657,6 +1663,23 @@ async function addDisplayStaff(){
   await persist('display-list', DISPLAY_STAFF);
   document.getElementById('newDisplayName').value='';
   showToast(`已新增陳列夥伴：${name}`);
+  initDisplaySelect(); renderMaintTab();
+}
+
+async function removeManager(name){
+  if(!confirm(`確定要刪除主管「${name}」嗎？`)) return;
+  MANAGERS = MANAGERS.filter(m=>m!==name);
+  if(backendConnected()){ await apiPost('removeManager', {name}); }
+  await persist('managers-list', MANAGERS);
+  showToast(`已刪除主管：${name}`);
+  initMgrSelect(); renderMaintTab();
+}
+async function removeDisplayStaff(name){
+  if(!confirm(`確定要刪除陳列夥伴「${name}」嗎？`)) return;
+  DISPLAY_STAFF = DISPLAY_STAFF.filter(m=>m!==name);
+  if(backendConnected()){ await apiPost('removeDisplayStaff', {name}); }
+  await persist('display-list', DISPLAY_STAFF);
+  showToast(`已刪除陳列夥伴：${name}`);
   initDisplaySelect(); renderMaintTab();
 }
 

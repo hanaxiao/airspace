@@ -1648,7 +1648,7 @@ async function addManager(){
   showToast(`已新增主管：${name}`);
   initMgrSelect(); renderMaintTab();
 }
-async function addDisplayStaff()
+async function addDisplayStaff(){
   const name = document.getElementById('newDisplayName').value.trim();
   if(!name){ return; }
   if(DISPLAY_STAFF.includes(name)){ showToast('此陳列夥伴已在名單中'); return; }

@@ -79,9 +79,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;back
 .pivot-table tr:hover td{background:#fafafa}
 .pivot-table tr:hover td.sticky-col{background:#f5f5f5}
 .pivot-table td.total-td{font-weight:800;background:#f8f8f8;border-left:2px solid #ddd}
-.pivot-table td.top1{background:#FFE082;font-weight:800;color:#5d3a00}
-.pivot-table td.top2{background:#FFF176;font-weight:700;color:#4a3600}
-.pivot-table td.top3{background:#FFFDE7;font-weight:600}
+.pivot-table td.top1{background:#C8E6C9;font-weight:800;color:#1b5e20}
+.pivot-table td.top2{background:#FFF9C4;font-weight:700;color:#5d3a00}
+.pivot-table td.top3{background:#FFCDD2;font-weight:600;color:#b71c1c}
 .pivot-table td.mystore-td{outline:2px solid #d32f2f;outline-offset:-2px;color:#d32f2f;font-weight:800}
 .pivot-table td.zero{color:#ddd}
 .pivot-footer{background:#f8f8f8;font-weight:700}
@@ -241,7 +241,7 @@ function init(){
   });
 
   // 固定分頁：AI摘要 / 各店比較 / 總覽
-  ['AI摘要|SUMMARY','各店比較|COMPARE','總覽|OVERVIEW'].forEach(item=>{
+  ['AI摘要|SUMMARY','各店比較|COMPARE','總覽|OVERVIEW','區域銷售|REGION'].forEach(item=>{
     const [label,id]=item.split('|');
     const btn=document.createElement('button');
     btn.className='tab-btn';
@@ -394,7 +394,7 @@ function renderCompare(){
     const top1=sorted3[0],top2=sorted3[1],top3=sorted3[2];
 
     h+=`<tr>
-      <td class="sticky-col">${brand==='ALL'?`<span style="font-size:9px;background:#eee;padding:1px 4px;border-radius:3px;margin-right:3px">${p.brand}</span>`:''}${p.sku}<br><span style="font-size:9px;color:#aaa;font-weight:400">${p.name.substring(0,12)}...</span></td>`;
+      <td class="sticky-col"><div style="display:flex;align-items:center;gap:5px"><img src="${p.image_url||('images/'+p.product_id+'.jpg')}" style="width:32px;height:45px;object-fit:cover;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'" alt=""><div>${brand==='ALL'?`<span style="font-size:9px;background:#eee;padding:1px 4px;border-radius:3px;margin-right:3px">${p.brand}</span>`:''}${p.sku}<br><span style="font-size:9px;color:#aaa;font-weight:400">${p.name.substring(0,12)}...</span></div></div></td>`;
 
     storeCodes.forEach((code,i)=>{
       const v=vals[i];
@@ -468,6 +468,7 @@ function renderOverview(){
           <th>全台庫存</th>
           <th>全台周轉</th>
           <th class="store-col">本店銷售</th>
+          <th class="store-col">本店庫存</th>
           <th class="store-col">本店周轉</th>
         </tr></thead>
         <tbody>`;
@@ -485,6 +486,7 @@ function renderOverview(){
         <td>${p.inventory}</td>
         <td class="ov-rate">${turnover(p.total_sales,p.inventory)}</td>
         <td class="ov-store-val">${ms||'–'}</td>
+        <td class="ov-store-val">${p.store_inventory?.[currentStore]||0}</td>
         <td class="ov-rate">${ms>0?turnover(ms,(p.store_inventory?.[currentStore]||p.inventory)):'–'}</td>
       </tr>`;
     });
@@ -597,12 +599,102 @@ function renderSummary(){
   el.innerHTML=h;
 }
 
+/* ── 區域銷售 ── */
+const STORE_REGION = {
+  'AS04':'北二','AS05':'北二','AS07':'北五','AS10':'北二','AS12':'北五',
+  'AS15':'中一','AS17':'中一','AS24':'北一','AS25':'中一','AS29':'中一',
+  'AS34':'南區','AS35':'桃竹','AS37':'北二','AS38':'南區','AS40':'北一',
+  'AS44':'中一','AS45':'南區','AS46':'南區','AS49':'北五','AS51':'桃竹',
+  'AS57':'北一','AS59':'南區','AS61':'北二','AS62':'北一','AS63':'桃竹',
+  'AS64':'南區','AS66':'中一','AS68':'北五','AS69':'中一','AS70':'北二',
+  'AS71':'北一','AS72':'北二','AS73':'北二','AS77':'北二','AS79':'南區',
+  'AS81':'南區','AS82':'南區','AS83':'南區','AS84':'南區','AS85':'南區',
+  'AS86':'北二','AS88':'北一','AS89':'桃竹','AS92':'北二','AS93':'南區',
+  'AS95':'桃竹','AS96':'桃竹','AS97':'南區',
+  'AT02':'北一','AT04':'桃竹','AT05':'南區','AT07':'中一','AT08':'南區',
+  'AT10':'南區','AT11':'中一','AT12':'北二','AT13':'南區','AT14':'南區'
+};
+const REGION_ORDER = ['北一','北二','北五','桃竹','中一','南區'];
+
+function renderRegion(){
+  const el = document.getElementById('tab-REGION');
+  const allProds = BRANDS.flatMap(b=>(DATA.products[b]||[]).map(p=>({...p,brand:b})));
+
+  // 計算各區域 × 各支線 銷售
+  const regionBrandSales = {};
+  const regionTotal = {};
+  REGION_ORDER.forEach(r=>{ regionBrandSales[r]={}; regionTotal[r]=0; BRANDS.forEach(b=>{ regionBrandSales[r][b]=0; }); });
+
+  allProds.forEach(p=>{
+    Object.entries(p.store_sales||{}).forEach(([store, qty])=>{
+      const region = STORE_REGION[store];
+      if(!region||!regionBrandSales[region]) return;
+      regionBrandSales[region][p.brand] = (regionBrandSales[region][p.brand]||0) + qty;
+      regionTotal[region] = (regionTotal[region]||0) + qty;
+    });
+  });
+
+  const grandTotal = Object.values(regionTotal).reduce((s,v)=>s+v,0);
+
+  // 摘要 chips
+  let h = `<div style="margin-top:8px"><div class="chips">`;
+  REGION_ORDER.forEach(r=>{
+    h+=`<div class="chip"><div class="v">${regionTotal[r]||0}</div><div class="l">${r}</div></div>`;
+  });
+  h+=`</div>`;
+
+  // 各區域明細表
+  h+=`<div class="pivot-outer"><table class="pivot-table" style="min-width:100%">
+    <thead><tr>
+      <th class="sticky-col" style="min-width:60px">區域</th>`;
+  BRANDS.forEach(b=>{ h+=`<th>${b}</th>`; });
+  h+=`<th class="total-th">合計</th></tr></thead><tbody>`;
+
+  REGION_ORDER.forEach(r=>{
+    const rowTotal = regionTotal[r]||0;
+    h+=`<tr><td class="sticky-col" style="font-weight:800">${r}</td>`;
+    BRANDS.forEach(b=>{
+      const v = regionBrandSales[r][b]||0;
+      h+=`<td>${v||'–'}</td>`;
+    });
+    h+=`<td class="total-td">${rowTotal||'–'}</td></tr>`;
+
+    // 各區域門市明細
+    const storesInRegion = DATA.stores.filter(s=>STORE_REGION[s.code]===r);
+    storesInRegion.forEach(s=>{
+      const isMine = s.code===currentStore;
+      h+=`<tr style="background:#fafafa;${isMine?'outline:2px solid #d32f2f;':''}">
+        <td class="sticky-col" style="font-size:10px;font-weight:400;color:#555;padding-left:14px">${s.code}<span style="color:#aaa;margin-left:3px">${s.name!==s.code?s.name:''}</span></td>`;
+      BRANDS.forEach(b=>{
+        const bProds = DATA.products[b]||[];
+        const storeSales = bProds.reduce((sum,p)=>sum+(p.store_sales?.[s.code]||0),0);
+        h+=`<td style="font-size:11px;color:#555">${storeSales||'–'}</td>`;
+      });
+      const storeTotal = BRANDS.reduce((sum,b)=>{
+        return sum+(DATA.products[b]||[]).reduce((s2,p)=>s2+(p.store_sales?.[s.code]||0),0);
+      },0);
+      h+=`<td class="total-td" style="font-size:11px">${storeTotal||'–'}</td></tr>`;
+    });
+  });
+
+  h+=`<tr class="pivot-footer"><td class="sticky-col">總計</td>`;
+  BRANDS.forEach(b=>{
+    const bTotal = allProds.filter(p=>p.brand===b).reduce((s,p)=>s+p.total_sales,0);
+    h+=`<td>${bTotal||'–'}</td>`;
+  });
+  h+=`<td class="total-td">${grandTotal}</td></tr>`;
+  h+=`</tbody></table></div></div>`;
+
+  el.innerHTML=h;
+}
+
 function renderAll(){
   if(!DATA) return;
   BRANDS.forEach(b=>renderBrand(b));
   renderSummary();
   renderCompare();
   renderOverview();
+  renderRegion();
 }
 
 loadData();

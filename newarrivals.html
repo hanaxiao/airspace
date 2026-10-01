@@ -615,76 +615,132 @@ const STORE_REGION = {
   'AT10':'南區','AT11':'中一','AT12':'北二','AT13':'南區','AT14':'南區'
 };
 const REGION_ORDER = ['北一','北二','北五','桃竹','中一','南區'];
+const STORE_MGR = {
+  'AS04':'樺樺','AS05':'樺樺','AS07':'RIISA','AS10':'LULU','AS12':'RIISA',
+  'AS15':'ZOE','AS17':'ZOE','AS24':'含含','AS25':'ZOE','AS29':'ZOE',
+  'AS34':'姚','AS35':'Cindy','AS37':'樺樺','AS38':'姚','AS40':'含含',
+  'AS44':'ZOE','AS45':'姚','AS46':'LILY','AS49':'RIISA','AS51':'Cindy',
+  'AS57':'含含','AS59':'姚','AS61':'律廷','AS62':'含含','AS63':'Cindy',
+  'AS64':'姚','AS66':'ZOE','AS68':'RIISA','AS69':'ZOE','AS70':'律廷',
+  'AS71':'樺樺','AS72':'LULU','AS73':'LULU','AS77':'樺樺','AS79':'姚',
+  'AS81':'姚','AS82':'姚','AS83':'姚','AS84':'LILY','AS85':'姚',
+  'AS86':'LULU','AS88':'律廷','AS89':'Cindy','AS92':'LULU','AS93':'LILY',
+  'AS95':'Cindy','AS96':'Cindy','AS97':'LILY',
+  'AT02':'律廷','AT04':'Cindy','AT05':'姚','AT07':'ZOE','AT08':'姚',
+  'AT10':'姚','AT11':'ZOE','AT12':'LULU','AT13':'姚','AT14':'姚'
+};
+const MGR_ORDER = ['含含','樺樺','律廷','LULU','RIISA','Cindy','ZOE','姚','LILY'];
+const STORE_TYPE = {
+  'AS04':'街邊店','AS05':'街邊店','AS07':'街邊店','AS10':'街邊店','AS12':'街邊店',
+  'AS15':'街邊店','AS17':'街邊店','AS24':'街邊店','AS25':'街邊店','AS29':'街邊店',
+  'AS34':'百貨店','AS35':'百貨店','AS37':'百貨店','AS38':'百貨店','AS40':'街邊店',
+  'AS44':'百貨店','AS45':'百貨店','AS46':'百貨店','AS49':'街邊店','AS51':'百貨店',
+  'AS57':'街邊店','AS59':'百貨店','AS61':'街邊店','AS62':'街邊店','AS63':'百貨店',
+  'AS64':'百貨店','AS66':'百貨店','AS68':'百貨店','AS69':'百貨店','AS70':'街邊店',
+  'AS71':'百貨店','AS72':'百貨店','AS73':'百貨店','AS77':'街邊店','AS79':'百貨店',
+  'AS81':'百貨店','AS82':'百貨店','AS83':'百貨店','AS84':'百貨店','AS85':'百貨店',
+  'AS86':'百貨店','AS88':'街邊店','AS89':'百貨店','AS92':'百貨店','AS93':'街邊店',
+  'AS95':'百貨店','AS96':'百貨店','AS97':'百貨店',
+  'AT02':'百貨店','AT04':'百貨店','AT05':'百貨店','AT07':'百貨店','AT08':'百貨店',
+  'AT10':'百貨店','AT11':'街邊店','AT12':'百貨店','AT13':'百貨店','AT14':'百貨店'
+};
+
+let regionFilter='', mgrFilter='', typeFilter='', storeFilter='';
 
 function renderRegion(){
   const el = document.getElementById('tab-REGION');
   const allProds = BRANDS.flatMap(b=>(DATA.products[b]||[]).map(p=>({...p,brand:b})));
 
-  // 計算各區域 × 各支線 銷售
-  const regionBrandSales = {};
-  const regionTotal = {};
-  REGION_ORDER.forEach(r=>{ regionBrandSales[r]={}; regionTotal[r]=0; BRANDS.forEach(b=>{ regionBrandSales[r][b]=0; }); });
+  // 篩選門市
+  function storePass(code){
+    if(typeFilter && STORE_TYPE[code]!==typeFilter) return false;
+    if(regionFilter && STORE_REGION[code]!==regionFilter) return false;
+    if(mgrFilter && STORE_MGR[code]!==mgrFilter) return false;
+    if(storeFilter && code!==storeFilter) return false;
+    return true;
+  }
 
+  // 決定顯示的區域
+  let visibleRegions = REGION_ORDER.filter(r=>
+    DATA.stores.some(s=>STORE_REGION[s.code]===r && storePass(s.code))
+  );
+
+  // 計算銷售（只算通過篩選的門市）
+  const regionBrandSales={}, regionTotal={};
+  REGION_ORDER.forEach(r=>{ regionBrandSales[r]={}; regionTotal[r]=0; BRANDS.forEach(b=>{ regionBrandSales[r][b]=0; }); });
   allProds.forEach(p=>{
     Object.entries(p.store_sales||{}).forEach(([store, qty])=>{
-      const region = STORE_REGION[store];
-      if(!region||!regionBrandSales[region]) return;
-      regionBrandSales[region][p.brand] = (regionBrandSales[region][p.brand]||0) + qty;
-      regionTotal[region] = (regionTotal[region]||0) + qty;
+      const r=STORE_REGION[store];
+      if(!r||!storePass(store)) return;
+      regionBrandSales[r][p.brand]=(regionBrandSales[r][p.brand]||0)+qty;
+      regionTotal[r]=(regionTotal[r]||0)+qty;
     });
   });
+  const grandTotal=visibleRegions.reduce((s,r)=>s+(regionTotal[r]||0),0);
 
-  const grandTotal = Object.values(regionTotal).reduce((s,v)=>s+v,0);
+  // 下拉選項
+  const typeOpts=['<option value="">全部型態</option>',
+    ...['街邊店','百貨店'].map(t=>`<option value="${t}" ${typeFilter===t?'selected':''}>${t}</option>`)].join('');
+  const regionOpts=['<option value="">全部區域</option>',
+    ...REGION_ORDER.map(r=>`<option value="${r}" ${regionFilter===r?'selected':''}>${r}</option>`)].join('');
+  const mgrOpts=['<option value="">全部主管</option>',
+    ...MGR_ORDER.map(m=>`<option value="${m}" ${mgrFilter===m?'selected':''}>${m}</option>`)].join('');
+  const storeOpts=['<option value="">全部門市</option>',
+    ...DATA.stores.map(s=>`<option value="${s.code}" ${storeFilter===s.code?'selected':''}>${s.code}${s.name!==s.code?' '+s.name:''}</option>`)].join('');
 
-  // 摘要 chips
-  let h = `<div style="margin-top:8px"><div class="chips">`;
-  REGION_ORDER.forEach(r=>{
+  let h=`<div style="margin-top:8px">
+    <div class="filter-row" style="flex-wrap:wrap;gap:6px">
+      <select class="brand-sel" style="flex:1;min-width:90px" onchange="typeFilter=this.value;storeFilter='';renderRegion()">${typeOpts}</select>
+      <select class="brand-sel" style="flex:1;min-width:90px" onchange="regionFilter=this.value;storeFilter='';renderRegion()">${regionOpts}</select>
+      <select class="brand-sel" style="flex:1;min-width:90px" onchange="mgrFilter=this.value;storeFilter='';renderRegion()">${mgrOpts}</select>
+      <select class="brand-sel" style="flex:1;min-width:110px" onchange="storeFilter=this.value;typeFilter='';regionFilter='';mgrFilter='';renderRegion()">${storeOpts}</select>
+    </div>`;
+
+  // chips
+  h+=`<div class="chips">`;
+  visibleRegions.forEach(r=>{
     h+=`<div class="chip"><div class="v">${regionTotal[r]||0}</div><div class="l">${r}</div></div>`;
   });
   h+=`</div>`;
 
-  // 各區域明細表
+  // 表格
   h+=`<div class="pivot-outer"><table class="pivot-table" style="min-width:100%">
-    <thead><tr>
-      <th class="sticky-col" style="min-width:60px">區域</th>`;
+    <thead><tr><th class="sticky-col" style="min-width:100px">門市</th>`;
   BRANDS.forEach(b=>{ h+=`<th>${b}</th>`; });
   h+=`<th class="total-th">合計</th></tr></thead><tbody>`;
 
-  REGION_ORDER.forEach(r=>{
-    const rowTotal = regionTotal[r]||0;
-    h+=`<tr><td class="sticky-col" style="font-weight:800">${r}</td>`;
-    BRANDS.forEach(b=>{
-      const v = regionBrandSales[r][b]||0;
-      h+=`<td>${v||'–'}</td>`;
-    });
-    h+=`<td class="total-td">${rowTotal||'–'}</td></tr>`;
+  visibleRegions.forEach(r=>{
+    const rowTotal=regionTotal[r]||0;
+    // 區域小標題列
+    h+=`<tr><td class="sticky-col" style="font-weight:800;background:#f0f0f0;font-size:11px">${r}</td>`;
+    BRANDS.forEach(b=>{ const v=regionBrandSales[r][b]||0; h+=`<td style="background:#f0f0f0;font-weight:700">${v||'–'}</td>`; });
+    h+=`<td class="total-td" style="background:#f0f0f0">${rowTotal||'–'}</td></tr>`;
 
-    // 各區域門市明細
-    const storesInRegion = DATA.stores.filter(s=>STORE_REGION[s.code]===r);
-    storesInRegion.forEach(s=>{
-      const isMine = s.code===currentStore;
-      h+=`<tr style="background:#fafafa;${isMine?'outline:2px solid #d32f2f;':''}">
-        <td class="sticky-col" style="font-size:10px;font-weight:400;color:#555;padding-left:14px">${s.code}<span style="color:#aaa;margin-left:3px">${s.name!==s.code?s.name:''}</span></td>`;
+    DATA.stores.filter(s=>STORE_REGION[s.code]===r&&storePass(s.code)).forEach(s=>{
+      const isMine=s.code===currentStore;
+      h+=`<tr style="${isMine?'outline:2px solid #d32f2f;outline-offset:-2px;':''}">
+        <td class="sticky-col" style="font-size:11px;font-weight:400;padding-left:12px">
+          <span style="font-weight:700">${s.code}</span>
+          <span style="color:#888;font-size:10px"> ${s.name!==s.code?s.name:''}</span>
+          <span style="color:#bbb;font-size:9px;display:block">${STORE_MGR[s.code]||''} · ${STORE_TYPE[s.code]||''}</span>
+        </td>`;
+      let st=0;
       BRANDS.forEach(b=>{
-        const bProds = DATA.products[b]||[];
-        const storeSales = bProds.reduce((sum,p)=>sum+(p.store_sales?.[s.code]||0),0);
-        h+=`<td style="font-size:11px;color:#555">${storeSales||'–'}</td>`;
+        const v=(DATA.products[b]||[]).reduce((sum,p)=>sum+(p.store_sales?.[s.code]||0),0);
+        st+=v;
+        h+=`<td style="font-size:11px">${v||'–'}</td>`;
       });
-      const storeTotal = BRANDS.reduce((sum,b)=>{
-        return sum+(DATA.products[b]||[]).reduce((s2,p)=>s2+(p.store_sales?.[s.code]||0),0);
-      },0);
-      h+=`<td class="total-td" style="font-size:11px">${storeTotal||'–'}</td></tr>`;
+      h+=`<td class="total-td" style="font-size:11px">${st||'–'}</td></tr>`;
     });
   });
 
   h+=`<tr class="pivot-footer"><td class="sticky-col">總計</td>`;
   BRANDS.forEach(b=>{
-    const bTotal = allProds.filter(p=>p.brand===b).reduce((s,p)=>s+p.total_sales,0);
-    h+=`<td>${bTotal||'–'}</td>`;
+    const bt=allProds.filter(p=>p.brand===b).reduce((s,p)=>s+p.total_sales,0);
+    h+=`<td>${bt||'–'}</td>`;
   });
   h+=`<td class="total-td">${grandTotal}</td></tr>`;
   h+=`</tbody></table></div></div>`;
-
   el.innerHTML=h;
 }
 

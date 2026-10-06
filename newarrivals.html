@@ -753,128 +753,133 @@ function renderRegion(){
   el.innerHTML=h;
 }
 
-/* ── Excel 匯出（全支線） ── */
+/* ── Excel 匯出（仿原始格式：每支線一個 sheet + 各門市銷售）── */
 function exportExcel(){
   if(!DATA){ alert('請先載入資料'); return; }
   if(typeof XLSX==='undefined'){ alert('SheetJS 尚未載入，請稍後再試'); return; }
   const wb = XLSX.utils.book_new();
-  // 取得所有門市代碼（排序）
-  const seenCodes=new Set();
-  const allStoreCodes=[];
+  const week = DATA.meta.week;
+
+  // 取得所有門市代碼
+  const seenCodes=new Set(), allStoreCodes=[];
   DATA.stores.forEach(s=>{ if(!seenCodes.has(s.code)){seenCodes.add(s.code);allStoreCodes.push(s.code);} });
 
+  // ── 各支線分頁（格式：支線 排名 商品圖 商品編號 款號 商品名稱 大分類 款銷）──
   BRANDS.forEach(brand=>{
     const prods=[...(DATA.products[brand]||[])].sort((a,b)=>b.total_sales-a.total_sales);
     if(!prods.length) return;
-
-    // 標題列
-    const storeHdrs=[];
-    allStoreCodes.forEach(c=>{ storeHdrs.push(c+'_銷售', c+'_庫存'); });
-    const headers=['款號','商品名稱','大分類','級別','全台銷售','全台庫存','全台周轉率',...storeHdrs];
-
-    const rows=prods.map(p=>{
-      const to=p.inventory>0?(p.total_sales/p.inventory).toFixed(2):'';
-      const storeCols=allStoreCodes.flatMap(c=>[
-        p.store_sales?.[c]||0,
-        p.store_inventory?.[c]||0
-      ]);
-      return [p.sku, p.name, p.category, p.grade, p.total_sales, p.inventory, to, ...storeCols];
-    });
-
+    const headers=['支線','排名','商品圖','商品編號','款號','商品名稱','大分類','款銷'];
+    const rows=prods.map((p,i)=>[
+      brand, i+1, p.image_url||'', p.product_id, p.sku, p.name, p.category, p.total_sales
+    ]);
     const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
-
-    // 欄寬
-    ws['!cols']=[{wch:14},{wch:22},{wch:8},{wch:5},{wch:8},{wch:8},{wch:8},
-      ...allStoreCodes.flatMap(()=>[{wch:7},{wch:7}])];
-
-    XLSX.utils.book_append_sheet(wb, ws, brand.substring(0,31));
+    ws['!cols']=[{wch:6},{wch:5},{wch:45},{wch:14},{wch:12},{wch:30},{wch:8},{wch:6}];
+    XLSX.utils.book_append_sheet(wb, ws, `${week}(${brand})`.substring(0,31));
   });
 
+  // ── 各門市銷售（樞紐式：各門市銷售量為欄）──
+  const pivotHdr=['支線','商品編號','款號','商品名稱','大分類','全台銷售','全台庫存','全台周轉',...allStoreCodes];
+  const pivotRows=[];
+  BRANDS.forEach(brand=>{
+    const prods=[...(DATA.products[brand]||[])].sort((a,b)=>b.total_sales-a.total_sales);
+    prods.forEach(p=>{
+      const to=p.inventory>0?(p.total_sales/p.inventory).toFixed(1):'';
+      pivotRows.push([brand, p.product_id, p.sku, p.name, p.category,
+        p.total_sales, p.inventory, to,
+        ...allStoreCodes.map(c=>p.store_sales?.[c]||0)]);
+    });
+    // 支線小計
+    const tot=prods.reduce((s,p)=>s+p.total_sales,0);
+    const storeTots=allStoreCodes.map(c=>prods.reduce((s,p)=>s+(p.store_sales?.[c]||0),0));
+    pivotRows.push([`${brand} 小計`,'','','','',tot,'','', ...storeTots]);
+    pivotRows.push([]); // 空行分隔
+  });
+  const wsPivot=XLSX.utils.aoa_to_sheet([pivotHdr,...pivotRows]);
+  wsPivot['!cols']=[{wch:8},{wch:14},{wch:12},{wch:30},{wch:8},{wch:8},{wch:8},{wch:7},
+    ...allStoreCodes.map(()=>({wch:5}))];
+  XLSX.utils.book_append_sheet(wb, wsPivot, '各門市銷售');
+
   if(!wb.SheetNames.length){ alert('無資料可匯出'); return; }
-  XLSX.writeFile(wb, `${DATA.meta.week}_新品銷售.xlsx`);
+  XLSX.writeFile(wb, `${week}_新品銷售排行.xlsx`);
 }
 
-/* ── PDF 匯出（單支線） ── */
+/* ── PDF 匯出（單支線，格式仿原始 PDF）── */
 function exportBrandPDF(brand){
   if(!DATA) return;
   const prods=[...(DATA.products[brand]||[])].sort((a,b)=>b.total_sales-a.total_sales);
   if(!prods.length){ alert('此支線無資料'); return; }
 
-  // 取得有此支線庫存資料的門市
-  const seenCodes=new Set();
-  const storeCodes=[];
-  DATA.stores.forEach(s=>{ if(!seenCodes.has(s.code)){seenCodes.add(s.code);storeCodes.push(s.code);} });
-
-  // 只顯示有任何資料的門市欄（以節省寬度）
-  const activeCodes=storeCodes.filter(c=>prods.some(p=>(p.store_sales?.[c]||0)+(p.store_inventory?.[c]||0)>0));
-
-  const storeHeaders=activeCodes.map(c=>{
-    const s=DATA.stores.find(x=>x.code===c);
-    const nm=s&&s.name!==s.code?s.name:'';
-    return `<th>${c}${nm?`<br><span>${nm}</span>`:''}`;
-  }).join('');
-
   let rows='';
   prods.forEach((p,i)=>{
-    const imgSrc=p.image_url||(location.origin+location.pathname.replace('newarrivals.html','')+`images/${p.product_id}.jpg`);
-    const storeCells=activeCodes.map(c=>{
-      const sal=p.store_sales?.[c]||0;
-      const inv=p.store_inventory?.[c]||0;
-      return `<td class="${sal>0?'has-sales':''}">${sal>0?`<b>${sal}售</b><br>`:''}${inv>0?inv+'庫':'–'}</td>`;
-    }).join('');
+    const rank=i+1;
+    // 前3名橙色、4-10名藍色、其餘深灰
+    const rc=rank<=3?'#E8840A':rank<=10?'#1565C0':'#1d1d1f';
+    const imgHtml=p.image_url
+      ?`<img src="${p.image_url}" style="width:62px;height:88px;object-fit:cover;display:block;margin:auto" onerror="this.style.display='none'">`
+      :'';
     rows+=`<tr>
-      <td class="rank">${i+1}</td>
-      <td class="img-cell"><img src="${imgSrc}" onerror="this.style.display='none'" alt=""></td>
-      <td class="sku-cell"><strong>${p.sku}</strong><br><small>${p.name}</small><br><span class="tags">${p.category}｜${p.grade}級</span></td>
-      <td class="num">${p.total_sales}</td>
-      <td class="num">${p.inventory}</td>
-      ${storeCells}
+      <td class="c-brand" style="color:${rc}">${brand}</td>
+      <td class="c-rank" style="color:${rc}">${rank}</td>
+      <td class="c-img">${imgHtml}</td>
+      <td class="c-pid">${p.product_id}</td>
+      <td class="c-sku" style="color:${rc}">${p.sku}</td>
+      <td class="c-name">${p.name}</td>
+      <td class="c-cat">${p.category}</td>
+      <td class="c-sales" style="color:${rc}">${p.total_sales===0?'尚未到貨':p.total_sales}</td>
     </tr>`;
   });
 
   const html=`<!DOCTYPE html><html><head>
 <meta charset="UTF-8">
-<title>${DATA.meta.week} ${brand} 新品銷售</title>
+<title>${week}_新品銷售排行_${brand}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"Noto Sans TC",sans-serif;font-size:9px;padding:8px;color:#1d1d1f}
-h2{font-size:14px;font-weight:800;margin-bottom:2px}
-.sub{color:#888;font-size:10px;margin-bottom:8px}
-table{border-collapse:collapse;width:100%;font-size:8.5px}
-thead th{background:#1d1d1f;color:#fff;padding:4px 5px;text-align:center;white-space:nowrap;font-size:8px;border:1px solid #333}
-thead th span{font-weight:400;font-size:7px;display:block}
-td{padding:3px 4px;border:1px solid #e8e8e8;text-align:center;vertical-align:middle}
-td.rank{font-weight:900;font-size:11px;width:18px}
-td.img-cell{width:42px;padding:2px}
-td.img-cell img{width:38px;height:53px;object-fit:cover;border-radius:3px}
-td.sku-cell{text-align:left;min-width:90px;max-width:130px}
-td.sku-cell strong{font-size:10px}
-td.sku-cell small{color:#888;font-size:8px;display:block;line-height:1.3}
-td.sku-cell .tags{color:#aaa;font-size:7px}
-td.num{font-weight:800;font-size:11px;width:28px}
-td.has-sales{background:#fff8e1}
-tr:nth-child(even) td{background:#fafafa}
-tr:nth-child(even) td.has-sales{background:#fff3c0}
+body{font-family:"微軟正黑體","Noto Sans TC","PingFang TC",sans-serif;background:#fff;color:#1d1d1f}
+.title-bar{padding:10px 14px 4px;font-size:13px;font-weight:800}
+.period{padding:0 14px 8px;font-size:10px;color:#888}
+table{border-collapse:collapse;width:100%}
+thead th{
+  background:#1d1d1f;color:#fff;
+  padding:9px 7px;font-size:11px;font-weight:700;
+  text-align:center;border:1px solid #000;
+  letter-spacing:.3px;white-space:nowrap
+}
+td{
+  padding:5px 6px;border:1px solid #d0d0d0;
+  text-align:center;vertical-align:middle
+}
+td.c-brand{font-size:13px;font-weight:800;width:44px}
+td.c-rank{font-size:20px;font-weight:900;width:40px}
+td.c-img{width:76px;padding:3px}
+td.c-pid{font-size:10px;width:100px;color:#555}
+td.c-sku{font-size:13px;font-weight:800;width:90px}
+td.c-name{font-size:11px;line-height:1.55;text-align:center;min-width:160px}
+td.c-cat{font-size:11px;width:55px}
+td.c-sales{font-size:18px;font-weight:900;width:55px}
 @media print{
-  @page{size:landscape A4;margin:6mm}
-  body{padding:0;font-size:8px}
+  @page{size:A4 portrait;margin:8mm}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .no-print{display:none}
 }
 </style>
 </head><body>
-<h2>【${brand}】新品銷售排行 · ${DATA.meta.week}</h2>
-<div class="sub">期間：${DATA.meta.period}｜全台銷售由大至小｜格內：銷售（黃底）/ 庫存</div>
+<div class="title-bar">${DATA.meta.week} 新品銷售排行 ▪ ${brand}</div>
+<div class="period">期間：${DATA.meta.period}　｜　全台銷售由大至小</div>
 <table>
 <thead><tr>
-  <th>#</th><th>圖</th><th style="text-align:left">款號</th>
-  <th>全台<br>銷售</th><th>全台<br>庫存</th>
-  ${storeHeaders}
+  <th>支線</th><th>排名</th><th>商品圖</th>
+  <th>商品編號</th><th>款號</th><th>商品名稱</th>
+  <th>大分類</th><th>款銷</th>
 </tr></thead>
 <tbody>${rows}</tbody>
 </table>
-<script>window.onload=function(){window.print();}<\/script>
+<script>
+var week='${DATA.meta.week}';
+window.onload=function(){setTimeout(function(){window.print();},800);};
+<\/script>
 </body></html>`;
 
-  const w=window.open('','_blank','width=1200,height=800');
+  const w=window.open('','_blank','width=900,height=900');
   if(!w){ alert('請允許彈出視窗以開啟 PDF 預覽'); return; }
   w.document.write(html);
   w.document.close();

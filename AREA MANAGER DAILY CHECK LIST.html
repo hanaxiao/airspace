@@ -461,8 +461,8 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',
-  LOGIN_PASSWORD: 'Air@2026'
+  API_URL: '',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  LOGIN_PASSWORD: '請設定共用密碼'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
 function checkLoginGate(){
@@ -1379,12 +1379,12 @@ function renderProgressTable(list){
   summaryEl.textContent = `${monthLabel(currentMonth)}：已巡 ${visitedCount} / ${list.length} 店`;
 
   const shown = onlyUnvisited ? rows.filter(r=>!r.insp) : rows;
-  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>本月狀態</th><th>巡店主管</th><th>日期</th></tr>`;
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>本月狀態</th><th>評核人(主管／陳列)</th><th>日期</th></tr>`;
   shown.forEach(r=>{
     if(r.insp){
       html += `<tr>
         <td class="left">${r.store.code}</td><td class="left">${r.store.name}</td><td>${r.store.mgr}</td>
-        <td><span class="badge ok">已評分</span></td><td>${r.insp.mgr}</td><td>${r.insp.date}</td>
+        <td><span class="badge ok">已評分</span></td><td>${[r.insp.mgr, r.insp.display].filter(Boolean).join("／") || "-"}</td><td>${r.insp.date}</td>
       </tr>`;
     } else {
       html += `<tr>

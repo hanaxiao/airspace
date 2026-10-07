@@ -380,6 +380,7 @@
       <div class="scroll-x">
         <table class="data" id="dashTable"></table>
       </div>
+      <div id="dashPhotos"></div>
       <button class="btn primary" style="width:100%;margin-top:12px;" onclick="downloadDashboardPdf()">下載/列印 PDF（一店一頁A4）</button>
     </div>
   </div>
@@ -400,6 +401,10 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div id="photoLightbox" onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:90;align-items:center;justify-content:center;padding:12px;">
+  <img id="photoLightboxImg" style="max-width:96vw;max-height:92vh;border-radius:8px;">
+</div>
 
 <div class="modal-overlay" id="confirmModal">
   <div class="modal">
@@ -627,6 +632,7 @@ async function loadStoreDashboard(){
   if(!submitted.length){
     document.getElementById('dashFinalScore').innerHTML = `<p style="color:var(--ink-soft);">這家店這個月還沒有已送出的巡店紀錄。</p>`;
     document.getElementById('dashTable').innerHTML = '';
+    document.getElementById('dashPhotos').innerHTML = '';
     lastDashLatest = null; lastDashFinalRow = null;
     return;
   }
@@ -663,6 +669,61 @@ async function loadStoreDashboard(){
     <tr><th>類別</th><th>子項目</th><th>佔比</th><th>序</th><th class="left">項目名稱</th><th>滿分</th><th>得分</th><th class="left">備註</th></tr>
     ${rowsHtml}
   `;
+  renderDashPhotos(latest);
+}
+
+// ---- 歷史查詢：現場照片(存在雲端硬碟，點了才載入) ----
+const PHOTO_CACHE = {};
+function parsePhotoLinks(text){
+  const out = {};
+  const re = /序(\d+)[^\n｜]*｜[^\n｜]*｜https:\/\/drive\.google\.com\/file\/d\/([\w-]+)\/view/g;
+  let m;
+  while((m = re.exec(text || ''))){ (out[m[1]] = out[m[1]] || []).push(m[2]); }
+  return out;
+}
+function renderDashPhotos(record){
+  const el = document.getElementById('dashPhotos');
+  const map = parsePhotoLinks(record.photoLinks);
+  const seqs = Object.keys(map);
+  if(!seqs.length){
+    el.innerHTML = '<p style="font-size:12.5px;color:var(--ink-soft);margin-top:12px;">這筆巡店紀錄沒有附現場照片。</p>';
+    return;
+  }
+  const boxStyle = 'width:110px;height:84px;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft);cursor:pointer;overflow:hidden;';
+  el.innerHTML = `<h2 style="margin:16px 0 8px;">現場照片</h2>` + seqs.map(seq=>{
+    const item = getFullOrderedItems_().find(i=>String(i.seq)===seq);
+    return `<div style="margin-bottom:10px;">
+      <b style="font-size:13px;">序${seq} ${item ? item.title : ''}</b>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+        ${map[seq].map(id=>`<div class="dash-photo" data-id="${id}" style="${boxStyle}" onclick="onDashPhotoClick(this)">點擊載入</div>`).join('')}
+      </div>
+    </div>`;
+  }).join('') + `<button class="btn ghost" style="width:100%;" onclick="loadAllDashPhotos()">全部載入</button>`;
+}
+async function loadDashPhoto(div){
+  const id = div.dataset.id;
+  if(PHOTO_CACHE[id]) return;
+  div.textContent = '載入中…';
+  const r = await apiGet('photo', {id});
+  if(r && r.dataUrl){
+    PHOTO_CACHE[id] = r.dataUrl;
+    div.innerHTML = `<img src="${r.dataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else {
+    div.textContent = '載入失敗，點擊重試';
+  }
+}
+async function onDashPhotoClick(div){
+  const id = div.dataset.id;
+  if(PHOTO_CACHE[id]){
+    document.getElementById('photoLightboxImg').src = PHOTO_CACHE[id];
+    document.getElementById('photoLightbox').style.display = 'flex';
+  } else {
+    await loadDashPhoto(div);
+  }
+}
+async function loadAllDashPhotos(){
+  const boxes = Array.from(document.querySelectorAll('#dashPhotos .dash-photo'));
+  await Promise.all(boxes.map(loadDashPhoto));
 }
 
 function downloadDashboardPdf(){
@@ -886,8 +947,8 @@ function renderItems(){
 
       <div class="photo-row">
         <label class="photo-btn">
-          📷 拍照存證（僅存留佐證，不做AI評分）
-          <input type="file" accept="image/*" style="display:none" onchange="onPhoto(${item.seq}, this)">
+          📷 拍照／選相簿（送出後存到雲端，供後台反查）
+          <input type="file" accept="image/*" multiple style="display:none" onchange="onPhoto(${item.seq}, this)">
         </label>
         <span id="thumbs-${item.seq}"></span>
       </div>
@@ -940,15 +1001,111 @@ function updateTotal(){
   document.getElementById('scoreNum').textContent = sum;
 }
 
-function onPhoto(seq, input){
-  const file = input.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (e)=>{
-    const img = document.createElement('img'); img.className='thumb'; img.src = e.target.result;
-    document.getElementById(`thumbs-${seq}`).appendChild(img);
-  };
-  reader.readAsDataURL(file);
+// ---- 現場照片：先在手機上壓縮(最長邊1280px、JPEG)，送出後才上傳到雲端硬碟 ----
+const PHOTOS = {};          // seq -> [{dataUrl, fileId, name}]
+const MAX_PHOTOS_PER_ITEM = 5;
+
+function compressImage(file, maxDim=1280, quality=0.72){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+    img.src = url;
+  });
+}
+
+async function onPhoto(seq, input){
+  const files = Array.from(input.files || []);
+  input.value = ''; // 讓同一張照片可以再選一次
+  if(!files.length) return;
+  PHOTOS[seq] = PHOTOS[seq] || [];
+  for(const file of files){
+    if(PHOTOS[seq].length >= MAX_PHOTOS_PER_ITEM){
+      showToast(`每個項目最多附 ${MAX_PHOTOS_PER_ITEM} 張照片`);
+      break;
+    }
+    try{
+      const dataUrl = await compressImage(file);
+      PHOTOS[seq].push({dataUrl, fileId:null, name:null});
+    }catch(e){
+      console.error(e);
+      showToast('這張照片無法讀取，請改選其他照片');
+    }
+  }
+  renderThumbs(seq);
   staged=false; submitted=false; updateStageStatus();
+}
+
+function renderThumbs(seq){
+  const el = document.getElementById(`thumbs-${seq}`);
+  el.innerHTML = (PHOTOS[seq] || []).map((p,i)=>`
+    <span style="position:relative;display:inline-block;margin-right:6px;">
+      <img class="thumb" src="${p.dataUrl}">
+      ${p.fileId ? '<span style="position:absolute;left:2px;bottom:2px;background:var(--good-text);color:#fff;font-size:10px;border-radius:6px;padding:0 4px;">已存</span>' : ''}
+      <span onclick="removePhoto(${seq}, ${i})" style="position:absolute;right:-4px;top:-6px;background:var(--bad-text);color:#fff;font-size:11px;border-radius:50%;width:18px;height:18px;line-height:18px;text-align:center;cursor:pointer;">✕</span>
+    </span>`).join('');
+}
+function removePhoto(seq, i){
+  (PHOTOS[seq] || []).splice(i, 1);
+  renderThumbs(seq);
+  staged=false; submitted=false; updateStageStatus();
+}
+
+// 呼叫後端並保留完整回應(含錯誤訊息)
+async function postRaw(action, data){
+  try{
+    const res = await fetch(CONFIG.API_URL, { method:'POST', body: JSON.stringify({action, data}) });
+    return await res.json();
+  }catch(e){
+    console.error(action, e);
+    return {ok:false, error:'連線失敗'};
+  }
+}
+
+// 送出成功後：把還沒上傳的照片逐項上傳，再把連結寫回該筆巡店紀錄
+async function uploadAllPhotos(d){
+  const seqs = Object.keys(PHOTOS).filter(k=>PHOTOS[k].length);
+  if(!seqs.length) return;
+  const total = seqs.reduce((n,k)=> n + PHOTOS[k].filter(p=>!p.fileId).length, 0);
+  let done = 0, failed = 0;
+
+  for(const seq of seqs){
+    const pending = PHOTOS[seq].filter(p=>!p.fileId);
+    if(!pending.length) continue;
+    showToast(`上傳照片中 ${done}/${total}…請勿關閉頁面`);
+    const res = await postRaw('uploadPhotos', {
+      storeCode: d.storeCode, storeName: d.storeName, date: d.date, seq,
+      photos: pending.map(p=>({mime:'image/jpeg', base64: p.dataUrl.split(',')[1]}))
+    });
+    if(res && res.ok && res.files){
+      res.files.forEach((f,i)=>{ pending[i].fileId = f.id; pending[i].name = f.name; });
+      done += pending.length;
+    } else {
+      failed += pending.length;
+      console.error('uploadPhotos failed', seq, res && res.error);
+    }
+    renderThumbs(seq);
+  }
+
+  const links = {};
+  seqs.forEach(seq=>{
+    const ok = PHOTOS[seq].filter(p=>p.fileId).map(p=>({id:p.fileId}));
+    if(ok.length) links[seq] = ok;
+  });
+  if(Object.keys(links).length){
+    const r = await postRaw('attachPhotoLinks', {storeCode: d.storeCode, date: d.date, links});
+    if(!r || !r.ok) failed += 1;
+  }
+  showToast(failed ? `⚠ 有 ${failed} 張照片上傳失敗，請稍後重新按送出補傳` : `照片已存到雲端（共 ${done} 張）`);
 }
 
 function updateStageStatus(){
@@ -1291,6 +1448,7 @@ async function finishSubmit(mode){
       return; // 被擋下(例如交叉稽核衝突)，不繼續列印/寄送
     }
     clearDraftStorage();
+    await uploadAllPhotos(d);
   }
 
   if(mode==='print'){ window.print(); showToast(`已產生列印版，暫時分數 ${d.total} 分`); }

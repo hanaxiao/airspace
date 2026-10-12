@@ -282,6 +282,20 @@
       <button class="btn ghost" style="width:100%;" onclick="doLogout()">登出（換裝置測試或需要重新登入時使用）</button>
     </div>
 
+    <div class="card" id="adminGate">
+      <h2>🔒 管理員驗證</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">以下功能（結算、新增／修改／刪除門市、主管與陳列名單）僅限管理員。請輸入管理員密碼解鎖。</p>
+      <input type="password" id="adminPassword" placeholder="管理員密碼" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:10px;box-sizing:border-box;"
+             onkeydown="if(event.key==='Enter') unlockAdmin()">
+      <button class="btn primary" style="width:100%;" onclick="unlockAdmin()">解鎖</button>
+    </div>
+
+    <div id="adminContent" style="display:none;">
+
+    <div class="card">
+      <button class="btn ghost" style="width:100%;" onclick="lockAdmin(true)">🔓 管理員登出（離開前請按這裡重新上鎖）</button>
+    </div>
+
     <div class="card">
       <h2>總表資料來源</h2>
       <p style="font-size:12.5px;color:var(--ink-soft);">項目6–9(帳務/客訴/撤貨/會員結帳率)、請假、業績達成率，現在<b>依月份讀取對應的總表分頁</b>，命名規則是「年份後兩碼+月份+月」，例如2026年7月就叫「<b>2607月</b>」、8月叫「<b>2608月</b>」。你跟總部同事在對應月份的分頁裡繼續用VLOOKUP維護，不用在這個網頁另外輸入一次。「新人」試用期加分則直接讀取「新人」分頁的樞紐欄位。</p>
@@ -342,6 +356,8 @@
       </div>
       <p style="font-size:12.5px;">目前名單：<span id="displayListLabel"></span></p>
     </div>
+
+    </div><!-- /adminContent -->
 
   </div>
 
@@ -501,11 +517,20 @@ async function apiGet(action, params={}){
     return json && json.ok ? json : null;
   }catch(e){ console.error('apiGet failed:', action, e); return null; }
 }
+// 管理員密碼(只放在這次瀏覽的分頁記憶體/sessionStorage，關掉分頁就消失)；真正的驗證在後端
+let ADMIN_KEY = '';
+try{ ADMIN_KEY = sessionStorage.getItem('als_admin_key') || ''; }catch(e){}
+
 async function apiPost(action, data={}){
   if(!CONFIG.API_URL) return null;
   try{
-    const res = await fetch(CONFIG.API_URL, { method:'POST', body: JSON.stringify({action, data}) });
+    const res = await fetch(CONFIG.API_URL, { method:'POST', body: JSON.stringify({action, data, adminKey: ADMIN_KEY}) });
     const json = await res.json();
+    if(json && json.error_code === 'ADMIN_DENIED'){
+      lockAdmin();
+      showToast(`🔒 ${json.error || '管理員驗證失敗'}，請重新輸入管理員密碼`);
+      return null;
+    }
     return json && json.ok ? json : null;
   }catch(e){ console.error('apiPost failed:', action, e); return null; }
 }
@@ -554,8 +579,45 @@ async function switchTab(id){
   if(id==='tab2') renderHqTable();
   if(id==='tab3'){ await loadInspectionsForMonth(); renderRegionTable(); }
   if(id==='tab4'){ await loadInspectionsForMonth(); renderHotspot(); renderCashAlerts(); }
-  if(id==='tab5') renderMaintTab();
+  if(id==='tab5'){ await refreshAdminState(); renderMaintTab(); }
   if(id==='tab6') initDashMonthSelect();
+}
+
+// ---- 管理員解鎖(資料維護) ----
+function setAdminUI(unlocked){
+  document.getElementById('adminGate').style.display = unlocked ? 'none' : 'block';
+  document.getElementById('adminContent').style.display = unlocked ? 'block' : 'none';
+}
+function lockAdmin(showMsg){
+  ADMIN_KEY = '';
+  try{ sessionStorage.removeItem('als_admin_key'); }catch(e){}
+  const pw = document.getElementById('adminPassword'); if(pw) pw.value = '';
+  setAdminUI(false);
+  if(showMsg === true) showToast('已重新上鎖');
+}
+async function unlockAdmin(){
+  const pw = document.getElementById('adminPassword').value;
+  if(!pw){ showToast('請輸入管理員密碼'); return; }
+  const r = await postRaw('verifyAdmin', {}, pw);
+  if(r && r.ok){
+    ADMIN_KEY = pw;
+    try{ sessionStorage.setItem('als_admin_key', pw); }catch(e){}
+    document.getElementById('adminPassword').value = '';
+    setAdminUI(true);
+    renderMaintTab();
+    showToast('已解鎖，可進行管理員操作');
+  } else {
+    showToast(`🔒 ${r && r.error ? r.error : '驗證失敗，請確認網路'}`);
+  }
+}
+// 進入資料維護時：有記住密碼就向後端再確認一次，沒有就維持上鎖
+async function refreshAdminState(){
+  if(!backendConnected()){ setAdminUI(true); return; } // 沒接後端的展示模式
+  if(!ADMIN_KEY){ setAdminUI(false); return; }
+  const r = await postRaw('verifyAdmin', {});
+  if(r && r.ok){ setAdminUI(true); }
+  else if(r && r.error_code === 'ADMIN_DENIED'){ lockAdmin(); }
+  else { setAdminUI(false); }
 }
 
 // ---- Tab6 歷史查詢儀表板 ----
@@ -1061,9 +1123,10 @@ function removePhoto(seq, i){
 }
 
 // 呼叫後端並保留完整回應(含錯誤訊息)
-async function postRaw(action, data){
+async function postRaw(action, data, adminKey){
   try{
-    const res = await fetch(CONFIG.API_URL, { method:'POST', body: JSON.stringify({action, data}) });
+    const key = (adminKey === undefined) ? ADMIN_KEY : adminKey;
+    const res = await fetch(CONFIG.API_URL, { method:'POST', body: JSON.stringify({action, data, adminKey: key}) });
     return await res.json();
   }catch(e){
     console.error(action, e);
@@ -1731,6 +1794,7 @@ async function refreshTotalsForMonth(month){
   }
 }
 async function persist(key, value){
+  if(!window.storage) return; // 正式站不使用本機儲存(資料都在試算表)，直接略過
   try{ await window.storage.set(key, JSON.stringify(value), false); }
   catch(e){ console.error('storage save failed', key, e); showToast('本機儲存失敗，請確認網路後再試'); }
 }
@@ -1754,7 +1818,7 @@ function renderMaintTab(){
 
 function renderStoreEditTable(){
   const table = document.getElementById('storeEditTable');
-  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>轄區</th><th class="left">Email</th><th>狀態</th></tr>`;
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>轄區</th><th class="left">Email</th><th>狀態</th><th>刪除</th></tr>`;
   STORES.forEach((s,idx)=>{
     const isClosed = s.status==='已結束';
     html += `<tr style="${isClosed?'opacity:0.5;':''}">
@@ -1771,9 +1835,31 @@ function renderStoreEditTable(){
         <option value="營業中" ${!isClosed?'selected':''}>營業中</option>
         <option value="已結束" ${isClosed?'selected':''}>已結束營業</option>
       </select></td>
+      <td><button onclick="deleteStore(${idx})" style="border:1px solid var(--bad-text);background:#fff;color:var(--bad-text);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:12px;">🗑 刪除</button></td>
     </tr>`;
   });
   table.innerHTML = html;
+}
+
+// 刪除門市(從店家清單移除)。已送出的巡店紀錄、月結分數、照片都不會被刪
+async function deleteStore(idx, force){
+  const s = STORES[idx];
+  if(!s) return;
+  if(!force && !confirm(`確定要刪除門市「${s.code} ${s.name}」嗎？\n\n會從店家清單移除；已送出的巡店紀錄與月結分數不會被刪除。\n如果只是結束營業，建議改用「狀態 → 已結束營業」，歷史查詢仍查得到。`)) return;
+
+  if(backendConnected()){
+    const res = await postRaw('deleteStore', {code: s.code, force: !!force});
+    if(res && res.error_code === 'ADMIN_DENIED'){ lockAdmin(); showToast(`🔒 ${res.error || '管理員驗證失敗'}，請重新輸入管理員密碼`); return; }
+    if(res && res.error_code === 'HAS_RECORDS'){
+      if(confirm(`「${s.code} ${s.name}」已有 ${res.count} 筆巡店紀錄。\n\n仍刪除的話，這些紀錄會留在試算表，但歷史查詢將無法再選到這家店。\n要繼續刪除嗎？`)) return deleteStore(idx, true);
+      return;
+    }
+    if(!res || !res.ok){ showToast(`刪除失敗：${res && res.error ? res.error : '請確認後端連線'}`); return; }
+  }
+  STORES.splice(idx, 1);
+  await persist('stores-list', STORES);
+  showToast(`已刪除門市 ${s.code} ${s.name}`);
+  initStoreList(); initAllStoreList(); initFilters(); renderMaintTab();
 }
 
 async function updateStoreStatus(idx, status){

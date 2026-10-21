@@ -1326,13 +1326,23 @@ async function openConfirmModal(){
     if(existing.length){
       existing.sort((a,b)=> new Date(b.submittedAt) - new Date(a.submittedAt));
       const latest = existing[0];
-      const sameMgr = latest.mgr && d.mgr && latest.mgr===d.mgr;
-      const sameDisplay = latest.display && d.display && latest.display===d.display;
-      if(!sameMgr && !sameDisplay){
-        showToast(`⚠ 這家店本月已由「${latest.mgr||latest.display}」評核過，交叉稽核期間不開放其他主管重複評分`);
-        return; // 不同人，直接擋下，不開確認視窗
+      // 主管優先：有填主管＝主管評核；只填陳列＝陳列評核
+      const mgrRecs = existing.filter(x=>x.mgr);
+      const dispRecs = existing.filter(x=>!x.mgr);
+      let blockedBy = null;
+      if(d.mgr){
+        if(mgrRecs.length && !mgrRecs.some(x=>x.mgr===d.mgr)) blockedBy = mgrRecs[0].mgr;
+      }else if(mgrRecs.length){
+        blockedBy = mgrRecs[0].mgr + '（主管優先）';
+      }else if(dispRecs.length && !dispRecs.some(x=>x.display && x.display===d.display)){
+        blockedBy = dispRecs[0].display || '其他人員';
+      }
+      if(blockedBy){
+        showToast(`⚠ 這家店本月已由「${blockedBy}」評核過，交叉稽核期間不開放重複評分`);
+        return;
       }
       warnEl.textContent = `這家店本月已經有${existing.length}筆送出紀錄（最近一次：${latest.date}），此次送出後將以「這次」的分數為最終依據，之前那筆僅留存紀錄。`;
+      if(d.mgr && !mgrRecs.length){ warnEl.textContent = `這家店本月已有陳列評核紀錄，送出後將以「主管」這次的分數為最終依據。`; }
       warnEl.style.display = 'block';
     }
   }

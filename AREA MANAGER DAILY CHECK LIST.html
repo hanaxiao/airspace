@@ -207,7 +207,7 @@
   <!-- TAB 2：總表檢視 -->
   <div class="tab-panel" id="tab2">
     <div class="card">
-      <h2>總部評核四項最終扣分（項目7–10）</h2>
+      <h2>總部評核四項最終扣分（項目6-9）</h2>
       <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">資料來源：總表分頁，每月由總部人工更新。分數計算方式與稽核內容公式一致。</p>
       <div class="scroll-x">
         <table class="data" id="hqTable"></table>
@@ -824,7 +824,7 @@ async function loadOverview(){
   document.getElementById('overviewCard').style.display = 'block';
   const table = document.getElementById('overviewTable');
   let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區</th><th>轄區負責人</th>
-    <th>最終分數</th><th>評核小計</th><th>總部小計</th><th>帳務</th><th>客訴</th><th>撤貨</th><th>請假</th>
+    <th>最終分數</th><th>評核小計</th><th>總部小計</th><th>出勤異常</th><th>客訴</th><th>撤貨</th><th>請假</th>
     <th>會員結帳率</th><th>達成率</th><th>達成加分</th></tr>`;
 
   STORES.forEach(s=>{
@@ -1539,7 +1539,7 @@ function computeHqScores(t){
 }
 function renderHqTable(){
   const table = document.getElementById('hqTable');
-  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>序6 帳務</th><th>序7 會員結帳</th><th>序8 客訴</th><th>序9 撤貨</th><th>四項小計</th></tr>`;
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>序6 出勤異常</th><th>序7 會員結帳</th><th>序8 客訴</th><th>序9 撤貨</th><th>四項小計</th></tr>`;
   STORES.forEach(s=>{
     const t = TOTALS.find(x=>x.code===s.code);
     if(!t){ html += `<tr><td class="left">${s.code}</td><td class="left">${s.name}</td><td colspan="5">尚無總表資料</td></tr>`; return; }

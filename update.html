@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIR SPACE｜週報更新工具</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f0f0f2;color:#1d1d1f;min-height:100vh}
+.header{background:#1d1d1f;color:#fff;padding:16px 20px 14px}
+.header h1{font-size:16px;font-weight:800;letter-spacing:.3px}
+.header-sub{font-size:11px;color:#888;margin-top:3px}
+.container{max-width:620px;margin:0 auto;padding:20px 16px 60px}
+.step{background:#fff;border-radius:14px;padding:18px 16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.step-title{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#1d1d1f;color:#fff;font-size:12px;font-weight:900;flex-shrink:0}
+.field{margin-bottom:12px}
+.field label{font-size:11px;font-weight:700;color:#86868b;display:block;margin-bottom:5px;letter-spacing:.3px}
+.field input[type=text],.field input[type=password]{
+  width:100%;border:1.5px solid #d0d0d0;border-radius:9px;
+  padding:10px 12px;font-size:13px;color:#1d1d1f;background:#fafafa;outline:none;
+}
+.field input:focus{border-color:#1d1d1f;background:#fff}
+
+/* 上傳列 */
+.upload-row{
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;
+  padding:12px 14px;background:#f5f5f7;border-radius:11px;
+  border:1.5px dashed #ccc;cursor:pointer;transition:border-color .15s
+}
+.upload-row:hover{border-color:#888}
+.upload-row.ok{background:#f0fdf4;border-color:#43A047;border-style:solid}
+.upload-icon{font-size:22px;flex-shrink:0}
+.ul-wrap{flex:1;min-width:0}
+.ul-name{font-size:13px;font-weight:700}
+.ul-hint{font-size:10px;color:#86868b;margin-top:1px}
+.ul-file{font-size:11px;color:#2e7d32;font-weight:600;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upload-row input[type=file]{display:none}
+.chk{font-size:18px;flex-shrink:0;opacity:0;transition:opacity .2s}
+.upload-row.ok .chk{opacity:1}
+
+/* 收合區 */
+.toggle-link{font-size:11px;color:#86868b;cursor:pointer;text-decoration:underline;user-select:none}
+.secret-box{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0}
+
+/* 按鈕 */
+.run-btn{
+  width:100%;background:#1d1d1f;color:#fff;border:none;
+  border-radius:14px;padding:17px;font-size:16px;font-weight:800;
+  cursor:pointer;letter-spacing:.3px;transition:background .2s
+}
+.run-btn:hover{background:#333}
+.run-btn:active{opacity:.85}
+.run-btn:disabled{background:#888;cursor:not-allowed}
+.run-btn.done{background:#2e7d32}
+
+/* 日誌 */
+.log-box{
+  background:#111;color:#a8d5a2;border-radius:12px;
+  padding:14px 16px;font-family:monospace;font-size:12px;line-height:1.8;
+  margin-top:16px;min-height:60px;max-height:340px;overflow-y:auto;display:none
+}
+.l-ok{color:#69db7c}.l-err{color:#ff6b6b}.l-info{color:#74c0fc}.l-warn{color:#ffd43b}
+
+.note{font-size:11px;color:#86868b;background:#f5f5f7;border-radius:8px;padding:10px 12px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔄 AIR SPACE 週報更新工具</h1>
+  <div class="header-sub">上傳三個 Excel 後按更新，約 1-2 分鐘內網頁自動更新</div>
+</div>
+
+<div class="container">
+
+  <!-- ── Step 1: 週數 ── -->
+  <div class="step">
+    <div class="step-title"><span class="step-num">1</span>確認週數與期間</div>
+    <div class="field">
+      <label>週數</label>
+      <input type="text" id="weekInput" placeholder="26W43">
+    </div>
+    <div class="field">
+      <label>期間</label>
+      <input type="text" id="periodInput" placeholder="10/16（四）－10/19（日）">
+    </div>
+    <div class="note">⬆️ 系統已自動計算，確認日期正確後進行下一步。若需調整請直接修改。</div>
+  </div>
+
+  <!-- ── Step 2: 上傳 ── -->
+  <div class="step">
+    <div class="step-title"><span class="step-num">2</span>上傳三個 Excel 檔案</div>
+
+    <div class="upload-row" id="row-new" onclick="document.getElementById('f-new').click()">
+      <span class="upload-icon">📋</span>
+      <div class="ul-wrap">
+        <div class="ul-name">新品總表</div>
+        <div class="ul-hint">哈納事先放好的款式檔案（含「新品」或「排行」）</div>
+        <div class="ul-file" id="lbl-new"></div>
+      </div>
+      <span class="chk">✅</span>
+      <input type="file" id="f-new" accept=".xls,.xlsx" onchange="pickFile(this,'new')">
+    </div>
+
+    <div class="upload-row" id="row-sales" onclick="document.getElementById('f-sales').click()">
+      <span class="upload-icon">📊</span>
+      <div class="ul-wrap">
+        <div class="ul-name">銷售明細</div>
+        <div class="ul-hint">本週銷售明細 Excel（含「明細」或「銷售」）</div>
+        <div class="ul-file" id="lbl-sales"></div>
+      </div>
+      <span class="chk">✅</span>
+      <input type="file" id="f-sales" accept=".xls,.xlsx" onchange="pickFile(this,'sales')">
+    </div>
+
+    <div class="upload-row" id="row-inv" onclick="document.getElementById('f-inv').click()">
+      <span class="upload-icon">🏪</span>
+      <div class="ul-wrap">
+        <div class="ul-name">庫存</div>
+        <div class="ul-hint">本週庫存 Excel（含「庫存」或「周一」）</div>
+        <div class="ul-file" id="lbl-inv"></div>
+      </div>
+      <span class="chk">✅</span>
+      <input type="file" id="f-inv" accept=".xls,.xlsx" onchange="pickFile(this,'inv')">
+    </div>
+  </div>
+
+  <!-- ── Step 3: GitHub Token（收合） ── -->
+  <div class="step">
+    <div class="step-title"><span class="step-num">3</span>GitHub 設定</div>
+    <div style="font-size:12px;color:#86868b;margin-bottom:8px">首次填寫後自動記住，之後不需要再填。</div>
+    <span class="toggle-link" id="toggleBtn" onclick="toggleSecret()">▸ 展開設定</span>
+    <div class="secret-box" id="secretBox">
+      <div class="field">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxx">
+      </div>
+      <div class="field">
+        <label>GitHub Repo（擁有者/倉庫名稱）</label>
+        <input type="text" id="ghRepo" value="hanaxiao/airspace">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Run ── -->
+  <button class="run-btn" id="runBtn" onclick="runUpdate()">🔄 更新網頁</button>
+  <div class="log-box" id="logBox"></div>
+
+</div><!-- /container -->
+
+<script>
+// ── 自動計算週數與期間 ──
+(function(){
+  const tw = ['日','一','二','三','四','五','六'];
+  const today = new Date();
+  const dow = today.getDay();
+  const daysSinceThu = (dow - 4 + 7) % 7;
+  const lastThu = new Date(today);
+  lastThu.setDate(today.getDate() - daysSinceThu);
+  const lastSun = new Date(lastThu);
+  lastSun.setDate(lastThu.getDate() + 3);
+
+  const yr2 = String(lastThu.getFullYear()).slice(-2);
+  const isoWeek = getISOWeek(lastThu);
+  document.getElementById('weekInput').value = `${yr2}W${isoWeek}`;
+
+  const fmt = d => `${d.getMonth()+1}/${String(d.getDate()).padStart(2,'0')}（${tw[d.getDay()]}）`;
+  document.getElementById('periodInput').value = `${fmt(lastThu)}－${fmt(lastSun)}`;
+
+  function getISOWeek(d){
+    const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+    const day=date.getUTCDay()||7;
+    date.setUTCDate(date.getUTCDate()+4-day);
+    const ys=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+    return Math.ceil((((date-ys)/86400000)+1)/7);
+  }
+})();
+
+// ── 恢復儲存設定 ──
+(function(){
+  const t=localStorage.getItem('as_gh_token');
+  const r=localStorage.getItem('as_gh_repo');
+  if(t) document.getElementById('ghToken').value=t;
+  if(r) document.getElementById('ghRepo').value=r;
+})();
+
+function toggleSecret(){
+  const box=document.getElementById('secretBox');
+  const open=box.style.display==='block';
+  box.style.display=open?'none':'block';
+  document.getElementById('toggleBtn').textContent=open?'▸ 展開設定':'▴ 收合設定';
+}
+
+// ── 檔案選取 ──
+const FILES={new:null,sales:null,inv:null};
+function pickFile(input,key){
+  const f=input.files[0]; if(!f) return;
+  FILES[key]=f;
+  document.getElementById('lbl-'+key).textContent='✓ '+f.name;
+  document.getElementById('row-'+key).classList.add('ok');
+}
+
+function readBuf(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=e=>res(e.target.result);
+    fr.onerror=rej;
+    fr.readAsArrayBuffer(file);
+  });
+}
+
+// ── GitHub API ──
+async function ghSHA(token,repo,path){
+  const r=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,
+    {headers:{Authorization:`token ${token}`}});
+  if(r.status===404) return null;
+  return (await r.json()).sha||null;
+}
+async function ghCommit(token,repo,path,content,week){
+  const sha=await ghSHA(token,repo,path);
+  const encoded=btoa(unescape(encodeURIComponent(content)));
+  const r=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+    method:'PUT',
+    headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},
+    body:JSON.stringify({message:`auto: weekly update ${week}`,content:encoded,...(sha?{sha}:{})})
+  });
+  if(!r.ok){const j=await r.json();throw new Error(j.message||'GitHub API 錯誤');}
+  return true;
+}
+
+// ── 日誌 ──
+function log(msg,cls=''){
+  const b=document.getElementById('logBox');
+  b.style.display='block';
+  const d=document.createElement('div');
+  d.className=cls; d.textContent=msg;
+  b.appendChild(d); b.scrollTop=b.scrollHeight;
+}
+
+// ── 主流程 ──
+async function runUpdate(){
+  if(!FILES.new)   { alert('請上傳新品總表'); return; }
+  if(!FILES.sales) { alert('請上傳銷售明細'); return; }
+  if(!FILES.inv)   { alert('請上傳庫存'); return; }
+
+  const WEEK   = document.getElementById('weekInput').value.trim();
+  const PERIOD = document.getElementById('periodInput').value.trim();
+  const token  = document.getElementById('ghToken').value.trim();
+  const repo   = document.getElementById('ghRepo').value.trim();
+
+  if(!WEEK||!PERIOD){ alert('請確認週數與期間'); return; }
+  if(!token){ document.getElementById('secretBox').style.display='block'; alert('請填寫 GitHub Token'); return; }
+
+  localStorage.setItem('as_gh_token',token);
+  localStorage.setItem('as_gh_repo',repo);
+
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true; btn.textContent='⏳ 更新中...';
+  document.getElementById('logBox').innerHTML='';
+
+  try{
+    const GENERATED=new Date().toISOString().split('T')[0];
+    log('📂 讀取 Excel 檔案中...','l-info');
+
+    const [bufNew,bufSales,bufInv]=await Promise.all([
+      readBuf(FILES.new), readBuf(FILES.sales), readBuf(FILES.inv)
+    ]);
+    const wbNew   = XLSX.read(bufNew,  {type:'array'});
+    const wbSales = XLSX.read(bufSales,{type:'array'});
+    const wbInv   = XLSX.read(bufInv,  {type:'array'});
+
+    // ── 新品總表 ──
+    log('📋 處理新品總表...','l-info');
+    const wsNew = wbNew.Sheets['總'] || wbNew.Sheets[wbNew.SheetNames[0]];
+    const rawNew = XLSX.utils.sheet_to_json(wsNew,{defval:''});
+    const newRows = rawNew.filter(r=>{
+      const b=String(r['品牌']||'').trim();
+      const s=String(r['款號']||'').trim();
+      return b && b!=='nan' && s && s!=='nan';
+    }).map(r=>({
+      product_id: String(r['商品編號']||'').trim().split('.')[0],
+      brand:      String(r['品牌']||'').trim(),
+      sku:        String(r['款號']||'').trim(),
+      name:       String(r['商品名稱']||'').trim(),
+      category:   String(r['大分類']||'').trim(),
+      grade:      String(r['門市級別']||'').trim(),
+    }));
+    const BRANDS=[...new Set(newRows.map(r=>r.brand))];
+    log(`✅ 支線：${BRANDS.join('、')}，共 ${newRows.length} 款新品`,'l-ok');
+
+    // ── 銷售明細 ──
+    log('📊 處理銷售明細...','l-info');
+    const wsSales = wbSales.Sheets[wbSales.SheetNames[0]];
+    let salesRows = XLSX.utils.sheet_to_json(wsSales,{defval:''});
+    const sCols = Object.keys(salesRows[0]||{});
+    const storeCol = ['倉庫編號','購買當下','門市代碼','門市編號','購買門市','銷售門市','店號'].find(c=>sCols.includes(c));
+    const qtyCol   = ['出貨數量','銷售數量','數量','訂單數量'].find(c=>sCols.includes(c));
+    if(!storeCol||!qtyCol) throw new Error(`找不到欄位｜門市=${storeCol||'？'} 數量=${qtyCol||'？'}`);
+    if(sCols.includes('品別'))    salesRows=salesRows.filter(r=>String(r['品別']).trim()==='正品');
+    if(sCols.includes('訂單來源')) salesRows=salesRows.filter(r=>String(r['訂單來源']).trim()==='門市');
+    salesRows=salesRows.filter(r=>/^(AS|AT)\d+$/.test(String(r[storeCol]||'').trim()));
+    const storeSales={};
+    salesRows.forEach(r=>{
+      const pid=String(r['商品編號']||'').trim().split('.')[0];
+      const st=String(r[storeCol]||'').trim();
+      const qty=parseFloat(r[qtyCol])||0;
+      if(qty<=0) return;
+      if(!storeSales[pid]) storeSales[pid]={};
+      storeSales[pid][st]=(storeSales[pid][st]||0)+qty;
+    });
+    const totSalesMap={};
+    Object.entries(storeSales).forEach(([p,sv])=>totSalesMap[p]=Object.values(sv).reduce((a,b)=>a+b,0));
+    log(`✅ 銷售：${Object.keys(storeSales).length} 款有記錄`,'l-ok');
+
+    // ── 庫存 ──
+    log('🏪 處理庫存...','l-info');
+    const wsInv = wbInv.Sheets[wbInv.SheetNames[0]];
+    let invRows = XLSX.utils.sheet_to_json(wsInv,{defval:''});
+    invRows=invRows.filter(r=>/^(AS|AT)\d+$/.test(String(r['倉庫編號']||'').trim()));
+    const storeInv={}, storeNames={};
+    invRows.forEach(r=>{
+      const pid=String(r['商品編號']||'').trim().split('.')[0];
+      const st=String(r['倉庫編號']||'').trim();
+      const qty=parseFloat(r['庫存數量'])||0;
+      if(!storeInv[pid]) storeInv[pid]={};
+      storeInv[pid][st]=(storeInv[pid][st]||0)+qty;
+      const nc=['倉庫名稱','門市名稱'].find(c=>c in r);
+      if(nc&&!storeNames[st]) storeNames[st]=String(r[nc]||'').trim();
+    });
+    const totInvMap={};
+    Object.entries(storeInv).forEach(([p,iv])=>totInvMap[p]=Object.values(iv).reduce((a,b)=>a+b,0));
+    log(`✅ 庫存：${Object.keys(storeInv).length} 款有記錄`,'l-ok');
+
+    // ── 沿用既有圖片（照片工作流不動）──
+    log('🖼️  讀取既有圖片 URL...','l-info');
+    const imgMap={};
+    try{
+      const [owner,repoName]=repo.split('/');
+      const base=`https://${owner}.github.io/${repoName}`;
+      const ir=await fetch(`${base}/data/index.json?t=${Date.now()}`);
+      if(ir.ok){
+        const idx=await ir.json();
+        if(idx.weeks&&idx.weeks.length){
+          const dr=await fetch(`${base}/data/${idx.weeks[0].file}?t=${Date.now()}`);
+          if(dr.ok){
+            const prev=await dr.json();
+            Object.values(prev.products||{}).flat().forEach(p=>{ if(p.image_url) imgMap[p.product_id]=p.image_url; });
+          }
+        }
+      }
+    }catch(e){ log('⚠️  無法讀取既有圖片，新款圖片將待下次 Colab 補齊','l-warn'); }
+    log(`✅ 沿用 ${Object.keys(imgMap).length} 款圖片`,'l-ok');
+
+    // ── 組合 JSON ──
+    const allCodes=new Set([
+      ...Object.values(storeSales).flatMap(Object.keys),
+      ...Object.values(storeInv).flatMap(Object.keys)
+    ]);
+    const storeList=[...allCodes].sort().map(c=>({code:c,name:storeNames[c]||c}));
+    const products={};
+    BRANDS.forEach(b=>{products[b]=[];});
+    newRows.forEach(p=>{
+      const pid=p.product_id;
+      const obj={
+        product_id:pid, sku:p.sku, name:p.name, category:p.category, grade:p.grade,
+        total_sales:Math.round(totSalesMap[pid]||0),
+        inventory:Math.round(totInvMap[pid]||0),
+        store_sales:{}, store_inventory:{}
+      };
+      if(storeSales[pid]) Object.entries(storeSales[pid]).forEach(([s,v])=>{obj.store_sales[s]=Math.round(v);});
+      if(storeInv[pid])   Object.entries(storeInv[pid]).forEach(([s,v])=>{obj.store_inventory[s]=Math.round(v);});
+      if(imgMap[pid])     obj.image_url=imgMap[pid];
+      if(products[p.brand]) products[p.brand].push(obj);
+    });
+    const jsonData={
+      meta:{week:WEEK,period:PERIOD,generated:GENERATED},
+      stores:storeList, products
+    };
+
+    // ── 上傳 JSON ──
+    log(`📤 上傳 data/${WEEK}.json ...`,'l-info');
+    await ghCommit(token,repo,`data/${WEEK}.json`,JSON.stringify(jsonData,null,2),WEEK);
+    log('✅ JSON 已上傳','l-ok');
+
+    // ── 更新 index.json ──
+    log('📤 更新 index.json ...','l-info');
+    let indexData={weeks:[]};
+    try{
+      const [owner,repoName]=repo.split('/');
+      const ir=await fetch(`https://${owner}.github.io/${repoName}/data/index.json?t=${Date.now()}`);
+      if(ir.ok) indexData=await ir.json();
+    }catch(e){}
+    indexData.weeks=(indexData.weeks||[]).filter(w=>w.key!==WEEK);
+    indexData.weeks.unshift({key:WEEK,period:PERIOD,file:`${WEEK}.json`});
+    await ghCommit(token,repo,'data/index.json',JSON.stringify(indexData,null,2),WEEK);
+    log('✅ index.json 已更新','l-ok');
+
+    const [owner,repoName]=repo.split('/');
+    log(`🎉 完成！約 1-2 分鐘後請重新整理：https://${owner}.github.io/${repoName}/newarrivals.html`,'l-ok');
+    btn.textContent='✅ 更新完成！';
+    btn.classList.add('done');
+
+  }catch(e){
+    log(`❌ 錯誤：${e.message}`,'l-err');
+    btn.disabled=false;
+    btn.textContent='🔄 重新嘗試';
+  }
+}
+</script>
+</body>
+</html>

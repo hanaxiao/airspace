@@ -88,6 +88,23 @@
   .modal h3{margin:0 0 6px;font-size:16px;color:var(--brand);}
   .modal p{font-size:13px;color:var(--ink-soft);margin:0 0 16px;}
   .modal .btn{margin-bottom:8px;}
+  .success-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:70;padding:20px;}
+  .success-overlay.show{display:flex;}
+  .success-box{background:#fff;width:100%;max-width:360px;border-radius:20px;padding:24px 20px 18px;text-align:center;}
+  .success-icon{width:60px;height:60px;border-radius:50%;background:var(--good-bg);color:var(--good-text);font-size:34px;line-height:60px;margin:0 auto 10px;font-weight:700;}
+  .success-box h3{margin:0 0 4px;font-size:19px;color:var(--good-text);}
+  .success-box .sub{font-size:13px;color:var(--ink-soft);margin-bottom:12px;}
+  .success-info{background:var(--paper);border-radius:12px;padding:12px;font-size:13.5px;text-align:left;line-height:1.8;margin-bottom:10px;}
+  .success-info b{color:var(--brand);}
+  .success-score{font-size:30px;font-weight:700;color:var(--brand);text-align:center;line-height:1.1;}
+  .success-score small{font-size:13px;color:var(--ink-soft);font-weight:400;}
+  .success-line{font-size:13px;border-radius:8px;padding:8px 10px;margin-bottom:8px;text-align:left;}
+  .success-line.ok{background:var(--good-bg);color:var(--good-text);}
+  .success-line.warn{background:var(--bad-bg);color:var(--bad-text);}
+  .last-banner{background:var(--good-bg);color:var(--good-text);border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:14px;display:none;align-items:flex-start;gap:8px;line-height:1.6;}
+  .last-banner.show{display:flex;}
+  .last-banner span{flex:1;}
+  .last-banner button{background:none;border:none;color:var(--good-text);font-size:18px;line-height:1;cursor:pointer;padding:0 2px;}
 
   table.data{width:100%;border-collapse:collapse;font-size:12.5px;}
   table.data th, table.data td{border:1px solid var(--line);padding:7px 8px;text-align:center;}
@@ -160,6 +177,7 @@
 
   <!-- TAB 1：巡店評分 -->
   <div class="tab-panel active" id="tab1">
+    <div class="last-banner" id="lastBanner"><span id="lastBannerText"></span><button onclick="dismissLastBanner()" aria-label="關閉">×</button></div>
     <div class="card">
       <h2>基本資料</h2>
       <div class="field">
@@ -207,7 +225,7 @@
   <!-- TAB 2：總表檢視 -->
   <div class="tab-panel" id="tab2">
     <div class="card">
-      <h2>總部評核四項最終扣分（項目6-9）</h2>
+      <h2>總部評核四項最終扣分（項目7–10）</h2>
       <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">資料來源：總表分頁，每月由總部人工更新。分數計算方式與稽核內容公式一致。</p>
       <div class="scroll-x">
         <table class="data" id="hqTable"></table>
@@ -298,7 +316,7 @@
 
     <div class="card">
       <h2>總表資料來源</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);">項目6–9(帳務/客訴/撤貨/會員結帳率)、請假、業績達成率，現在<b>依月份讀取對應的總表分頁</b>，命名規則是「年份後兩碼+月份+月」，例如2026年7月就叫「<b>2607月</b>」、8月叫「<b>2608月</b>」。你跟總部同事在對應月份的分頁裡繼續用VLOOKUP維護，不用在這個網頁另外輸入一次。「新人」試用期加分則直接讀取「新人」分頁的樞紐欄位。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);">項目6–9(出勤異常/客訴/撤貨/會員結帳率)、請假、業績達成率，現在<b>依月份讀取對應的總表分頁</b>，命名規則是「年份後兩碼+月份+月」，例如2026年7月就叫「<b>2607月</b>」、8月叫「<b>2608月</b>」。你跟總部同事在對應月份的分頁裡繼續用VLOOKUP維護，不用在這個網頁另外輸入一次。「新人」試用期加分則直接讀取「新人」分頁的樞紐欄位。</p>
       <p style="font-size:12.5px;color:var(--ink-soft);">上方月份選單選哪個月，就會抓那個月分頁的資料。你在Sheet裡改完之後，回到「總表檢視」「後台分析」「月結試算」重新整理頁面即可看到最新數字。如果該月分頁還沒建立，畫面會顯示無資料，不會報錯。</p>
     </div>
 
@@ -434,6 +452,17 @@
   </div>
 </div>
 
+<div class="success-overlay" id="successModal">
+  <div class="success-box">
+    <div class="success-icon">✓</div>
+    <h3>已送出成功</h3>
+    <div class="sub" id="successSub"></div>
+    <div class="success-info" id="successInfo"></div>
+    <div id="successLines"></div>
+    <button class="btn primary" style="width:100%;margin-top:6px;" id="successBtn" onclick="closeSuccessModal()">完成</button>
+  </div>
+</div>
+
 <div id="printView"></div>
 
 <script>
@@ -482,8 +511,8 @@ let currentMonth = '';
    其他地方都不用改，避免像業績儀表板那樣改錯地方
    ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',
-  LOGIN_PASSWORD: 'Air@2026'
+  API_URL: 'https://script.google.com/macros/s/AKfycbzWu2giWVZoSFLteY9OP2WUqn7l1caua0fbDlESsB0B2UWKVSVj5foX-iUBk0HpytW16g/exec',   // <<< 貼上 Apps Script 部署後的 Web App URL，例如 https://script.google.com/macros/s/xxxx/exec
+  LOGIN_PASSWORD: 'Air@2026'   // <<< 所有主管共用的登入密碼，改成你要的密碼即可
 };
 
 function checkLoginGate(){
@@ -1137,7 +1166,7 @@ async function postRaw(action, data, adminKey){
 // 送出成功後：把還沒上傳的照片逐項上傳，再把連結寫回該筆巡店紀錄
 async function uploadAllPhotos(d){
   const seqs = Object.keys(PHOTOS).filter(k=>PHOTOS[k].length);
-  if(!seqs.length) return;
+  if(!seqs.length) return {done:0, failed:0};
   const total = seqs.reduce((n,k)=> n + PHOTOS[k].filter(p=>!p.fileId).length, 0);
   let done = 0, failed = 0;
 
@@ -1169,6 +1198,7 @@ async function uploadAllPhotos(d){
     if(!r || !r.ok) failed += 1;
   }
   showToast(failed ? `⚠ 有 ${failed} 張照片上傳失敗，請稍後重新按送出補傳` : `照片已存到雲端（共 ${done} 張）`);
+  return {done, failed};
 }
 
 function updateStageStatus(){
@@ -1495,6 +1525,7 @@ async function finishSubmit(mode){
   submitted = true; updateStageStatus();
 
   const wantMail = (mode==='mail' || mode==='both');
+  let mailStatus = 'none', photoRes = null;
   if(backendConnected()){
     const payload = {
       storeCode: d.storeCode, storeName: d.storeName, region: d.region,
@@ -1521,12 +1552,71 @@ async function finishSubmit(mode){
       return; // 被擋下(例如交叉稽核衝突)，不繼續列印/寄送
     }
     clearDraftStorage();
-    await uploadAllPhotos(d);
+    mailStatus = r.mail || 'none';
+    photoRes = await uploadAllPhotos(d);
   }
 
-  if(mode==='print'){ window.print(); showToast(`已產生列印版，暫時分數 ${d.total} 分`); }
-  else if(mode==='mail'){ showToast(`已寄送給 ${d.storeCode} 門市信箱${backendConnected()?'':'（尚未接後端，僅示範）'}`); }
-  else { window.print(); showToast(`已列印並寄送給 ${d.storeCode} 門市${backendConnected()?'':'（尚未接後端，僅示範）'}`); }
+  showSuccessModal(d, mode, mailStatus, photoRes);
+  if(mode==='print' || mode==='both'){ setTimeout(()=>window.print(), 500); }
+}
+
+// ---- 送出成功確認視窗 + 送出後頂端提示 ----
+let successCanReset = true;
+function showSuccessModal(d, mode, mailStatus, photoRes){
+  const now = new Date();
+  const hhmm = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  const who = d.mgr || d.display || '';
+  document.getElementById('successSub').textContent = backendConnected() ? '評分已存入系統' : '（尚未接後端，僅示範，資料未存入）';
+  document.getElementById('successInfo').innerHTML =
+    `<div class="success-score">${d.total}<small> / 75 分（暫時分數）</small></div>` +
+    `<div><b>門市：</b>${d.storeCode} ${d.storeName||''}</div>` +
+    `<div><b>評核日期：</b>${d.date||''}</div>` +
+    `<div><b>評核人：</b>${who}</div>` +
+    `<div><b>送出時間：</b>${hhmm}</div>`;
+
+  const lines = [];
+  let mailText = '';
+  if(mode==='mail' || mode==='both'){
+    if(!backendConnected()){ mailText = '信件為示範，未實際寄出'; lines.push(`<div class="success-line ok">${mailText}</div>`); }
+    else if(mailStatus==='sent'){ mailText = '已寄送給門市'; lines.push(`<div class="success-line ok">✓ 已寄送給 ${d.storeCode} 門市信箱</div>`); }
+    else if(mailStatus==='skipped'){ mailText = '門市沒有Email，信件未寄出'; lines.push(`<div class="success-line warn">⚠ 評分已存入系統，但這家店沒有建立 Email，信件<b>未寄出</b>，請通知營運部補上</div>`); }
+    else if(mailStatus==='failed'){ mailText = '信件寄送失敗'; lines.push(`<div class="success-line warn">⚠ 評分已存入系統，但信件<b>寄送失敗</b>，請通知營運部</div>`); }
+  }
+  if(mode==='print' || mode==='both'){ lines.push(`<div class="success-line ok">已開啟列印視窗（若沒跳出，請按瀏覽器的列印）</div>`); }
+  successCanReset = true;
+  if(photoRes && (photoRes.done || photoRes.failed)){
+    if(photoRes.failed){
+      successCanReset = false;
+      lines.push(`<div class="success-line warn">⚠ 有 ${photoRes.failed} 張照片上傳失敗。評分已存入，請按「留在此頁」後再按一次送出補傳照片</div>`);
+    } else {
+      lines.push(`<div class="success-line ok">✓ 照片已存到雲端（共 ${photoRes.done} 張）</div>`);
+    }
+  }
+  document.getElementById('successLines').innerHTML = lines.join('');
+  document.getElementById('successBtn').textContent = successCanReset ? '完成' : '留在此頁';
+
+  try{
+    sessionStorage.setItem('als_last', JSON.stringify({
+      code:d.storeCode, name:d.storeName||'', total:d.total, time:hhmm, date:d.date||'', mail:mailText
+    }));
+  }catch(e){}
+  document.getElementById('successModal').classList.add('show');
+}
+function closeSuccessModal(){
+  document.getElementById('successModal').classList.remove('show');
+  if(successCanReset){ location.reload(); } // 重新載入＝表單回到空白，頂端顯示「剛送出」提示
+}
+function showLastBanner(){
+  let last = null;
+  try{ last = JSON.parse(sessionStorage.getItem('als_last') || 'null'); }catch(e){}
+  if(!last) return;
+  document.getElementById('lastBannerText').innerHTML =
+    `✓ 剛送出：<b>${last.code} ${last.name}</b>（${last.date}）暫時分數 <b>${last.total}</b> 分，${last.time} 已送出${last.mail?'，'+last.mail:''}。可繼續評下一家店。`;
+  document.getElementById('lastBanner').classList.add('show');
+}
+function dismissLastBanner(){
+  document.getElementById('lastBanner').classList.remove('show');
+  try{ sessionStorage.removeItem('als_last'); }catch(e){}
 }
 
 // ---- Tab2 總表檢視 ----
@@ -1986,6 +2076,7 @@ async function main(){
   initAiItemSelect();
   document.getElementById('fDate').valueAsDate = new Date();
   restoreDraftFromStorage();
+  showLastBanner();
 }
 main();
 </script>

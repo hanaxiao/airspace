@@ -350,8 +350,41 @@ async function runUpdate(){
           }
         }
       }
-    }catch(e){ log('⚠️  無法讀取既有圖片，新款圖片將待下次 Colab 補齊','l-warn'); }
-    log(`✅ 沿用 ${Object.keys(imgMap).length} 款圖片`,'l-ok');
+    }catch(e){ log('⚠️  無法讀取既有圖片，將全部重新抓取','l-warn'); }
+    log(`✅ 既有圖片：${Object.keys(imgMap).length} 款`,'l-ok');
+
+    // ── 抓取本週未有圖片的新款 ──
+    const newPids=[...new Set(newRows.map(r=>r.product_id))].filter(pid=>!imgMap[pid]);
+    if(newPids.length>0){
+      log(`🔍 抓取 ${newPids.length} 款新圖片（官網），預計需 ${Math.ceil(newPids.length*1.2)} 秒...`,'l-info');
+      for(const pid of newPids){
+        try{
+          const proxyUrl=`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.airspaceonline.com/tw/zh-hant/product/TW'+pid)}`;
+          const resp=await Promise.race([
+            fetch(proxyUrl),
+            new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),18000))
+          ]);
+          const d=await resp.json();
+          const html=d.contents||'';
+          const pat=`photo/${pid}/`;
+          const seen=new Set(),imgs=[];
+          const re=/src="([^"]+)"/g; let m;
+          while((m=re.exec(html))!==null){
+            const src=m[1];
+            if(src.includes(pat)&&!seen.has(src)){seen.add(src);imgs.push(src);}
+          }
+          const chosen=imgs.length>1?imgs[1]:(imgs[0]||null);
+          if(chosen){ imgMap[pid]=chosen; log(`  ✅ ${pid}`,'l-ok'); }
+          else { log(`  ⚠️ ${pid}：官網無圖（門市限定款請手動補）`,'l-warn'); }
+        }catch(e){
+          log(`  ❌ ${pid}：${e.message}`,'l-err');
+        }
+        await new Promise(r=>setTimeout(r,900));
+      }
+      log(`✅ 圖片完成，共 ${Object.keys(imgMap).length} 款有圖`,'l-ok');
+    } else {
+      log('✅ 全部圖片沿用既有，無需重新抓取','l-ok');
+    }
 
     // ── 組合 JSON ──
     const allCodes=new Set([

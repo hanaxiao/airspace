@@ -353,52 +353,10 @@ async function runUpdate(){
     }catch(e){ log('⚠️  無法讀取既有圖片，將全部重新抓取','l-warn'); }
     log(`✅ 既有圖片：${Object.keys(imgMap).length} 款`,'l-ok');
 
-    // ── 抓取本週未有圖片的新款 ──
+    // ── 新款清單（圖片由 GitHub Actions 自動補抓）──
     const newPids=[...new Set(newRows.map(r=>r.product_id))].filter(pid=>!imgMap[pid]);
     if(newPids.length>0){
-      log(`🔍 抓取 ${newPids.length} 款新圖片（官網），預計需 ${Math.ceil(newPids.length*1.2)} 秒...`,'l-info');
-      // 代理清單（依序嘗試）
-      const PROXIES=[
-        url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
-        url=>`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-      ];
-      async function fetchHtml(targetUrl){
-        for(const mkProxy of PROXIES){
-          try{
-            const r=await Promise.race([
-              fetch(mkProxy(targetUrl)),
-              new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),15000))
-            ]);
-            if(!r.ok) continue;
-            const ct=r.headers.get('content-type')||'';
-            if(ct.includes('json')){
-              const d=await r.json(); return d.contents||'';
-            }
-            return await r.text();
-          }catch(e){ continue; }
-        }
-        throw new Error('所有代理均失敗');
-      }
-
-      for(const pid of newPids){
-        try{
-          const html=await fetchHtml('https://www.airspaceonline.com/tw/zh-hant/product/TW'+pid);
-          const pat=`photo/${pid}/`;
-          const seen=new Set(),imgs=[];
-          const re=/src="([^"]+)"/g; let m;
-          while((m=re.exec(html))!==null){
-            const src=m[1];
-            if(src.includes(pat)&&!seen.has(src)){seen.add(src);imgs.push(src);}
-          }
-          const chosen=imgs.length>1?imgs[1]:(imgs[0]||null);
-          if(chosen){ imgMap[pid]=chosen; log(`  ✅ ${pid}`,'l-ok'); }
-          else { log(`  ⚠️ ${pid}：官網無圖（門市限定款請手動補）`,'l-warn'); }
-        }catch(e){
-          log(`  ❌ ${pid}：${e.message}`,'l-err');
-        }
-        await new Promise(r=>setTimeout(r,800));
-      }
-      log(`✅ 圖片完成，共 ${Object.keys(imgMap).length} 款有圖`,'l-ok');
+      log(`📝 ${newPids.length} 款新品暫無圖片，上傳後將由伺服器自動抓取（約 3 分鐘）`,'l-info');
     } else {
       log('✅ 全部圖片沿用既有，無需重新抓取','l-ok');
     }
@@ -446,6 +404,26 @@ async function runUpdate(){
     indexData.weeks.unshift({key:WEEK,period:PERIOD,file:`${WEEK}.json`});
     await ghCommit(token,repo,'data/index.json',JSON.stringify(indexData,null,2),WEEK);
     log('✅ index.json 已更新','l-ok');
+
+    // ── 觸發 GitHub Actions 抓圖片 ──
+    if(newPids.length>0){
+      log('🖼️  啟動伺服器端圖片抓取...','l-info');
+      try{
+        const wfResp=await fetch(`https://api.github.com/repos/${repo}/actions/workflows/scrape-images.yml/dispatches`,{
+          method:'POST',
+          headers:{Authorization:`token ${token}`,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+          body:JSON.stringify({ref:'main',inputs:{week:WEEK}})
+        });
+        if(wfResp.ok||wfResp.status===204){
+          log('✅ 圖片抓取已啟動！約 3 分鐘後圖片會自動出現在網頁','l-ok');
+        } else {
+          const je=await wfResp.json().catch(()=>({}));
+          log(`⚠️  圖片自動抓取未能啟動（${je.message||wfResp.status}）—— 請手動從 GitHub Actions 執行 scrape-images`,'l-warn');
+        }
+      }catch(e){
+        log(`⚠️  圖片自動抓取失敗：${e.message}，可手動從 GitHub Actions 執行`,'l-warn');
+      }
+    }
 
     const [owner,repoName]=repo.split('/');
     log(`🎉 完成！約 1-2 分鐘後請重新整理：https://${owner}.github.io/${repoName}/newarrivals.html`,'l-ok');

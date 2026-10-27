@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIR SPACE｜新品排行一鍵更新工具</title>
+<title>AIR SPACE｜週報更新工具</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -69,7 +69,7 @@ body{font-family:-apple-system,"Noto Sans TC",sans-serif;background:#f0f0f2;colo
 <body>
 
 <div class="header">
-  <h1>🔄 AIR SPACE 新品排行一鍵更新工具</h1>
+  <h1>🔄 AIR SPACE 週報更新工具</h1>
   <div class="header-sub">上傳三個 Excel 後按更新，約 1-2 分鐘內網頁自動更新</div>
 </div>
 
@@ -357,15 +357,32 @@ async function runUpdate(){
     const newPids=[...new Set(newRows.map(r=>r.product_id))].filter(pid=>!imgMap[pid]);
     if(newPids.length>0){
       log(`🔍 抓取 ${newPids.length} 款新圖片（官網），預計需 ${Math.ceil(newPids.length*1.2)} 秒...`,'l-info');
+      // 代理清單（依序嘗試）
+      const PROXIES=[
+        url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
+        url=>`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      ];
+      async function fetchHtml(targetUrl){
+        for(const mkProxy of PROXIES){
+          try{
+            const r=await Promise.race([
+              fetch(mkProxy(targetUrl)),
+              new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),15000))
+            ]);
+            if(!r.ok) continue;
+            const ct=r.headers.get('content-type')||'';
+            if(ct.includes('json')){
+              const d=await r.json(); return d.contents||'';
+            }
+            return await r.text();
+          }catch(e){ continue; }
+        }
+        throw new Error('所有代理均失敗');
+      }
+
       for(const pid of newPids){
         try{
-          const proxyUrl=`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.airspaceonline.com/tw/zh-hant/product/TW'+pid)}`;
-          const resp=await Promise.race([
-            fetch(proxyUrl),
-            new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),18000))
-          ]);
-          const d=await resp.json();
-          const html=d.contents||'';
+          const html=await fetchHtml('https://www.airspaceonline.com/tw/zh-hant/product/TW'+pid);
           const pat=`photo/${pid}/`;
           const seen=new Set(),imgs=[];
           const re=/src="([^"]+)"/g; let m;
@@ -379,7 +396,7 @@ async function runUpdate(){
         }catch(e){
           log(`  ❌ ${pid}：${e.message}`,'l-err');
         }
-        await new Promise(r=>setTimeout(r,900));
+        await new Promise(r=>setTimeout(r,800));
       }
       log(`✅ 圖片完成，共 ${Object.keys(imgMap).length} 款有圖`,'l-ok');
     } else {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>大阪五天四夜｜愛の居酒屋</title>
+<title>大阪愛の居酒屋｜大阪五天四夜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
@@ -72,7 +72,7 @@ a{color:inherit;}
 .links a{font-size:12px;text-decoration:none;border:2px solid var(--ink);border-radius:999px;padding:3px 10px;background:#fff;font-weight:bold;}
 .links a:active{background:var(--yama);}
 .tag{display:inline-block;font-size:11px;border:2px solid var(--ink);border-radius:999px;padding:2px 9px;margin-right:6px;font-weight:bold;}
-.must{display:inline-block;font-size:11px;border:2px solid var(--ink);background:var(--coral);border-radius:999px;padding:2px 9px;font-weight:bold;}
+.must{display:inline-block;font-size:11px;border:2px solid var(--ink);background:var(--waka);border-radius:999px;padding:2px 9px;font-weight:bold;}
 .foodhead{font-size:16px;font-weight:bold;margin:20px 0 10px;}
 .foods{display:grid;gap:10px;}
 .food{border:2px solid var(--ink);border-radius:16px;padding:12px;background:#FFF8F0;}
@@ -81,6 +81,7 @@ a{color:inherit;}
 .score{display:inline-block;background:var(--coral);border:2px solid var(--ink);border-radius:999px;font-size:11px;padding:1px 8px;font-weight:bold;margin:4px 4px 0 0;}
 .score.alt{background:var(--waka);}
 .food .meta{font-size:12.5px;line-height:1.6;margin-top:6px;}
+.must.booked{background:var(--coral);}
 .bounce{animation:bounce .45s ease;}
 @keyframes bounce{0%{transform:scale(.96) translateY(6px);opacity:0;}60%{transform:scale(1.01) translateY(-2px);opacity:1;}100%{transform:scale(1) translateY(0);}}
 .check-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px dashed #ddd;font-size:14px;}
@@ -105,7 +106,7 @@ a{color:inherit;}
 </style>
 </head>
 <body>
-<div class="nav"><b>🏯 大阪愛の居酒屋</b>
+<div class="nav"><b>🏮 大阪愛の居酒屋</b>
   <div class="jump"><a href="#plan">行程</a><a href="#hotel">住宿</a><a href="#check">清單</a></div>
 </div>
 <div class="wrap">
@@ -120,8 +121,8 @@ a{color:inherit;}
       <path d="M20 40 q20 -10 40 0" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round"/>
       <path d="M15 55 q20 -10 40 0" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round"/>
     </svg>
-    <h1>大阪五天四夜</h1>
-    <p>2026/10/30 — 11/3　2大＋1位4歲小孩</p>
+    <h1>大阪愛の居酒屋</h1>
+    <p>大阪五天四夜　2026/10/30 — 11/3<br>4大＋1位4歲小孩</p>
     <div class="countdown" id="countdown">計算中...</div>
   </div>
 
@@ -129,12 +130,13 @@ a{color:inherit;}
     <h3 style="margin-bottom:10px;">✈️ 航班</h3>
     <div class="flights">
       <div class="flight"><b>去程　10/30（五）</b><div class="t">08:05 台北 → 11:35 大阪</div>華航　關西機場 T1</div>
-      <div class="flight"><b>回程　11/3（二）</b><div class="t">14:30 大阪 → 16:50 台北</div>華航　建議 12:30 前到機場</div>
+      <div class="flight"><b>回程　11/3（二）</b><div class="t">14:30 大阪 → 16:50 台北</div>華航　innn 專車 11:00 到機場</div>
     </div>
   </div>
 
   <div class="card" id="plan">
-    <h3 style="margin-bottom:12px;">📅 每日行程</h3>
+    <h3 style="margin-bottom:6px;">📅 每日行程</h3>
+    <div class="daysub">行程很自由，以下都是<b>推薦</b>，依當天心情和小孩體力隨時調整；標「已預訂」的才是固定的。</div>
     <div class="tabs" id="tabs"></div>
     <div class="opts" id="opts"></div>
     <div class="daytitle" id="daytitle"></div>
@@ -186,8 +188,8 @@ const ICONS = {
   torii:'<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="3" fill="var(--coral)" stroke="var(--ink)" stroke-width="1.5"/><rect x="5" y="9" width="3" height="12" fill="var(--coral)" stroke="var(--ink)" stroke-width="1.5"/><rect x="16" y="9" width="3" height="12" fill="var(--coral)" stroke="var(--ink)" stroke-width="1.5"/></svg>',
   pagoda:'<svg viewBox="0 0 24 24"><polygon points="12,2 22,8 2,8" fill="var(--waka)" stroke="var(--ink)" stroke-width="1.5"/><rect x="9" y="8" width="6" height="13" fill="var(--waka)" stroke="var(--ink)" stroke-width="1.5"/></svg>'
 };
-const TAGCOLOR = {'步行':'var(--waka)','地鐵':'var(--mizu)','JR':'var(--coral)','巴士':'var(--yama)','南海':'var(--coral)','京阪':'var(--fuji)','單軌':'var(--mizu)','活動':'#eee','用餐':'#FFE1D6'};
-const MOVE_TAGS = ['步行','地鐵','JR','巴士','南海','京阪','單軌'];
+const TAGCOLOR = {'步行':'var(--waka)','地鐵':'var(--mizu)','JR':'var(--coral)','巴士':'var(--yama)','南海':'var(--coral)','京阪':'var(--fuji)','單軌':'var(--mizu)','專車':'var(--yama)','活動':'#eee','用餐':'#FFE1D6'};
+const MOVE_TAGS = ['步行','地鐵','JR','巴士','南海','京阪','單軌','專車'];
 
 // 連結小工具
 const map = q => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
@@ -197,7 +199,7 @@ const L = (t,u) => ({t,u});
 const F = {
   tenkichi:{n:'そうさく料理 てんきち', z:'創作和食・天婦羅', s:'3.47', st:'りんくうタウン站 步行3分（Supercenter Rinku Town 內）', h:'週三～日 11:00–14:00（LO 13:30）、17:30–21:00｜週一二休', p:'¥1,000–1,999／人', note:'有4人、6人桌；可電話預約 072-464-3108', u:'https://tabelog.com/osaka/A2705/A270503/27098328/', m:'そうさく料理 てんきち りんくうタウン'},
   gifuya:{n:'ぎふや本家', z:'串炸（串カツ）', s:'3.48', st:'動物園前站 步行3分（新世界）', h:'週一～六 11:00–23:00｜週日・假日 10:30 起', p:'晚餐 ¥3,000–3,999／人', note:'有包廂、家庭友善；店內有加熱式菸區。可預約 050-5570-2565', u:'https://tabelog.com/osaka/A2701/A270206/27079311/', m:'ぎふや本家 新世界'},
-  chitose:{n:'お好み焼き ちとせ', z:'大阪燒', s:'3.61', b:'大阪燒百名店 2022–2025', st:'動物園前站 步行3分', h:'週一四五日 11:30–14:30、17:00–20:00｜週六只有午餐 11:30–14:15｜週二三休', p:'¥1,000–1,999／人', note:'可帶小孩，但只有12席，建議早點去', u:'https://tabelog.com/osaka/A2701/A270206/27019100/', m:'お好み焼き ちとせ 大阪 新世界'},
+  chitose:{n:'お好み焼き ちとせ', z:'大阪燒', s:'3.61', b:'大阪燒百名店 2022–2025', st:'動物園前站 步行3分', h:'週一四五日 11:30–14:30、17:00–20:00｜週六只有午餐 11:30–14:15｜週二三休', p:'¥1,000–1,999／人', note:'可帶小孩，但只有12席，5人同行要早點去或分開坐', u:'https://tabelog.com/osaka/A2701/A270206/27019100/', m:'お好み焼き ちとせ 大阪 新世界'},
   senariya:{n:'千成屋珈琲', z:'喫茶店・綜合果汁', s:'3.62', b:'喫茶店百名店', st:'動物園前站 1號出口 步行2分', h:'週六日・假日 09:00–19:00｜平日 11:30 起', p:'¥999 以內', note:'大阪名物「ミックスジュース」發源店，小孩友善', u:'https://tabelog.com/osaka/A2701/A270206/27017860/', m:'千成屋珈琲 新世界'},
   friendship:{n:'フレンドシップ', z:'日式洋食', s:'3.49', st:'森之宮站 2號出口旁', h:'11:00–15:30、18:00–21:00｜只有年假休', p:'¥1,000–1,999／人', note:'歡迎小孩，有兒童餐具；吸菸規定頁面標示不一', u:'https://tabelog.com/osaka/A2701/A270107/27003957/', m:'フレンドシップ 森ノ宮'},
   yatagarasu:{n:'やたがらす UDON', z:'烏龍麵', s:'3.67', b:'烏龍麵百名店 2024', st:'谷町四丁目站 3號出口 步行1分', h:'週一～六 11:00–14:00｜週日・假日休，週六不定休', p:'¥1,000–1,999／人', note:'⚠️ 13:00 前不接待國中以下小孩，要 13:00 後再去', u:'https://tabelog.com/osaka/A2701/A270104/27104366/', m:'やたがらす UDON 谷町四丁目'},
@@ -206,14 +208,14 @@ const F = {
   fukutaro:{n:'福太郎 本店', z:'大阪燒', s:'3.71', b:'大阪燒百名店', st:'近鐵日本橋站 步行3分', h:'平日 17:00–23:30｜週六日・假日 12:00–23:30', p:'¥2,000–2,999／人', note:'有榻榻米座位、常排隊；小孩規定未確認', u:'https://tabelog.com/osaka/A2701/A270202/27002665/', m:'福太郎 本店 千日前'},
   hahaha:{n:'ハaハaハa HayashiRice', z:'牛肉燴飯・蛋包飯', s:'3.38', st:'大阪港站 步行3～5分', h:'週一四五 11:00–15:00｜週六日・假日 11:00–16:00｜週二三休', p:'¥1,000–1,999／人', note:'超親子友善：可推車進入、有繪本；偶有臨時公休，可電話 06-6576-0880', u:'https://tabelog.com/osaka/A2701/A270402/27015830/', m:'ハハハ ハヤシライス 大阪港'},
   chikko:{n:'築港麺工房', z:'烏龍麵', s:'3.61', st:'大阪港站 步行5分', h:'⚠️ 只有平日 11:00–16:00（週六日・假日休）', p:'¥999 以內', note:'11/1 是週日沒開，若改平日去海遊館才用得到', u:'https://tabelog.com/osaka/A2701/A270402/27081824/', m:'築港麺工房'},
-  manno:{n:'焼肉萬野 天王寺店', z:'燒肉', s:'3.46', b:'燒肉百名店 2020・2021', st:'JR 天王寺站 北口旁', h:'每天 11:30–14:30、17:00–23:00', p:'晚餐約 ¥6,000–7,999／人', note:'🎂 有完全包廂（最多11人）、可帶小孩，最適合兒子生日；可線上訂位 050-5868-0954', u:'https://tabelog.com/osaka/A2701/A270203/27019581/', m:'焼肉萬野 天王寺店'},
+  manno:{n:'焼肉萬野 天王寺店', z:'燒肉', s:'3.46', b:'燒肉百名店 2020・2021', st:'JR 天王寺站 北口旁', h:'每天 11:30–14:30、17:00–23:00', p:'晚餐約 ¥6,000–7,999／人', note:'🎂 有完全包廂（最多11人），5人剛好；可帶小孩，最適合兒子生日；可線上訂位 050-5868-0954', u:'https://tabelog.com/osaka/A2701/A270203/27019581/', m:'焼肉萬野 天王寺店'},
   akoya:{n:'阿古屋茶屋', z:'茶泡飯吃到飽', s:'3.46', st:'清水道巴士站 步行6分', h:'平日 11:00–16:00｜週末 11:00–17:00｜無公休', p:'¥1,000–1,999／人', note:'50席、可帶小孩，就在清水寺下坡路上', u:'https://tabelog.com/kyoto/A2601/A260301/26001626/', m:'阿古屋茶屋 清水'},
   izuju:{n:'いづ重', z:'京都鯖魚壽司・豆皮壽司', s:'3.59', st:'八坂神社正對面，祇園四條站 步行8分', h:'10:30–17:00（賣完提早關）｜週三四休', p:'¥2,000–3,999／人', note:'歡迎小孩；可外帶豆皮壽司邊走邊吃', u:'https://tabelog.com/kyoto/A2601/A260301/26002550/', m:'いづ重 祇園'},
   asahi:{n:'本家 第一旭 本店', z:'拉麵', s:'3.74', b:'拉麵百名店 2025', st:'京都站 步行5分', h:'06:00–01:00｜週四休', p:'¥1,999 以內', note:'歡迎小孩；常排隊但翻桌快', u:'https://tabelog.com/kyoto/A2601/A260101/26000873/', m:'本家 第一旭 本店 京都'},
   manbo:{n:'山本まんぼ', z:'大阪燒（京都風）', s:'3.67', b:'大阪燒百名店 2022–2025', st:'京都站 步行6分', h:'10:00–22:00｜公休日頁面標示不一（週三或第3個週四）', p:'¥1,000–3,999／人', note:'歡迎小孩與推車；平日可電話預約 075-341-8050', u:'https://tabelog.com/kyoto/A2601/A260101/26034294/', m:'山本まんぼ 京都'},
   nezameya:{n:'祢ざめ家', z:'鰻魚・豆皮壽司', s:'3.48', st:'JR 稻荷站 步行2分', h:'10:00–16:30｜不定休', p:'¥1,000–1,999／人', note:'90席、可帶小孩；可預約 075-641-0802', u:'https://tabelog.com/kyoto/A2601/A260601/26003540/', m:'祢ざめ家 伏見稲荷'},
   yoshimura:{n:'嵐山よしむら', z:'蕎麥麵・天婦羅（河景）', s:'3.50', st:'嵐電嵐山站 步行3分', h:'平日 11:00–16:00｜週末 11:00–17:00', p:'¥1,000–2,999／人', note:'1樓有家庭區、歡迎小孩；要排隊', u:'https://tabelog.com/kyoto/A2601/A260403/26000403/', m:'嵐山よしむら'},
-  daizen:{n:'嵐山 大善', z:'壽司', s:'3.59', st:'嵐電嵯峨站 步行4分', h:'週一～三 10:00–17:00｜週五～日 10:00–19:30｜週四休', p:'午餐 ¥1,000–2,999／人', note:'可帶小孩但只有15席，建議線上預約', u:'https://tabelog.com/kyoto/A2601/A260403/26022843/', m:'嵐山 大善'},
+  daizen:{n:'嵐山 大善', z:'壽司', s:'3.59', st:'嵐電嵯峨站 步行4分', h:'週一～三 10:00–17:00｜週五～日 10:00–19:30｜週四休', p:'午餐 ¥1,000–2,999／人', note:'可帶小孩但只有15席，5人一定要線上預約', u:'https://tabelog.com/kyoto/A2601/A260403/26022843/', m:'嵐山 大善'},
   nankaiparlor:{n:'南海パーラー', z:'咖啡廳・輕食', s:'3.44', st:'南海難波站 2F 中央剪票口旁', h:'平日 07:00–21:00｜週末・假日 09:00 起', p:'¥1,000–1,999／人', note:'歡迎小孩與推車；搭機前最順路', u:'https://tabelog.com/osaka/A2701/A270202/27048767/', m:'南海パーラー なんば'},
   american:{n:'純喫茶 アメリカン', z:'經典喫茶店', s:'3.64', b:'喫茶店百名店 2026', st:'難波站 15號出口 步行3分', h:'每天 10:00 起', p:'¥1,000–1,999／人', note:'245席、歡迎小孩；鬆餅、聖代有名', u:'https://tabelog.com/osaka/A2701/A270202/27005758/', m:'純喫茶 アメリカン 道頓堀'}
 };
@@ -233,18 +235,21 @@ const T = {
 /* ---------- 行程資料 ---------- */
 const days = [
 {date:'10/30（五）', icon:'plane', options:[
- {name:'抵達日', sub:'臨空城 Outlet → 新世界', title:'抵達＋臨空城', items:[
-  {time:'08:05', tag:'活動', title:'桃園機場出發', note:'華航'},
-  {time:'11:35', tag:'活動', title:'抵達關西機場 T1', note:'入境、領行李，約60～75分。行李可先寄放機場或 Outlet 置物櫃（出發前確認）'},
+ {name:'抵達日', sub:'臨空城 Outlet → 專車回飯店', title:'抵達＋臨空城', items:[
+  {time:'08:05', tag:'活動', title:'桃園機場出發', note:'華航', booked:1},
+  {time:'11:35', tag:'活動', title:'抵達關西機場 T1', note:'入境、領行李，約60～75分。逛 Outlet 時行李可放 Outlet 置物櫃（出發前確認），18:00 專車再一起載走'},
   T.kixRinkuTrain, T.kixRinkuBus,
   {time:'13:00', tag:'用餐', title:'午餐：そうさく料理 てんきち 或 Outlet 美食街', note:'てんきち 13:30 最後點餐，來不及就吃 Outlet 內餐廳', l:[L('Tabelog',F.tenkichi.u),L('地圖',map(F.tenkichi.m))]},
-  {time:'13:45–16:45', tag:'活動', title:'臨空城 Rinku Premium Outlets', must:1,
+  {time:'13:45–17:45', tag:'活動', title:'臨空城 Rinku Premium Outlets', must:1, note:'17:45 前回到上車點集合',
    d:[['🕘','10:00–20:00（全館無休）'],['🎫','免費入場']],
    l:[L('官網',"https://www.premiumoutlets.co.jp/en/rinku/"),L('地圖',map('Rinku Premium Outlets'))]},
-  T.rinkuHotel, T.shinimaHotel,
-  {time:'19:00–20:30', tag:'用餐', title:'第一晚晚餐：新世界串炸', must:1, note:'推薦 ぎふや本家（有包廂）；想吃大阪燒可改 ちとせ（週五晚上有開）',
+  {time:'18:00', tag:'專車', title:'KKday 專車：臨空城 → 飯店', booked:1, note:'已預訂｜豪華7人座 ×1，單程私人接送',
+   d:[['📍','上車：臨空奧特萊斯（Rinku Premium Outlets），確切集合點看 KKday 憑證'],['🏨','下車：通天閣悅庭嵐舍（浪速區惠美須東1-8-4）'],['⏱️','車程約40～60分（依塞車，估算）'],['💴','已付款（KKday）']],
+   l:[L('上車點地圖',map('Rinku Premium Outlets'))]},
+  {time:'約18:50', tag:'活動', title:'抵達飯店 Check-in', note:'通天閣悅庭嵐舍', l:[L('飯店地圖',map('大阪市浪速区恵美須東1丁目8-4'))]},
+  {time:'19:15–20:45', tag:'用餐', title:'第一晚晚餐：新世界串炸', must:1, note:'飯店步行約5～10分。推薦 ぎふや本家（營業到23:00、有包廂）；ちとせ 20:00 就關，這天來不及',
    l:[L('Tabelog',F.gifuya.u),L('地圖',map(F.gifuya.m))]}
- ], foods:['gifuya','chitose','tenkichi']}
+ ], foods:['gifuya','tenkichi','senariya']}
 ]},
 
 {date:'10/31（六）', icon:'castle', options:[
@@ -273,7 +278,7 @@ const days = [
   {time:'09:30–12:00', tag:'活動', title:'天王寺動物園', must:1,
    d:[['🕘','09:30–17:00（16:00 最後入園）｜週一休'],['🎫','大人 ¥800（2026/7 起調漲）／學齡前免費']],
    l:[L('官網','https://www.tennojizoo.jp/info/outline/'),L('地圖',map('天王寺動物園'))]},
-  {time:'12:00–13:00', tag:'用餐', title:'午餐：お好み焼き ちとせ', note:'週六只有午餐（14:15止）、12席，早點去', l:[L('Tabelog',F.chitose.u),L('地圖',map(F.chitose.m))]},
+  {time:'12:00–13:00', tag:'用餐', title:'午餐：お好み焼き ちとせ', note:'週六只有午餐（14:15止）、只有12席，5人建議開門就去', l:[L('Tabelog',F.chitose.u),L('地圖',map(F.chitose.m))]},
   {time:'13:15–14:15', tag:'活動', title:'通天閣',
    d:[['🕘','09:00–21:45（21:15 最後入場）'],['🎫','大人 ¥1,500／5～14歲 ¥800；未滿5歲票價官網未列（待確認）'],['👶','溜滑梯 Tower Slider 6歲以下不能玩']],
    l:[L('官網','https://www.tsutenkaku.co.jp/annai/index.html'),L('地圖',map('通天閣'))]},
@@ -372,34 +377,35 @@ const days = [
 ]},
 
 {date:'11/3（二）', icon:'pagoda', options:[
- {name:'回程日', sub:'四天王寺 → 機場', title:'四天王寺＋回台', items:[
+ {name:'回程日', sub:'四天王寺 → 專車去機場', title:'四天王寺＋回台', items:[
   {time:'07:30', tag:'活動', title:'早餐', note:'飯店附近便利商店或早餐店（11/3 是日本國定假日）'},
-  {time:'08:15', tag:'活動', title:'退房／寄放行李'},
-  {time:'08:20', tag:'地鐵', title:'飯店 → 四天王寺', d:[['🚉','御堂筋線 動物園前 → 天王寺 轉 谷町線 → 四天王寺前夕陽丘'],['💴','大人 約¥190（推算）'],['⏱️','約12分；或直接步行約20～25分']]},
-  {time:'08:30–09:45', tag:'活動', title:'四天王寺', note:'可刪項目',
+    {time:'08:10', tag:'地鐵', title:'飯店 → 四天王寺', d:[['🚉','御堂筋線 動物園前 → 天王寺 轉 谷町線 → 四天王寺前夕陽丘'],['💴','大人 約¥190（推算）'],['⏱️','約12分；或直接步行約20～25分']]},
+  {time:'08:30–09:15', tag:'活動', title:'四天王寺', note:'可刪項目；時間很趕，想輕鬆就略過改在飯店附近散步',
    d:[['🕘','中心伽藍 08:30–16:00（境內戶外全天）'],['🎫','中心伽藍 大人 ¥500／幼兒免費']],
    l:[L('官網','https://www.shitennoji.or.jp/admission.html'),L('地圖',map('四天王寺'))]},
-  {time:'10:00', tag:'地鐵', title:'回飯店拿行李', note:'同路線返回'},
-  {time:'10:45', tag:'南海', title:'新今宮 → 關西機場（Rapi:t）', must:1,
-   d:[['🚉','南海 新今宮站 搭特急 Rapi:t（α、β 都停新今宮）→ 關西空港'],['💴','大人 ¥1,520（線上無票）／¥1,670（紙本）；4歲坐腿上免費，要自己座位需買兒童票'],['⏱️','約35～38分'],['💡','省錢：空港急行 ¥970、約45分、不對號']],
-   l:[L('Rapi:t 官網','https://www.nankai.co.jp/en_railway/traffic/express/rapit.html')]},
-  {time:'11:30', tag:'活動', title:'抵達關西機場 T1，報到', note:'距起飛約3小時，從容'},
-  {time:'14:30', tag:'活動', title:'起飛（華航）'},
+  {time:'09:30', tag:'地鐵', title:'回飯店、退房', note:'同路線返回，約12分'},
+  {time:'約10:00', tag:'專車', title:'innn 機場接送：飯店 → 關西機場 T1', booked:1, note:'已預訂｜預計 11:00 抵達機場；確切上車時間以 innn 通知為準',
+   d:[['🧾','訂單編號 S2026101412030001（Hana Hsiao）'],['📍','上車：矢本アパート（〒556-0002 浪速區惠美須東1-8-4，即住宿地址）'],['🛬','下車：關西國際機場 第1航廈'],['👥','訂單人數：成人5（4大＋小孩），嬰兒0、行李券0'],['💴','已付款（innn）']],
+   l:[L('上車點地圖',map('大阪市浪速区恵美須東1丁目8-4'))]},
+  {time:'11:00', tag:'活動', title:'抵達關西機場 T1，報到', note:'距起飛3.5小時，從容'},
+  {time:'14:30', tag:'活動', title:'起飛（華航）', booked:1},
   {time:'16:50', tag:'活動', title:'抵達桃園機場'}
- ], foods:['nankaiparlor','american'], foodNote:'若跳過四天王寺，可改走難波：在南海パーラー吃早午餐，再從南海難波搭 Rapi:t。'}
+ ], foods:['nankaiparlor','american'], foodNote:'回程是專車從飯店出發，這兩家在難波，只適合 11/2 晚上或更早想去時參考；當天早餐建議飯店附近。'}
 ]}
 ];
 
 const checklistItems = [
   '填好 Visit Japan Web（住宿資料在下方可一鍵複製）',
   '準備 ICOCA／Suica（大人用，小孩免費）',
-  '10/30 確認 Outlet 寄放行李方式',
+  '準備兒童安全座椅需求：向 KKday／innn 確認是否需要加購',
+  '10/30 確認 Outlet 寄放行李方式＋KKday 專車 18:00 集合點',
   '10/31 決定方案A／B；食堂ペスカ 線上訂位',
   '10/31 大阪城天守閣：帶護照（小孩免費證明）',
   '11/1 海遊館（或 NIFREL）預購指定時段電子票',
   '11/1 焼肉萬野 天王寺店 訂「包廂」',
   '11/2 決定京都方案；鐵道博物館可預購',
-  '11/3 Rapi:t 車票（新今宮上車，要不要幫小孩買位子）',
+  '11/3 innn 接送：確認上車時間（11:00 到機場）',
+  '確認 5 人＋行李放得進 KKday／innn 的車（KKday 為7人座）',
   '出發前再點一次餐廳 Tabelog 確認營業時間'
 ];
 
@@ -440,13 +446,13 @@ function render(){
     opts.style.display='flex';
   } else { opts.innerHTML=''; opts.style.display='none'; }
   document.getElementById('daytitle').textContent = d.date + '　' + o.title;
-  document.getElementById('daysub').textContent = d.options.length>1 ? `共 ${d.options.length} 個方案，點上方切換（會記住你的選擇）` : '';
+  document.getElementById('daysub').textContent = d.options.length>1 ? `共 ${d.options.length} 個推薦方案，點上方切換（會記住你的選擇）` : '';
   document.getElementById('alert').innerHTML = o.alert ? `<div class="alert">⚠️ ${o.alert}</div>` : '';
   const tl = document.getElementById('timeline');
   tl.innerHTML = o.items.map(it=>`
     <div class="item${MOVE_TAGS.includes(it.tag)?' move':''}">
       <div class="time">${it.time}</div>
-      <div class="title">${it.title}${it.must?' <span class="must">必去</span>':''}</div>
+      <div class="title">${it.title}${it.must?' <span class="must">推薦</span>':''}${it.booked?' <span class="must booked">已預訂</span>':''}</div>
       <span class="tag" style="background:${TAGCOLOR[it.tag]||'#eee'}">${it.tag}</span>
       ${it.note?`<div class="note">${it.note}</div>`:''}
       ${it.d?`<div class="info">${it.d.map(r=>`<div><i>${r[0]}</i><span>${r[1]}</span></div>`).join('')}</div>`:''}

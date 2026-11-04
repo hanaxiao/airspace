@@ -241,7 +241,7 @@
         "sku": "BF5270",
         "name": "【HEYMAN聯名】V領長袖長版方格織紋絨毛針織外套",
         "category": "針織",
-        "grade": "1280",
+        "grade": "B",
         "total_sales": 13,
         "inventory": 370,
         "store_sales": {
@@ -287,7 +287,7 @@
         "sku": "BF5295",
         "name": "【HEYMAN聯名】V型一字領蕾絲肩帶喇叭袖麻花針織短洋裝",
         "category": "洋裝",
-        "grade": "990",
+        "grade": "A",
         "total_sales": 97,
         "inventory": 365,
         "store_sales": {
@@ -345,7 +345,7 @@
         "sku": "EB20486",
         "name": "【HEYMAN聯名】 U領蕾絲長袖短版上衣繞頸綁帶BRA背心套裝",
         "category": "套裝",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 48,
         "inventory": 366,
         "store_sales": {
@@ -398,7 +398,7 @@
         "sku": "GT9233",
         "name": "【HEYMAN聯名】撞色線條滾邊圓領長袖短版麻花針織開襟衫",
         "category": "針織",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 40,
         "inventory": 377,
         "store_sales": {
@@ -448,7 +448,7 @@
         "sku": "GT9287",
         "name": "【HEYMAN聯名】高腰百褶針織短裙",
         "category": "裙子",
-        "grade": "690",
+        "grade": "B",
         "total_sales": 0,
         "inventory": 0,
         "store_sales": {},
@@ -460,7 +460,7 @@
         "sku": "ML116983",
         "name": "【HEYMAN聯名】V領綁帶側抓皺長袖天絲襯衫",
         "category": "上衣",
-        "grade": "690",
+        "grade": "B",
         "total_sales": 43,
         "inventory": 406,
         "store_sales": {
@@ -514,7 +514,7 @@
         "sku": "MS67931",
         "name": "【HEYMAN聯名】V領細肩帶V字荷葉裙擺短洋裝(附胸墊)",
         "category": "洋裝",
-        "grade": "990",
+        "grade": "B",
         "total_sales": 42,
         "inventory": 383,
         "store_sales": {
@@ -569,7 +569,7 @@
         "sku": "XY63023",
         "name": "【HEYMAN聯名】前後兩穿立領挖肩長袖羅紋上衣(附胸墊)",
         "category": "上衣",
-        "grade": "790",
+        "grade": "A",
         "total_sales": 48,
         "inventory": 453,
         "store_sales": {
@@ -623,7 +623,7 @@
         "sku": "XY6968",
         "name": "前後兩穿交叉V型一字領綁帶長袖短版毛絨針織衫",
         "category": "針織",
-        "grade": "990",
+        "grade": "B",
         "total_sales": 25,
         "inventory": 426,
         "store_sales": {
@@ -673,7 +673,7 @@
         "sku": "ZX11539",
         "name": "【HEYMAN聯名】小香風圓領金扣長袖短版花呢外套",
         "category": "外套",
-        "grade": "1280",
+        "grade": "A",
         "total_sales": 46,
         "inventory": 167,
         "store_sales": {
@@ -727,7 +727,7 @@
         "sku": "ZX11541",
         "name": "【HEYMAN聯名】小香風花呢A字短褲裙",
         "category": "褲裙",
-        "grade": "790",
+        "grade": "A",
         "total_sales": 33,
         "inventory": 230,
         "store_sales": {
@@ -780,7 +780,7 @@
         "sku": "ZX11564",
         "name": "【HEYMAN聯名】假兩件格紋方領背心雪紡長袖短版襯衫",
         "category": "上衣",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 139,
         "inventory": 303,
         "store_sales": {
@@ -838,7 +838,7 @@
         "sku": "ZX11568",
         "name": "【HEYMAN聯名】復古格紋A字短褲裙",
         "category": "褲裙",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 138,
         "inventory": 307,
         "store_sales": {
@@ -898,7 +898,7 @@
         "sku": "BF2245A",
         "name": "多WAY不對稱交叉V領長袖收腰短版毛衣",
         "category": "針織",
-        "grade": "890",
+        "grade": "B",
         "total_sales": 14,
         "inventory": 209,
         "store_sales": {
@@ -929,7 +929,7 @@
         "sku": "EB20485A",
         "name": "V型一字領繞頸蕾絲綁帶長袖BRA TOP",
         "category": "上衣",
-        "grade": "790",
+        "grade": "衝",
         "total_sales": 59,
         "inventory": 263,
         "store_sales": {
@@ -963,7 +963,7 @@
         "sku": "EB20513A",
         "name": "高腰鉚釘裝飾口袋直筒斜紋長褲",
         "category": "褲子",
-        "grade": "990",
+        "grade": "A",
         "total_sales": 15,
         "inventory": 287,
         "store_sales": {
@@ -995,7 +995,7 @@
         "sku": "GT9226A",
         "name": "前後兩穿繞頸肩帶羅紋針織背心(附胸墊)",
         "category": "針織",
-        "grade": "690",
+        "grade": "B",
         "total_sales": 18,
         "inventory": 225,
         "store_sales": {
@@ -1028,7 +1028,7 @@
         "sku": "GT9228A",
         "name": "鬆緊腰直筒羅紋針織長裙",
         "category": "裙子",
-        "grade": "890",
+        "grade": "A",
         "total_sales": 23,
         "inventory": 227,
         "store_sales": {
@@ -1059,7 +1059,7 @@
         "sku": "SHY915A",
         "name": "V領繞頸背心長袖排扣開襟麻花針織衫套裝",
         "category": "套裝",
-        "grade": "990",
+        "grade": "A",
         "total_sales": 26,
         "inventory": 132,
         "store_sales": {
@@ -1090,7 +1090,7 @@
         "sku": "XY63039A",
         "name": "翻領長袖水洗工裝風寬版鋪棉外套",
         "category": "外套",
-        "grade": "1880",
+        "grade": "B",
         "total_sales": 17,
         "inventory": 139,
         "store_sales": {
@@ -1121,7 +1121,7 @@
         "sku": "XY6971A",
         "name": "絨毛滾邊連帽長袖短版拉鍊針織外套",
         "category": "針織",
-        "grade": "1080",
+        "grade": "B",
         "total_sales": 60,
         "inventory": 183,
         "store_sales": {
@@ -1155,7 +1155,7 @@
         "sku": "XY6975A",
         "name": "腰抽繩修身針織短褲",
         "category": "褲子",
-        "grade": "690",
+        "grade": "B",
         "total_sales": 31,
         "inventory": 214,
         "store_sales": {
@@ -1191,7 +1191,7 @@
         "sku": "AF12873Q",
         "name": "2WAY 不對稱領頸綁帶側抽繩長袖短版羅紋上衣(附胸墊)",
         "category": "上衣",
-        "grade": "690",
+        "grade": "A",
         "total_sales": 100,
         "inventory": 676,
         "store_sales": {
@@ -1261,7 +1261,7 @@
         "sku": "EB20564Q",
         "name": "蕾絲貼布繡文字長袖寬版內磨毛連帽拉鍊外套",
         "category": "外套",
-        "grade": "1180",
+        "grade": "B",
         "total_sales": 0,
         "inventory": 0,
         "store_sales": {},
@@ -1273,7 +1273,7 @@
         "sku": "EB20565Q",
         "name": "腰抽繩曲線剪裁後開衩內磨毛長裙",
         "category": "裙子",
-        "grade": "890",
+        "grade": "B",
         "total_sales": 41,
         "inventory": 579,
         "store_sales": {
@@ -1335,7 +1335,7 @@
         "sku": "GT9225Q",
         "name": "V型翻領排扣長袖撞色波浪花邊羅紋針織短洋裝",
         "category": "洋裝",
-        "grade": "990",
+        "grade": "C",
         "total_sales": 8,
         "inventory": 195,
         "store_sales": {
@@ -1359,7 +1359,7 @@
         "sku": "ICH2780Q",
         "name": "單扣長袖寬版西裝外套",
         "category": "外套",
-        "grade": "1280",
+        "grade": "B",
         "total_sales": 73,
         "inventory": 636,
         "store_sales": {
@@ -1427,7 +1427,7 @@
         "sku": "ICH3595Q",
         "name": "圍裹風層次拼接A字西裝短褲裙",
         "category": "褲裙",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 61,
         "inventory": 627,
         "store_sales": {
@@ -1496,7 +1496,7 @@
         "sku": "ML116968Q",
         "name": "麻花紋理雙頭拉鍊長袖短版連帽針織外套",
         "category": "上衣",
-        "grade": "890",
+        "grade": "B",
         "total_sales": 124,
         "inventory": 503,
         "store_sales": {
@@ -1566,7 +1566,7 @@
         "sku": "WX0629Q",
         "name": "撞色假兩件V型翻領愛心文字刺繡長袖寬版毛衣",
         "category": "針織",
-        "grade": "990",
+        "grade": "B",
         "total_sales": 151,
         "inventory": 249,
         "store_sales": {
@@ -1638,7 +1638,7 @@
         "sku": "WX0630Q",
         "name": "圓領長袖下擺抽繩寬版網眼細絨毛衣",
         "category": "針織",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 107,
         "inventory": 528,
         "store_sales": {
@@ -1707,7 +1707,7 @@
         "sku": "XY6957Q",
         "name": "反摺高領挖肩綁帶長袖短版絨毛毛衣",
         "category": "針織",
-        "grade": "990",
+        "grade": "B",
         "total_sales": 113,
         "inventory": 527,
         "store_sales": {
@@ -1778,7 +1778,7 @@
         "sku": "EB20486F",
         "name": "【HEYMAN聯名】 U領蕾絲長袖短版上衣繞頸綁帶BRA背心套裝",
         "category": "套裝",
-        "grade": "890",
+        "grade": "A",
         "total_sales": 38,
         "inventory": 265,
         "store_sales": {
@@ -1812,7 +1812,7 @@
         "sku": "EB20535F",
         "name": "方領細肩綁帶半圓鏤空側抓皺長袖上衣",
         "category": "上衣",
-        "grade": "690",
+        "grade": "B",
         "total_sales": 12,
         "inventory": 210,
         "store_sales": {
@@ -1845,7 +1845,7 @@
         "sku": "EB20649F",
         "name": "圓領長袖金扣開襟絨毛針織衫",
         "category": "針織",
-        "grade": "1080",
+        "grade": "A",
         "total_sales": 17,
         "inventory": 253,
         "store_sales": {
@@ -1878,7 +1878,7 @@
         "sku": "GT8968QF",
         "name": "細肩帶背心交叉V領仿貂毛長袖短版上衣套裝",
         "category": "套裝",
-        "grade": "1280",
+        "grade": "D",
         "total_sales": 28,
         "inventory": 275,
         "store_sales": {
@@ -1914,7 +1914,7 @@
         "sku": "GT9240F",
         "name": "翻領長袖雙頭拉鍊短版羅紋開襟針織衫",
         "category": "針織",
-        "grade": "890",
+        "grade": "B",
         "total_sales": 70,
         "inventory": 200,
         "store_sales": {
@@ -1950,7 +1950,7 @@
         "sku": "MS67931F",
         "name": "【HEYMAN聯名】V領細肩帶V字荷葉裙擺短洋裝(附胸墊)",
         "category": "洋裝",
-        "grade": "1080",
+        "grade": "C",
         "total_sales": 11,
         "inventory": 114,
         "store_sales": {
@@ -1974,7 +1974,7 @@
         "sku": "ZX11539F",
         "name": "【HEYMAN聯名】小香風圓領金扣長袖短版花呢外套",
         "category": "外套",
-        "grade": "1380",
+        "grade": "C",
         "total_sales": 5,
         "inventory": 46,
         "store_sales": {
@@ -1996,7 +1996,7 @@
         "sku": "ZX11564F",
         "name": "【HEYMAN聯名】假兩件格紋方領背心雪紡長袖短版襯衫",
         "category": "上衣",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 57,
         "inventory": 242,
         "store_sales": {
@@ -2031,7 +2031,7 @@
         "sku": "ZX11575F",
         "name": "【HEYMAN聯名】小香風花呢A字短裙",
         "category": "裙子",
-        "grade": "790",
+        "grade": "C",
         "total_sales": 3,
         "inventory": 48,
         "store_sales": {
@@ -2052,7 +2052,7 @@
         "sku": "ZX11576F",
         "name": "【HEYMAN聯名】復古格紋A字短裙",
         "category": "裙子",
-        "grade": "790",
+        "grade": "B",
         "total_sales": 60,
         "inventory": 256,
         "store_sales": {

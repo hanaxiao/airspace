@@ -279,7 +279,8 @@
           "AS96": 18,
           "AT05": 18,
           "AT07": 6
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640129003/f4c3eb69-faeb-4cfc-bc1a-d76cc6ed2605.webp"
       },
       {
         "product_id": "2640124015",
@@ -336,7 +337,8 @@
           "AS96": 19,
           "AT05": 21,
           "AT07": 21
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640124015/dd45d5e6-644a-474b-a930-3ea83456a7c9.webp"
       },
       {
         "product_id": "2640127001",
@@ -388,7 +390,8 @@
           "AS96": 21,
           "AT05": 16,
           "AT07": 20
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640127001/1307416b-141b-41c3-b5ce-a5d2c62137d3.webp"
       },
       {
         "product_id": "2640129016",
@@ -437,7 +440,8 @@
           "AS93": 21,
           "AS96": 18,
           "AT05": 21
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640129016/658eb391-ea28-4d47-a365-72272978fd8f.webp"
       },
       {
         "product_id": "2640122003",
@@ -448,7 +452,8 @@
         "total_sales": 0,
         "inventory": 0,
         "store_sales": {},
-        "store_inventory": {}
+        "store_inventory": {},
+        "image_url": "https://images.airspaceonline.com/photo/2640122003/fbeefa41-37b1-4dae-804c-db2f117b9c87.webp"
       },
       {
         "product_id": "2630121047",
@@ -501,7 +506,8 @@
           "AS96": 34,
           "AT05": 15,
           "AT07": 21
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630121047/bd34004e-0a75-47fc-99b2-e05123c6b0cc.webp"
       },
       {
         "product_id": "2630124030",
@@ -555,7 +561,8 @@
           "AS96": 32,
           "AT05": 17,
           "AT07": 18
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630124030/7f2ae36a-bfbb-4726-92fe-e0c18074a8b2.webp"
       },
       {
         "product_id": "2640121004",
@@ -608,7 +615,8 @@
           "AS96": 36,
           "AT05": 20,
           "AT07": 22
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640121004/992522d3-9edb-413c-8be2-5d14186f3f97.webp"
       },
       {
         "product_id": "2630129009",
@@ -657,7 +665,8 @@
           "AS96": 36,
           "AT05": 15,
           "AT07": 21
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630129009/c0bf01a9-3218-4416-b84b-605b54e26337.webp"
       },
       {
         "product_id": "2640126001",
@@ -710,7 +719,8 @@
           "AS96": 13,
           "AT05": 6,
           "AT07": 11
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640126001/4182d1f5-8b24-433b-9e5c-6446f7be1440.webp"
       },
       {
         "product_id": "2640134002",
@@ -762,7 +772,8 @@
           "AS96": 18,
           "AT05": 8,
           "AT07": 12
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640134002/d2fa619f-9746-429b-a2c1-40e6e2572f99.webp"
       },
       {
         "product_id": "2640121006",
@@ -819,7 +830,8 @@
           "AS96": 20,
           "AT05": 17,
           "AT07": 14
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640121006/f88de552-2752-4b20-830e-4a997f5db9d8.webp"
       },
       {
         "product_id": "2640134001",
@@ -876,7 +888,8 @@
           "AS96": 28,
           "AT05": 16,
           "AT07": 15
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640134001/e3d9b51d-c6e7-4a39-9598-6aa3fa02b4e9.webp"
       }
     ],
     "CA": [
@@ -908,7 +921,8 @@
           "AS92": 22,
           "AS95": 22,
           "AT05": 18
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640729002/5af4be75-176a-4a48-9897-20c76aae92b9.webp"
       },
       {
         "product_id": "2640721005",
@@ -941,7 +955,8 @@
           "AS92": 19,
           "AS95": 40,
           "AT05": 14
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640721005/e2605a93-3d9b-466e-b460-22ac978662ea.webp"
       },
       {
         "product_id": "2640723003",
@@ -972,7 +987,8 @@
           "AS92": 17,
           "AS95": 42,
           "AT05": 23
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640723003/d3b71e1e-5a2f-49d9-ba5d-6c26ea80a8e9.webp"
       },
       {
         "product_id": "2640729001",
@@ -1004,7 +1020,8 @@
           "AS92": 16,
           "AS95": 32,
           "AT05": 18
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640729001/c586b547-1e3d-488c-8991-6530ebaed67b.webp"
       },
       {
         "product_id": "2640722001",
@@ -1034,7 +1051,8 @@
           "AS92": 16,
           "AS95": 32,
           "AT05": 17
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640722001/3f533bb9-1d7d-445f-b3e4-9e4986c9588f.webp"
       },
       {
         "product_id": "2640727001",
@@ -1064,7 +1082,8 @@
           "AS92": 14,
           "AS95": 14,
           "AT05": 9
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640727001/080aa4bf-4f63-45fd-a036-920479a385c7.webp"
       },
       {
         "product_id": "2640726001",
@@ -1094,7 +1113,8 @@
           "AS92": 16,
           "AS95": 10,
           "AT05": 9
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640726001/53449cba-c14b-4073-a01e-92cac839545a.webp"
       },
       {
         "product_id": "2640729007",
@@ -1127,7 +1147,8 @@
           "AS92": 22,
           "AS95": 19,
           "AT05": 14
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640729007/45131c4d-819e-4ddd-8e29-bac95f15bfd0.webp"
       },
       {
         "product_id": "2640723007",
@@ -1160,7 +1181,8 @@
           "AS92": 26,
           "AS95": 24,
           "AT05": 15
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640723007/e9d56e51-0c32-488d-92b9-896f1d837c5c.webp"
       }
     ],
     "OL": [
@@ -1231,7 +1253,8 @@
           "AS95": 24,
           "AT02": 15,
           "AT07": 22
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641821001/b0c79b6f-0b46-41b6-b26f-ed3c47ff4b9a.webp"
       },
       {
         "product_id": "2641826002",
@@ -1242,7 +1265,8 @@
         "total_sales": 0,
         "inventory": 0,
         "store_sales": {},
-        "store_inventory": {}
+        "store_inventory": {},
+        "image_url": "https://images.airspaceonline.com/photo/2641826002/19041395-9bc7-468e-a3d1-f47cd5975817.webp"
       },
       {
         "product_id": "2641822003",
@@ -1303,7 +1327,8 @@
           "AS95": 20,
           "AT02": 20,
           "AT07": 20
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641822003/7a914f2a-ba98-4c79-a8a9-767c8c0f4417.webp"
       },
       {
         "product_id": "2641824001",
@@ -1326,7 +1351,8 @@
           "AS46": 39,
           "AS69": 29,
           "AT07": 28
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641824001/e8acae87-69b1-49e7-951f-58e6659ef00a.webp"
       },
       {
         "product_id": "2641826001",
@@ -1393,7 +1419,8 @@
           "AS95": 14,
           "AT02": 19,
           "AT07": 21
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641826001/07b643f3-0e37-4169-90e6-094539a4878e.webp"
       },
       {
         "product_id": "2641834001",
@@ -1461,7 +1488,8 @@
           "AS95": 18,
           "AT02": 19,
           "AT07": 21
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641834001/c80a6efa-146b-4f3f-89e8-c62204df07db.webp"
       },
       {
         "product_id": "2641821002",
@@ -1530,7 +1558,8 @@
           "AS95": 19,
           "AT02": 16,
           "AT07": 17
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641821002/ad6a6088-1178-48bb-9a89-e5652a9e8712.webp"
       },
       {
         "product_id": "2641829002",
@@ -1601,7 +1630,8 @@
           "AS95": 8,
           "AT02": 8,
           "AT07": 8
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641829002/11f02ffa-0b0c-4905-9df0-6c93056441e8.webp"
       },
       {
         "product_id": "2641829003",
@@ -1669,7 +1699,8 @@
           "AS95": 15,
           "AT02": 15,
           "AT07": 12
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641829003/5594b684-8e7c-4b9c-a802-cc4ff3b2082b.webp"
       },
       {
         "product_id": "2641829005",
@@ -1737,7 +1768,8 @@
           "AS95": 14,
           "AT02": 16,
           "AT07": 15
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2641829005/4666ee9c-6f66-4793-8d09-b55be7740c36.webp"
       }
     ],
     "PLUS": [
@@ -1772,7 +1804,8 @@
           "AS86": 24,
           "AS97": 17,
           "AT04": 17
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640827001/a38b2222-4f24-4cad-b27b-f66fe24729da.webp"
       },
       {
         "product_id": "2640821010",
@@ -1804,7 +1837,8 @@
           "AS86": 19,
           "AS97": 15,
           "AT04": 12
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640821010/4e4ce862-e090-4112-858f-bc2b3dd61d44.webp"
       },
       {
         "product_id": "2640829002",
@@ -1836,7 +1870,8 @@
           "AS86": 22,
           "AS97": 17,
           "AT04": 13
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640829002/23fc5273-107c-42f3-a4bb-9b7941e2fa17.webp"
       },
       {
         "product_id": "2640827002",
@@ -1871,7 +1906,8 @@
           "AS86": 25,
           "AS97": 21,
           "AT04": 14
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640827002/88fa890b-d2e3-4431-9924-25b13053608a.webp"
       },
       {
         "product_id": "2640829001",
@@ -1906,7 +1942,8 @@
           "AS86": 26,
           "AS97": 13,
           "AT04": 6
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640829001/70611bda-d669-4db4-bf5b-27660cba7243.webp"
       },
       {
         "product_id": "2630824016",
@@ -1929,7 +1966,8 @@
           "AS49": 20,
           "AS64": 24,
           "AS86": 22
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2630824016/3cc5718e-5361-4a4b-addb-02966c2ccc45.webp"
       },
       {
         "product_id": "2640826001",
@@ -1950,7 +1988,8 @@
           "AS49": 7,
           "AS64": 12,
           "AS86": 9
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640826001/5a9c7d27-84a0-4d84-a2af-527803773c90.webp"
       },
       {
         "product_id": "2640821012",
@@ -1984,7 +2023,8 @@
           "AS86": 20,
           "AS97": 21,
           "AT04": 14
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640821012/7dcb983c-f260-43f9-9f7f-6c521e2da903.webp"
       },
       {
         "product_id": "2640822002",
@@ -2004,7 +2044,8 @@
           "AS49": 8,
           "AS64": 12,
           "AS86": 8
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640822002/5d7cc7bf-f803-49d8-ab24-2b93170cc03c.webp"
       },
       {
         "product_id": "2640822003",
@@ -2039,7 +2080,8 @@
           "AS86": 31,
           "AS97": 21,
           "AT04": 16
-        }
+        },
+        "image_url": "https://images.airspaceonline.com/photo/2640822003/c616217a-1bcc-4a8a-a09e-95da93d961c8.webp"
       }
     ]
   }

@@ -328,6 +328,7 @@
         <table class="data" id="settlementTable"></table>
       </div>
       <button class="btn gold" style="width:100%;margin-top:10px;" onclick="confirmSettlement()" id="confirmSettleBtn" disabled>確認結算並存檔</button>
+      <div id="settleResult" style="display:none;margin-top:10px;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.7;"></div>
       <button class="btn ghost" style="width:100%;margin-top:8px;" onclick="exportMonthlyDetail()">匯出本月完整明細（獨立分頁，不依賴此網頁）</button>
     </div>
 
@@ -1838,12 +1839,40 @@ function renderSettlementTable(rows){
   });
   table.innerHTML = html;
 }
+function showSettleResult(ok, html){
+  const el = document.getElementById('settleResult');
+  el.style.display = 'block';
+  el.style.background = ok ? 'var(--good-bg)' : 'var(--bad-bg)';
+  el.style.color = ok ? 'var(--good-text)' : 'var(--bad-text)';
+  el.innerHTML = html;
+}
 async function confirmSettlement(){
-  if(!backendConnected()){ showToast('尚未接後端，無法存檔'); return; }
-  const r = await apiPost('runSettlement', {month: currentMonth});
-  if(!r){ showToast('結算失敗，請確認後端連線'); return; }
-  showToast(`已完成 ${monthLabel(currentMonth)} 結算，寫入月結歷史`);
+  if(!backendConnected()){ showSettleResult(false, '尚未接後端，無法存檔'); return; }
+  const btn = document.getElementById('confirmSettleBtn');
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '結算中…請勿關閉或重新整理頁面';
+  showSettleResult(true, '⏳ 結算中，約需 30 秒～1 分鐘，請稍候…');
+  const r = await postRaw('runSettlement', {month: currentMonth});
+  btn.textContent = oldText;
+  if(r && r.error_code === 'ADMIN_DENIED'){
+    btn.disabled = false;
+    lockAdmin();
+    showSettleResult(false, `🔒 ${r.error || '管理員驗證失敗'}，請重新輸入管理員密碼後再按一次`);
+    return;
+  }
+  if(!r || !r.ok){
+    btn.disabled = false;
+    showSettleResult(false, `⚠ 結算失敗：${(r && r.error) ? r.error : '沒有收到後端回應，請確認網路與 Apps Script 部署'}<br>資料沒有重複寫入的風險，可以直接再按一次。`);
+    return;
+  }
+  const done = (r.settlement||[]).filter(x=>x.hasData).length;
+  const skipped = (r.settlement||[]).length - done;
+  const t = new Date();
+  const hhmm = String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+  showSettleResult(true, `✓ 已完成 ${monthLabel(currentMonth)} 結算（${hhmm}）<br>共 ${done} 家店寫入「月結歷史」，並已同步寫回總表的「營業稽核分數」欄。${skipped?`<br>另有 ${skipped} 家本月沒有巡店紀錄或總表資料，未列入。`:''}`);
   renderSettlementTable(r.settlement);
+  btn.disabled = false;
 }
 
 async function exportMonthlyDetail(){

@@ -1622,7 +1622,8 @@ function dismissLastBanner(){
 // ---- Tab2 總表檢視 ----
 function computeHqScores(t){
   const acctScore = 10 - (t.acct||0);
-  const memberScore = (typeof t.member_rate === 'number') ? (t.member_rate>=0.795 ? 5 : 0) : null;
+  const memberScore = (typeof t.member_score === 'number') ? t.member_score
+    : (typeof t.member_rate === 'number') ? (t.member_rate>=0.795 ? 5 : 0) : null;
   const complaintScore = 5 - (t.complaint||0);
   const returnScore = 5 - (t.return||0);
   return {acctScore, memberScore, complaintScore, returnScore};

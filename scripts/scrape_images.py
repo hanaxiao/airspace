@@ -22,7 +22,7 @@ changed = False
 for brand, prods in data['products'].items():
     for p in prods:
         if p.get('image_url'):
-            continue
+            continue  # 已有圖片，跳過
         pid = p['product_id']
         try:
             url = f'https://www.airspaceonline.com/tw/zh-hant/product/TW{pid}'
@@ -31,10 +31,20 @@ for brand, prods in data['products'].items():
             pattern = f'photo/{pid}/'
             seen, imgs = set(), []
             for img in soup.find_all('img'):
-                src = img.get('src', '')
-                if pattern in src and src not in seen:
-                    seen.add(src)
-                    imgs.append(src)
+                # 同時檢查 src、data-src、data-lazy-src（lazy load 網站）
+                for attr in ('src', 'data-src', 'data-lazy-src', 'data-original'):
+                    src = img.get(attr, '')
+                    if pattern in src and src not in seen:
+                        seen.add(src)
+                        imgs.append(src)
+            # 也搜尋 HTML 原始碼中的圖片網址（JavaScript 渲染前的資料）
+            if not imgs:
+                import re
+                for m in re.finditer(r'(https?://[^\s"\']+photo/' + pid + r'/[^\s"\']+\.jpg)', r.text):
+                    src = m.group(1)
+                    if src not in seen:
+                        seen.add(src)
+                        imgs.append(src)
             chosen = imgs[1] if len(imgs) > 1 else (imgs[0] if imgs else None)
             if chosen:
                 p['image_url'] = chosen

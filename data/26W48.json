@@ -251,11 +251,16 @@
         "category": "上衣",
         "grade": "C",
         "total_sales": 3,
-        "inventory": 0,
+        "inventory": 228,
         "store_sales": {
           "AS04": 3
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 33,
+          "AS45": 62,
+          "AS57": 98,
+          "AS96": 35
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640121024/7f5e522a-c411-4df8-8188-61aa86610373.webp"
       },
       {
@@ -265,7 +270,7 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 15,
-        "inventory": 0,
+        "inventory": 461,
         "store_sales": {
           "AS45": 3,
           "AS61": 3,
@@ -277,7 +282,30 @@
           "AS57": 1,
           "AS59": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 24,
+          "AS10": 16,
+          "AS15": 12,
+          "AS17": 13,
+          "AS34": 11,
+          "AS40": 17,
+          "AS45": 33,
+          "AS57": 50,
+          "AS59": 15,
+          "AS61": 30,
+          "AS66": 15,
+          "AS72": 16,
+          "AS73": 24,
+          "AS83": 13,
+          "AS84": 13,
+          "AS88": 13,
+          "AS89": 24,
+          "AS92": 28,
+          "AS93": 23,
+          "AS96": 24,
+          "AT05": 23,
+          "AT07": 24
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640121021/d175ed18-2a2c-465b-b9e9-f0b1df4a524a.webp"
       },
       {
@@ -287,7 +315,7 @@
         "category": "褲子",
         "grade": "B",
         "total_sales": 30,
-        "inventory": 0,
+        "inventory": 399,
         "store_sales": {
           "AS15": 2,
           "AS89": 2,
@@ -305,7 +333,30 @@
           "AS83": 1,
           "AS84": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 21,
+          "AS10": 15,
+          "AS15": 10,
+          "AS17": 14,
+          "AS34": 10,
+          "AS40": 15,
+          "AS45": 26,
+          "AS57": 40,
+          "AS59": 15,
+          "AS61": 27,
+          "AS66": 15,
+          "AS72": 15,
+          "AS73": 18,
+          "AS83": 12,
+          "AS84": 12,
+          "AS88": 12,
+          "AS89": 19,
+          "AS92": 26,
+          "AS93": 19,
+          "AS96": 19,
+          "AT05": 21,
+          "AT07": 18
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640123002/5a1b3b74-f8b5-4dbd-a169-f98217a0433f.webp"
       },
       {
@@ -315,7 +366,7 @@
         "category": "裙子",
         "grade": "B",
         "total_sales": 80,
-        "inventory": 0,
+        "inventory": 277,
         "store_sales": {
           "AS04": 3,
           "AS10": 1,
@@ -338,7 +389,30 @@
           "AS84": 3,
           "AS88": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 14,
+          "AS10": 12,
+          "AS15": 9,
+          "AS17": 10,
+          "AS34": 11,
+          "AS40": 10,
+          "AS45": 21,
+          "AS57": 23,
+          "AS59": 12,
+          "AS61": 21,
+          "AS66": 11,
+          "AS72": 9,
+          "AS73": 13,
+          "AS83": 9,
+          "AS84": 7,
+          "AS88": 9,
+          "AS89": 12,
+          "AS92": 11,
+          "AS93": 17,
+          "AS96": 13,
+          "AT05": 10,
+          "AT07": 13
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640122004/dd2bebea-d080-4331-aece-8d1d36b7c3eb.webp"
       },
       {
@@ -348,13 +422,24 @@
         "category": "裙子",
         "grade": "D",
         "total_sales": 6,
-        "inventory": 0,
+        "inventory": 374,
         "store_sales": {
           "AS45": 1,
           "AS57": 4,
           "AS72": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 31,
+          "AS34": 19,
+          "AS45": 52,
+          "AS57": 75,
+          "AS61": 46,
+          "AS72": 21,
+          "AS73": 31,
+          "AS89": 31,
+          "AS92": 38,
+          "AS96": 30
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640122005/3f14d7c9-b879-4dc2-9400-8b3c56869cd0.webp"
       },
       {
@@ -364,7 +449,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 23,
-        "inventory": 0,
+        "inventory": 439,
         "store_sales": {
           "AS04": 2,
           "AS45": 4,
@@ -378,7 +463,30 @@
           "AS66": 1,
           "AS72": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 20,
+          "AS10": 17,
+          "AS15": 12,
+          "AS17": 17,
+          "AS34": 12,
+          "AS40": 17,
+          "AS45": 32,
+          "AS57": 52,
+          "AS59": 17,
+          "AS61": 31,
+          "AS66": 16,
+          "AS72": 16,
+          "AS73": 22,
+          "AS83": 12,
+          "AS84": 12,
+          "AS88": 12,
+          "AS89": 17,
+          "AS92": 28,
+          "AS93": 19,
+          "AS96": 21,
+          "AT05": 19,
+          "AT07": 18
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640121023/197c02d8-3904-472c-bf94-347e11d842cb.webp"
       },
       {
@@ -388,7 +496,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 77,
-        "inventory": 0,
+        "inventory": 519,
         "store_sales": {
           "AS17": 4,
           "AS40": 4,
@@ -412,7 +520,30 @@
           "AS04": 1,
           "AS84": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 27,
+          "AS10": 17,
+          "AS15": 16,
+          "AS17": 17,
+          "AS34": 15,
+          "AS40": 17,
+          "AS45": 42,
+          "AS57": 59,
+          "AS59": 16,
+          "AS61": 36,
+          "AS66": 18,
+          "AS72": 17,
+          "AS73": 23,
+          "AS83": 12,
+          "AS84": 16,
+          "AS88": 15,
+          "AS89": 24,
+          "AS92": 34,
+          "AS93": 26,
+          "AS96": 24,
+          "AT05": 22,
+          "AT07": 26
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640121007/9e0c2a5f-3a43-410c-a22d-b6f95e33035b.webp"
       },
       {
@@ -422,7 +553,7 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 67,
-        "inventory": 0,
+        "inventory": 288,
         "store_sales": {
           "AS04": 4,
           "AS10": 6,
@@ -445,7 +576,30 @@
           "AS84": 1,
           "AS93": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 13,
+          "AS10": 6,
+          "AS15": 8,
+          "AS17": 11,
+          "AS34": 8,
+          "AS40": 10,
+          "AS45": 26,
+          "AS57": 31,
+          "AS59": 12,
+          "AS61": 22,
+          "AS66": 6,
+          "AS72": 9,
+          "AS73": 16,
+          "AS83": 7,
+          "AS84": 8,
+          "AS88": 7,
+          "AS89": 14,
+          "AS92": 18,
+          "AS93": 15,
+          "AS96": 9,
+          "AT05": 15,
+          "AT07": 17
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640129026/6968c777-5098-46cf-a5c3-51afb8f9392e.webp"
       },
       {
@@ -455,7 +609,7 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 71,
-        "inventory": 0,
+        "inventory": 167,
         "store_sales": {
           "AS96": 8,
           "AS10": 1,
@@ -476,7 +630,30 @@
           "AS61": 4,
           "AS66": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 11,
+          "AS10": 7,
+          "AS15": 5,
+          "AS17": 7,
+          "AS34": 6,
+          "AS40": 5,
+          "AS45": 14,
+          "AS57": 19,
+          "AS59": 6,
+          "AS61": 12,
+          "AS66": 7,
+          "AS72": 8,
+          "AS73": 11,
+          "AS83": 3,
+          "AS84": 1,
+          "AS88": 6,
+          "AS89": 5,
+          "AS92": 7,
+          "AS93": 11,
+          "AS96": 3,
+          "AT05": 10,
+          "AT07": 3
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640129020/93d1a265-2c99-4eeb-ab7b-0291dda6082c.webp"
       },
       {
@@ -486,7 +663,7 @@
         "category": "套裝",
         "grade": "A",
         "total_sales": 103,
-        "inventory": 0,
+        "inventory": 318,
         "store_sales": {
           "AS10": 3,
           "AS15": 3,
@@ -511,7 +688,30 @@
           "AS84": 4,
           "AS93": 3
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 17,
+          "AS10": 12,
+          "AS15": 9,
+          "AS17": 11,
+          "AS34": 7,
+          "AS40": 13,
+          "AS45": 28,
+          "AS57": 29,
+          "AS59": 11,
+          "AS61": 19,
+          "AS66": 11,
+          "AS72": 11,
+          "AS73": 19,
+          "AS83": 9,
+          "AS84": 8,
+          "AS88": 9,
+          "AS89": 16,
+          "AS92": 18,
+          "AS93": 18,
+          "AS96": 11,
+          "AT05": 19,
+          "AT07": 13
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640127002/d6971b91-2a15-4958-aad1-53b23164f6f5.webp"
       },
       {
@@ -521,7 +721,7 @@
         "category": "針織",
         "grade": "A",
         "total_sales": 153,
-        "inventory": 0,
+        "inventory": 235,
         "store_sales": {
           "AS10": 6,
           "AS57": 17,
@@ -546,7 +746,29 @@
           "AS88": 2,
           "AS04": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS04": 17,
+          "AS10": 6,
+          "AS15": 11,
+          "AS17": 4,
+          "AS34": 11,
+          "AS40": 7,
+          "AS45": 27,
+          "AS57": 26,
+          "AS61": 18,
+          "AS66": 3,
+          "AS72": 8,
+          "AS73": 13,
+          "AS83": 9,
+          "AS84": 4,
+          "AS88": 14,
+          "AS89": 6,
+          "AS92": 10,
+          "AS93": 12,
+          "AS96": 7,
+          "AT05": 11,
+          "AT07": 11
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640129023/eb0194ba-8157-4101-81b7-cca9fd99fcb2.webp"
       }
     ],
@@ -558,7 +780,7 @@
         "category": "外套",
         "grade": "B",
         "total_sales": 9,
-        "inventory": 0,
+        "inventory": 147,
         "store_sales": {
           "AS95": 2,
           "AS37": 1,
@@ -568,7 +790,18 @@
           "AS89": 1,
           "AS92": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 11,
+          "AS37": 7,
+          "AS71": 8,
+          "AS77": 21,
+          "AS79": 21,
+          "AS82": 29,
+          "AS89": 11,
+          "AS92": 14,
+          "AS95": 13,
+          "AT05": 12
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640726005/bac34cf4-fe00-456b-9e76-cb7e8718009a.webp"
       },
       {
@@ -578,7 +811,7 @@
         "category": "外套",
         "grade": "B",
         "total_sales": 70,
-        "inventory": 0,
+        "inventory": 114,
         "store_sales": {
           "AS79": 3,
           "AS89": 9,
@@ -591,7 +824,18 @@
           "AS37": 2,
           "AS71": 3
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 12,
+          "AS37": 11,
+          "AS71": 9,
+          "AS77": 18,
+          "AS79": 22,
+          "AS82": 21,
+          "AS89": 6,
+          "AS92": 6,
+          "AS95": 5,
+          "AT05": 4
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640726004/27085a4d-b6f5-4367-b66d-b03ea5a8705c.webp"
       },
       {
@@ -601,7 +845,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 98,
-        "inventory": 0,
+        "inventory": 229,
         "store_sales": {
           "AS17": 6,
           "AS77": 17,
@@ -614,7 +858,18 @@
           "AS71": 2,
           "AS92": 14
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 17,
+          "AS37": 13,
+          "AS71": 14,
+          "AS77": 28,
+          "AS79": 39,
+          "AS82": 48,
+          "AS89": 19,
+          "AS92": 23,
+          "AS95": 14,
+          "AT05": 14
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640721011/15d1de32-841a-4082-ae40-7e75b82078e5.webp"
       },
       {
@@ -624,7 +879,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 14,
-        "inventory": 0,
+        "inventory": 349,
         "store_sales": {
           "AS95": 3,
           "AS37": 1,
@@ -635,7 +890,18 @@
           "AS82": 1,
           "AS89": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 27,
+          "AS37": 19,
+          "AS71": 19,
+          "AS77": 47,
+          "AS79": 50,
+          "AS82": 65,
+          "AS89": 26,
+          "AS92": 35,
+          "AS95": 34,
+          "AT05": 27
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640721012/26a341b5-b582-4190-bb0f-a5cbfa820892.webp"
       },
       {
@@ -645,7 +911,7 @@
         "category": "褲子",
         "grade": "B",
         "total_sales": 19,
-        "inventory": 0,
+        "inventory": 240,
         "store_sales": {
           "AS77": 6,
           "AS92": 2,
@@ -656,7 +922,18 @@
           "AS89": 2,
           "AS95": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 18,
+          "AS37": 13,
+          "AS71": 12,
+          "AS77": 30,
+          "AS79": 36,
+          "AS82": 45,
+          "AS89": 17,
+          "AS92": 26,
+          "AS95": 26,
+          "AT05": 17
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640723006/4e48be58-f4b0-4445-9d25-4ea0a7223f7d.webp"
       },
       {
@@ -666,7 +943,7 @@
         "category": "褲裙",
         "grade": "B",
         "total_sales": 32,
-        "inventory": 0,
+        "inventory": 211,
         "store_sales": {
           "AS17": 6,
           "AS79": 10,
@@ -677,7 +954,18 @@
           "AS82": 3,
           "AS92": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 13,
+          "AS37": 12,
+          "AS71": 13,
+          "AS77": 33,
+          "AS79": 24,
+          "AS82": 37,
+          "AS89": 16,
+          "AS92": 25,
+          "AS95": 19,
+          "AT05": 19
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640734001/6af150b1-dc3c-472e-b6e6-0fcfeb4c19f9.webp"
       },
       {
@@ -687,7 +975,7 @@
         "category": "裙子",
         "grade": "B",
         "total_sales": 23,
-        "inventory": 0,
+        "inventory": 170,
         "store_sales": {
           "AS77": 3,
           "AS79": 3,
@@ -698,7 +986,18 @@
           "AS82": 4,
           "AS17": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 13,
+          "AS37": 11,
+          "AS71": 12,
+          "AS77": 24,
+          "AS79": 24,
+          "AS82": 27,
+          "AS89": 11,
+          "AS92": 20,
+          "AS95": 17,
+          "AT05": 11
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640722004/7e8e862c-2d14-4b7b-8fc3-853efa2326ce.webp"
       },
       {
@@ -708,7 +1007,7 @@
         "category": "洋裝",
         "grade": "A",
         "total_sales": 19,
-        "inventory": 0,
+        "inventory": 359,
         "store_sales": {
           "AS17": 3,
           "AS37": 2,
@@ -719,7 +1018,18 @@
           "AT05": 4,
           "AS82": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 26,
+          "AS37": 17,
+          "AS71": 18,
+          "AS77": 52,
+          "AS79": 50,
+          "AS82": 65,
+          "AS89": 30,
+          "AS92": 39,
+          "AS95": 36,
+          "AT05": 26
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640724002/a2f7d32e-0931-4a89-89ed-218b8aa15427.webp"
       },
       {
@@ -729,7 +1039,7 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 89,
-        "inventory": 0,
+        "inventory": 171,
         "store_sales": {
           "AS17": 11,
           "AS77": 10,
@@ -742,7 +1052,18 @@
           "AS71": 4,
           "AS79": 11
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 8,
+          "AS37": 9,
+          "AS71": 8,
+          "AS77": 27,
+          "AS79": 27,
+          "AS82": 42,
+          "AS89": 13,
+          "AS92": 12,
+          "AS95": 11,
+          "AT05": 14
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640729008/2517b2ba-c04c-453c-9d43-3c8c42504940.webp"
       },
       {
@@ -752,7 +1073,7 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 51,
-        "inventory": 0,
+        "inventory": 111,
         "store_sales": {
           "AS17": 7,
           "AS37": 2,
@@ -765,7 +1086,18 @@
           "AS79": 5,
           "AS92": 9
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS17": 6,
+          "AS37": 6,
+          "AS71": 5,
+          "AS77": 15,
+          "AS79": 17,
+          "AS82": 24,
+          "AS89": 9,
+          "AS92": 9,
+          "AS95": 11,
+          "AT05": 9
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640729009/6e980897-0b79-424b-8174-5fcda9603952.webp"
       }
     ],
@@ -777,9 +1109,16 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 83,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 22,
+          "AS70": 12,
+          "AT10": 13,
+          "AT11": 12,
+          "AT12": 12,
+          "AT14": 12
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640221006/c07d41b1-bb11-4ba5-9c38-35d8536fdd09.webp"
       },
       {
@@ -789,9 +1128,16 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 161,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 45,
+          "AS70": 21,
+          "AT10": 24,
+          "AT11": 23,
+          "AT12": 25,
+          "AT14": 23
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640221008/8389c996-057b-450c-9bee-d4b820ebc43c.webp"
       },
       {
@@ -801,9 +1147,16 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 60,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 20,
+          "AS70": 7,
+          "AT10": 9,
+          "AT11": 8,
+          "AT12": 10,
+          "AT14": 6
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640221007/ce317002-dc8a-40d4-9068-9918fa175ecf.webp"
       },
       {
@@ -813,9 +1166,18 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 226,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 40,
+          "AS70": 29,
+          "AS72": 11,
+          "AS84": 12,
+          "AT10": 31,
+          "AT11": 37,
+          "AT12": 33,
+          "AT14": 33
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640221009/73ea4ef8-85ea-4575-b9b2-61bc99e48507.webp"
       },
       {
@@ -825,9 +1187,18 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 300,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 51,
+          "AS70": 38,
+          "AS72": 16,
+          "AS84": 16,
+          "AT10": 42,
+          "AT11": 50,
+          "AT12": 43,
+          "AT14": 44
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640229007/2f8e6d0e-8bbe-4ea6-9171-eb54aaaf2b0a.webp"
       },
       {
@@ -837,11 +1208,20 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 1,
-        "inventory": 0,
+        "inventory": 269,
         "store_sales": {
           "AS84": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 45,
+          "AS70": 34,
+          "AS72": 16,
+          "AS84": 15,
+          "AT10": 38,
+          "AT11": 45,
+          "AT12": 38,
+          "AT14": 38
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640229008/4740e18e-cb95-49a0-80d1-ebf4b77cd1c2.webp"
       },
       {
@@ -851,9 +1231,18 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 402,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 66,
+          "AS70": 51,
+          "AS72": 21,
+          "AS84": 22,
+          "AT10": 57,
+          "AT11": 68,
+          "AT12": 59,
+          "AT14": 58
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640221010/891d364b-4ed0-4237-ab42-04cfcf26ec04.webp"
       },
       {
@@ -863,9 +1252,18 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 134,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 21,
+          "AS70": 18,
+          "AS72": 7,
+          "AS84": 7,
+          "AT10": 19,
+          "AT11": 23,
+          "AT12": 19,
+          "AT14": 20
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640221011/a7546c12-2d85-45df-a771-c59d96b945c1.webp"
       },
       {
@@ -875,9 +1273,18 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 300,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 52,
+          "AS70": 40,
+          "AS72": 16,
+          "AS84": 15,
+          "AT10": 41,
+          "AT11": 50,
+          "AT12": 43,
+          "AT14": 43
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640229017/99f5a13c-aa18-4692-bb00-b5e1dc159aa9.webp"
       },
       {
@@ -887,11 +1294,20 @@
         "category": "針織",
         "grade": "A",
         "total_sales": 2,
-        "inventory": 0,
+        "inventory": 398,
         "store_sales": {
           "AT10": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 68,
+          "AS70": 52,
+          "AS72": 22,
+          "AS84": 22,
+          "AT10": 52,
+          "AT11": 66,
+          "AT12": 58,
+          "AT14": 58
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640229005/61f43fc4-f1b5-44ca-a3c1-33041d701e2b.webp"
       },
       {
@@ -901,9 +1317,18 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 185,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 30,
+          "AS70": 24,
+          "AS72": 15,
+          "AS84": 16,
+          "AT10": 24,
+          "AT11": 28,
+          "AT12": 24,
+          "AT14": 24
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640229024/c6c9f667-8d38-4d82-827a-16877db250b4.webp"
       },
       {
@@ -913,9 +1338,18 @@
         "category": "針織",
         "grade": "A",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 400,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 66,
+          "AS70": 52,
+          "AS72": 22,
+          "AS84": 22,
+          "AT10": 56,
+          "AT11": 66,
+          "AT12": 58,
+          "AT14": 58
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640229006/049ad873-9cb3-4494-9bb9-05aece854724.webp"
       }
     ],
@@ -927,9 +1361,16 @@
         "category": "配件",
         "grade": "A",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 120,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 24,
+          "AS70": 18,
+          "AS84": 6,
+          "AT10": 26,
+          "AT12": 23,
+          "AT14": 23
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630225122/b1e3fc1b-f5e0-45da-84c3-67b3683472f2.webp"
       },
       {
@@ -939,9 +1380,16 @@
         "category": "配件",
         "grade": "A",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 59,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 11,
+          "AS70": 9,
+          "AS84": 7,
+          "AT10": 12,
+          "AT12": 10,
+          "AT14": 10
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630225126/325f139d-1921-46a3-bf4d-f6837400ad9b.webp"
       },
       {
@@ -951,9 +1399,16 @@
         "category": "配件",
         "grade": "A",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 108,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 22,
+          "AS70": 18,
+          "AS84": 16,
+          "AT10": 12,
+          "AT12": 20,
+          "AT14": 20
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630225110/854878e6-d0b5-42c7-bb5e-71eb17e13ffd.webp"
       },
       {
@@ -963,9 +1418,16 @@
         "category": "配件",
         "grade": "衝",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 246,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 48,
+          "AS70": 36,
+          "AS84": 18,
+          "AT10": 52,
+          "AT12": 46,
+          "AT14": 46
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630225124/98d37422-f569-4a92-b23a-9ffa887655f0.webp"
       },
       {
@@ -975,9 +1437,16 @@
         "category": "配件",
         "grade": "A",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 121,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 24,
+          "AS70": 18,
+          "AS84": 7,
+          "AT10": 26,
+          "AT12": 23,
+          "AT14": 23
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630225121/3a12adbb-a282-4159-91ac-73368328839f.webp"
       },
       {
@@ -987,9 +1456,16 @@
         "category": "配件",
         "grade": "A",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 96,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 22,
+          "AS70": 16,
+          "AS84": 4,
+          "AT10": 20,
+          "AT12": 18,
+          "AT14": 16
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630225123/6bb9844b-79f6-4963-b7fd-9b86ce380439.webp"
       },
       {
@@ -999,9 +1475,18 @@
         "category": "配件",
         "grade": "衝",
         "total_sales": 0,
-        "inventory": 0,
+        "inventory": 108,
         "store_sales": {},
-        "store_inventory": {},
+        "store_inventory": {
+          "AS62": 19,
+          "AS70": 16,
+          "AS72": 4,
+          "AS84": 4,
+          "AT10": 17,
+          "AT11": 16,
+          "AT12": 16,
+          "AT14": 16
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630225120/d26b9678-89f6-4bf3-ac1c-417938c4faf6.webp"
       }
     ],
@@ -1013,7 +1498,7 @@
         "category": "針織",
         "grade": "A",
         "total_sales": 205,
-        "inventory": 0,
+        "inventory": 216,
         "store_sales": {
           "AS10": 7,
           "AS24": 21,
@@ -1045,7 +1530,37 @@
           "AS72": 2,
           "AS88": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 17,
+          "AS10": 4,
+          "AS15": 4,
+          "AS24": 12,
+          "AS25": 6,
+          "AS34": 4,
+          "AS35": 14,
+          "AS37": 5,
+          "AS38": -5,
+          "AS40": 13,
+          "AS45": 5,
+          "AS46": 18,
+          "AS59": 2,
+          "AS61": 3,
+          "AS66": 9,
+          "AS69": 16,
+          "AS71": -1,
+          "AS72": -2,
+          "AS73": 14,
+          "AS81": 5,
+          "AS83": 4,
+          "AS84": 3,
+          "AS88": 7,
+          "AS89": 13,
+          "AS92": 7,
+          "AS93": 7,
+          "AS95": 9,
+          "AT02": 12,
+          "AT07": 11
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641829011/0af24a0e-dd29-43ee-b374-e1e33d2c279f.webp"
       },
       {
@@ -1055,7 +1570,7 @@
         "category": "外套",
         "grade": "B",
         "total_sales": 87,
-        "inventory": 0,
+        "inventory": 417,
         "store_sales": {
           "AS10": 2,
           "AS24": 10,
@@ -1082,7 +1597,37 @@
           "AS72": 1,
           "AS95": 3
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 20,
+          "AS10": 14,
+          "AS15": 11,
+          "AS24": 22,
+          "AS25": 14,
+          "AS34": 7,
+          "AS35": 20,
+          "AS37": 8,
+          "AS38": -4,
+          "AS40": 19,
+          "AS45": 24,
+          "AS46": 30,
+          "AS59": 14,
+          "AS61": 15,
+          "AS66": 15,
+          "AS69": 21,
+          "AS71": -1,
+          "AS72": -1,
+          "AS73": 17,
+          "AS81": 24,
+          "AS83": 11,
+          "AS84": 8,
+          "AS88": 9,
+          "AS89": 19,
+          "AS92": 19,
+          "AS93": 12,
+          "AS95": 11,
+          "AT02": 22,
+          "AT07": 17
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641826003/8f169383-f85b-4fcb-8e12-5d54072ce446.webp"
       },
       {
@@ -1092,7 +1637,7 @@
         "category": "洋裝",
         "grade": "C",
         "total_sales": 24,
-        "inventory": 0,
+        "inventory": 141,
         "store_sales": {
           "AS81": 10,
           "AS45": 1,
@@ -1101,7 +1646,15 @@
           "AS24": 5,
           "AS35": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS24": 36,
+          "AS25": 2,
+          "AS35": 35,
+          "AS45": -1,
+          "AS46": 33,
+          "AS69": 16,
+          "AS81": 20
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641824002/74f169be-e439-4e74-b6a6-38ae24091c6e.webp"
       },
       {
@@ -1111,7 +1664,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 49,
-        "inventory": 0,
+        "inventory": 676,
         "store_sales": {
           "AS83": 3,
           "AS24": 7,
@@ -1134,7 +1687,37 @@
           "AS92": 3,
           "AT07": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 27,
+          "AS10": 18,
+          "AS15": 13,
+          "AS24": 42,
+          "AS25": 18,
+          "AS34": 12,
+          "AS35": 40,
+          "AS37": 13,
+          "AS38": 25,
+          "AS40": 28,
+          "AS45": 42,
+          "AS46": 42,
+          "AS59": 16,
+          "AS61": 19,
+          "AS66": 18,
+          "AS69": 27,
+          "AS71": 12,
+          "AS72": 10,
+          "AS73": 29,
+          "AS81": 38,
+          "AS83": 15,
+          "AS84": 16,
+          "AS88": 13,
+          "AS89": 27,
+          "AS92": 26,
+          "AS93": 17,
+          "AS95": 17,
+          "AT02": 28,
+          "AT07": 28
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641821006/58ad1ac5-f0ca-4e33-90c7-7d4cad6db9e3.webp"
       },
       {
@@ -1144,7 +1727,7 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 62,
-        "inventory": 0,
+        "inventory": 862,
         "store_sales": {
           "AS24": 3,
           "AS34": 3,
@@ -1170,7 +1753,37 @@
           "AS73": 1,
           "AS89": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 36,
+          "AS10": 23,
+          "AS15": 16,
+          "AS24": 60,
+          "AS25": 20,
+          "AS34": 13,
+          "AS35": 53,
+          "AS37": 13,
+          "AS38": 34,
+          "AS40": 35,
+          "AS45": 53,
+          "AS46": 54,
+          "AS59": 24,
+          "AS61": 23,
+          "AS66": 21,
+          "AS69": 32,
+          "AS71": 12,
+          "AS72": 19,
+          "AS73": 36,
+          "AS81": 50,
+          "AS83": 19,
+          "AS84": 22,
+          "AS88": 13,
+          "AS89": 36,
+          "AS92": 37,
+          "AS93": 20,
+          "AS95": 18,
+          "AT02": 35,
+          "AT07": 35
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641821004/cabf8c7b-c32b-4cb3-9e30-077a434d8222.webp"
       },
       {
@@ -1180,7 +1793,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 28,
-        "inventory": 0,
+        "inventory": 1270,
         "store_sales": {
           "AS05": 2,
           "AS24": 4,
@@ -1197,7 +1810,37 @@
           "AS71": 1,
           "AS95": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 48,
+          "AS10": 34,
+          "AS15": 24,
+          "AS24": 85,
+          "AS25": 34,
+          "AS34": 24,
+          "AS35": 74,
+          "AS37": 23,
+          "AS38": 47,
+          "AS40": 50,
+          "AS45": 78,
+          "AS46": 77,
+          "AS59": 34,
+          "AS61": 33,
+          "AS66": 34,
+          "AS69": 49,
+          "AS71": 23,
+          "AS72": 24,
+          "AS73": 50,
+          "AS81": 68,
+          "AS83": 34,
+          "AS84": 34,
+          "AS88": 23,
+          "AS89": 51,
+          "AS92": 49,
+          "AS93": 34,
+          "AS95": 32,
+          "AT02": 49,
+          "AT07": 51
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641821003/37c61028-796e-4181-ba7a-0221bb5c13da.webp"
       },
       {
@@ -1207,7 +1850,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 50,
-        "inventory": 0,
+        "inventory": 802,
         "store_sales": {
           "AS66": 6,
           "AS73": 4,
@@ -1232,7 +1875,37 @@
           "AS72": 1,
           "AS88": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 31,
+          "AS10": 21,
+          "AS15": 15,
+          "AS24": 53,
+          "AS25": 23,
+          "AS34": 16,
+          "AS35": 52,
+          "AS37": 16,
+          "AS38": 31,
+          "AS40": 32,
+          "AS45": 50,
+          "AS46": 51,
+          "AS59": 22,
+          "AS61": 22,
+          "AS66": 17,
+          "AS69": 28,
+          "AS71": 14,
+          "AS72": 15,
+          "AS73": 28,
+          "AS81": 43,
+          "AS83": 23,
+          "AS84": 19,
+          "AS88": 15,
+          "AS89": 30,
+          "AS92": 31,
+          "AS93": 21,
+          "AS95": 21,
+          "AT02": 32,
+          "AT07": 30
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641821008/c55e4b79-a98f-4d5f-b681-20b2883d6204.webp"
       },
       {
@@ -1242,7 +1915,7 @@
         "category": "裙子",
         "grade": "B",
         "total_sales": 103,
-        "inventory": 0,
+        "inventory": 446,
         "store_sales": {
           "AS10": 2,
           "AS25": 5,
@@ -1272,7 +1945,37 @@
           "AS88": 2,
           "AS95": 4
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 16,
+          "AS10": 13,
+          "AS15": 12,
+          "AS24": 26,
+          "AS25": 10,
+          "AS34": 6,
+          "AS35": 21,
+          "AS37": 8,
+          "AS38": 13,
+          "AS40": 18,
+          "AS45": 23,
+          "AS46": 33,
+          "AS59": 14,
+          "AS61": 15,
+          "AS66": 14,
+          "AS69": 19,
+          "AS71": 10,
+          "AS72": 10,
+          "AS73": 15,
+          "AS81": 26,
+          "AS83": 9,
+          "AS84": 11,
+          "AS88": 10,
+          "AS89": 16,
+          "AS92": 18,
+          "AS93": 12,
+          "AS95": 12,
+          "AT02": 19,
+          "AT07": 17
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641822004/ea6140fd-990a-42c5-a46b-b753eee5ce47.webp"
       },
       {
@@ -1282,7 +1985,7 @@
         "category": "褲子",
         "grade": "B",
         "total_sales": 90,
-        "inventory": 0,
+        "inventory": 492,
         "store_sales": {
           "AS81": 6,
           "AS34": 2,
@@ -1308,7 +2011,37 @@
           "AS84": 2,
           "AT02": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 17,
+          "AS10": 17,
+          "AS15": 11,
+          "AS24": 30,
+          "AS25": 10,
+          "AS34": 9,
+          "AS35": 20,
+          "AS37": 11,
+          "AS38": 19,
+          "AS40": 19,
+          "AS45": 33,
+          "AS46": 28,
+          "AS59": 12,
+          "AS61": 15,
+          "AS66": 15,
+          "AS69": 19,
+          "AS71": 11,
+          "AS72": 11,
+          "AS73": 17,
+          "AS81": 25,
+          "AS83": 14,
+          "AS84": 14,
+          "AS88": 11,
+          "AS89": 22,
+          "AS92": 20,
+          "AS93": 9,
+          "AS95": 14,
+          "AT02": 20,
+          "AT07": 19
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641823002/770822c0-5d17-4416-ac61-b9786d516e4c.webp"
       },
       {
@@ -1318,7 +2051,7 @@
         "category": "針織",
         "grade": "D",
         "total_sales": 157,
-        "inventory": 0,
+        "inventory": 395,
         "store_sales": {
           "AS05": 8,
           "AS24": 28,
@@ -1339,7 +2072,26 @@
           "AS59": 2,
           "AT02": 4
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS05": 22,
+          "AS24": 27,
+          "AS25": 0,
+          "AS35": 30,
+          "AS38": 28,
+          "AS40": 20,
+          "AS45": 25,
+          "AS46": 30,
+          "AS59": 17,
+          "AS69": 23,
+          "AS73": 23,
+          "AS81": 28,
+          "AS88": 7,
+          "AS89": 26,
+          "AS92": 23,
+          "AS95": 16,
+          "AT02": 25,
+          "AT07": 25
+        },
         "image_url": "https://images.airspaceonline.com/photo/2641829006/6701963b-8b4d-4dcf-89bf-9980ee08ec78.webp"
       }
     ],
@@ -1351,7 +2103,7 @@
         "category": "褲子",
         "grade": "C",
         "total_sales": 19,
-        "inventory": 0,
+        "inventory": 96,
         "store_sales": {
           "AS12": 5,
           "AS64": 7,
@@ -1359,7 +2111,13 @@
           "AS49": 2,
           "AS86": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 20,
+          "AS12": 12,
+          "AS49": 16,
+          "AS64": 32,
+          "AS86": 16
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640823002/ce84f708-a2db-43db-8684-34f090202ec0.webp"
       },
       {
@@ -1369,7 +2127,7 @@
         "category": "外套",
         "grade": "B",
         "total_sales": 27,
-        "inventory": 0,
+        "inventory": 176,
         "store_sales": {
           "AS44": 5,
           "AS68": 2,
@@ -1383,7 +2141,19 @@
           "AS86": 1,
           "AT04": 2
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 23,
+          "AS12": 20,
+          "AS29": 16,
+          "AS44": 10,
+          "AS49": 21,
+          "AS64": 31,
+          "AS68": 10,
+          "AS85": 8,
+          "AS86": 21,
+          "AS97": 7,
+          "AT04": 9
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640826010/d751fce9-b716-46bf-ad47-0b48fd3815da.webp"
       },
       {
@@ -1393,12 +2163,18 @@
         "category": "洋裝",
         "grade": "C",
         "total_sales": 3,
-        "inventory": 0,
+        "inventory": 58,
         "store_sales": {
           "AS07": 2,
           "AS12": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 11,
+          "AS12": 8,
+          "AS49": 10,
+          "AS64": 19,
+          "AS86": 10
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640824002/be5ff546-c27e-4a4c-9f13-bfff72d35c4f.webp"
       },
       {
@@ -1408,7 +2184,7 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 17,
-        "inventory": 0,
+        "inventory": 217,
         "store_sales": {
           "AS07": 2,
           "AS12": 5,
@@ -1417,7 +2193,19 @@
           "AS29": 1,
           "AS85": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 27,
+          "AS12": 19,
+          "AS29": 15,
+          "AS44": 15,
+          "AS49": 24,
+          "AS64": 43,
+          "AS68": 15,
+          "AS85": 13,
+          "AS86": 19,
+          "AS97": 16,
+          "AT04": 11
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640821015/10bd1846-87c1-4c47-b3f6-7c80dc98fcfb.webp"
       },
       {
@@ -1427,7 +2215,7 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 39,
-        "inventory": 0,
+        "inventory": 243,
         "store_sales": {
           "AS12": 5,
           "AS44": 4,
@@ -1441,7 +2229,19 @@
           "AS29": 4,
           "AS49": 3
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 33,
+          "AS12": 23,
+          "AS29": 17,
+          "AS44": 17,
+          "AS49": 25,
+          "AS64": 43,
+          "AS68": 13,
+          "AS85": 15,
+          "AS86": 26,
+          "AS97": 16,
+          "AT04": 15
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630821036/4d77065f-2cea-47c8-be54-cff890bd8dbc.webp"
       },
       {
@@ -1451,7 +2251,7 @@
         "category": "上衣",
         "grade": "B",
         "total_sales": 21,
-        "inventory": 0,
+        "inventory": 221,
         "store_sales": {
           "AS44": 1,
           "AS64": 3,
@@ -1463,7 +2263,19 @@
           "AS12": 1,
           "AS49": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 32,
+          "AS12": 22,
+          "AS29": 16,
+          "AS44": 16,
+          "AS49": 22,
+          "AS64": 48,
+          "AS68": 10,
+          "AS85": 5,
+          "AS86": 22,
+          "AS97": 17,
+          "AT04": 11
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640821019/5cf07dea-b3eb-47d6-bb70-0bac90c88d96.webp"
       },
       {
@@ -1473,7 +2285,7 @@
         "category": "上衣",
         "grade": "A",
         "total_sales": 49,
-        "inventory": 0,
+        "inventory": 428,
         "store_sales": {
           "AS12": 6,
           "AS29": 4,
@@ -1486,7 +2298,19 @@
           "AS86": 7,
           "AS49": 3
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 57,
+          "AS12": 39,
+          "AS29": 29,
+          "AS44": 29,
+          "AS49": 42,
+          "AS64": 84,
+          "AS68": 25,
+          "AS85": 24,
+          "AS86": 38,
+          "AS97": 33,
+          "AT04": 28
+        },
         "image_url": "https://images.airspaceonline.com/photo/2640821016/b4f83abc-5ad7-4d8e-8710-100bfa0bb3f0.webp"
       },
       {
@@ -1496,7 +2320,7 @@
         "category": "針織",
         "grade": "B",
         "total_sales": 42,
-        "inventory": 0,
+        "inventory": 234,
         "store_sales": {
           "AS64": 8,
           "AS68": 4,
@@ -1510,7 +2334,19 @@
           "AS49": 2,
           "AS12": 1
         },
-        "store_inventory": {},
+        "store_inventory": {
+          "AS07": 32,
+          "AS12": 26,
+          "AS29": 16,
+          "AS44": 18,
+          "AS49": 25,
+          "AS64": 49,
+          "AS68": 11,
+          "AS85": 10,
+          "AS86": 24,
+          "AS97": 16,
+          "AT04": 7
+        },
         "image_url": "https://images.airspaceonline.com/photo/2630829009/5658b8c6-419f-4544-aca0-dae2f09d75c2.webp"
       },
       {

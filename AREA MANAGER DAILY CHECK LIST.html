@@ -334,7 +334,7 @@
 
     <div class="card">
       <h2>門市資料（全 TEAM 共用）</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">門市、轄區、轄區負責人、Email 都直接讀取共用的「<b>門市資料表</b>」（只讀「啟用(調貨系統)」= Y 的門市）。新增門市、換負責人、關店，請到<b>門市資料表</b>修改，這裡不能改。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">門市、轄區、轄區負責人、Email 都直接讀取共用的「<b>門市資料表</b>」（分頁「<b>門市資料表_底檔</b>」，「已關店」那一列之後的不算）。新增門市、換負責人、關店，請到<b>門市資料表_底檔</b>修改，這裡不能改。</p>
       <div id="storeSourceBox" style="border-radius:10px;padding:8px 10px;font-size:12.5px;margin-bottom:8px;display:none;"></div>
       <button class="btn ghost" style="width:100%;" onclick="refreshStoreList()" id="refreshStoresBtn">重新讀取門市資料</button>
       <p style="font-size:12px;color:var(--ink-soft);margin-top:10px;">目前共 <b id="storeCountLabel">0</b> 間門市。系統會暫存約 10 分鐘；剛改完門市資料表想馬上看到，請按上方「重新讀取門市資料」。</p>

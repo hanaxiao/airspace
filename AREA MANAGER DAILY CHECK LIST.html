@@ -302,7 +302,7 @@
 
     <div class="card" id="adminGate">
       <h2>🔒 管理員驗證</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">以下功能（結算、新增／修改／刪除門市、主管與陳列名單）僅限管理員。請輸入管理員密碼解鎖。</p>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">以下功能（結算、重新讀取門市資料、主管與陳列名單）僅限管理員。請輸入管理員密碼解鎖。</p>
       <input type="password" id="adminPassword" placeholder="管理員密碼" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:10px;box-sizing:border-box;"
              onkeydown="if(event.key==='Enter') unlockAdmin()">
       <button class="btn primary" style="width:100%;" onclick="unlockAdmin()">解鎖</button>
@@ -333,20 +333,11 @@
     </div>
 
     <div class="card">
-      <h2>新增門市</h2>
-      <div class="row2">
-        <div class="field"><label>店代號</label><input type="text" id="newStoreCode" placeholder="例：AS99"></div>
-        <div class="field"><label>店名</label><input type="text" id="newStoreName" placeholder="例：新店名"></div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>轄區負責人</label>
-          <select id="newStoreMgr"></select>
-        </div>
-        <div class="field"><label>轄區</label><input type="text" id="newStoreRegion" placeholder="例：北二"></div>
-      </div>
-      <button class="btn primary" style="width:100%;" onclick="addStore()">新增門市</button>
-      <p style="font-size:12px;color:var(--ink-soft);margin-top:10px;">目前共 <b id="storeCountLabel">0</b> 間門市。如需調整既有門市的轄區負責人（例如人員異動），請至下方清單直接改選單。</p>
+      <h2>門市資料（全 TEAM 共用）</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin-top:-6px;">門市、轄區、轄區負責人、Email 都直接讀取共用的「<b>門市資料表</b>」（只讀「啟用(調貨系統)」= Y 的門市）。新增門市、換負責人、關店，請到<b>門市資料表</b>修改，這裡不能改。</p>
+      <div id="storeSourceBox" style="border-radius:10px;padding:8px 10px;font-size:12.5px;margin-bottom:8px;display:none;"></div>
+      <button class="btn ghost" style="width:100%;" onclick="refreshStoreList()" id="refreshStoresBtn">重新讀取門市資料</button>
+      <p style="font-size:12px;color:var(--ink-soft);margin-top:10px;">目前共 <b id="storeCountLabel">0</b> 間門市。系統會暫存約 10 分鐘；剛改完門市資料表想馬上看到，請按上方「重新讀取門市資料」。</p>
       <div class="scroll-x">
         <table class="data" id="storeEditTable"></table>
       </div>
@@ -469,6 +460,7 @@
 <script>
 const BASE_STORES = [{"code": "AS04", "name": "敦南AS店", "mgr": "樺樺", "region": "北二"}, {"code": "AS05", "name": "敦南LADY店", "mgr": "樺樺", "region": "北二"}, {"code": "AS07", "name": "南西大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS10", "name": "大安店", "mgr": "LULU", "region": "北二"}, {"code": "AS12", "name": "西門大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS15", "name": "逢甲店", "mgr": "泡泡", "region": "中一"}, {"code": "AS17", "name": "一中店", "mgr": "泡泡", "region": "中一"}, {"code": "AS24", "name": "南西LADY店", "mgr": "含含", "region": "北一"}, {"code": "AS25", "name": "一中LADY店", "mgr": "泡泡", "region": "中一"}, {"code": "AS29", "name": "一中大碼店", "mgr": "泡泡", "region": "中一"}, {"code": "AS35", "name": "新竹巨城LADY店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS37", "name": "南港CITYLINK店", "mgr": "樺樺", "region": "北二"}, {"code": "AS38", "name": "南紡LADY店", "mgr": "姚", "region": "南區"}, {"code": "AS40", "name": "中山一店", "mgr": "含含", "region": "北一"}, {"code": "AS44", "name": "文心大碼店", "mgr": "泡泡", "region": "中一"}, {"code": "AS45", "name": "高雄夢時代店", "mgr": "姚", "region": "南區"}, {"code": "AS46", "name": "岡山LADY店", "mgr": "LILY", "region": "南區"}, {"code": "AS49", "name": "敦南大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS51", "name": "麗寶OUTLET店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS52", "name": "中港新光店", "mgr": "泡泡", "region": "中一"}, {"code": "AS57", "name": "南西AS店", "mgr": "含含", "region": "北一"}, {"code": "AS59", "name": "左營新光店", "mgr": "姚", "region": "南區"}, {"code": "AS61", "name": "西門AS店", "mgr": "律廷", "region": "北二"}, {"code": "AS62", "name": "南西IP店", "mgr": "含含", "region": "北一"}, {"code": "AS63", "name": "華泰OUTLET店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS64", "name": "夢時代大碼店", "mgr": "姚", "region": "南區"}, {"code": "AS66", "name": "台中遠百店", "mgr": "泡泡", "region": "中一"}, {"code": "AS68", "name": "樹林大碼店", "mgr": "RIISA", "region": "北五"}, {"code": "AS69", "name": "文心LADY店", "mgr": "泡泡", "region": "中一"}, {"code": "AS70", "name": "西門三店", "mgr": "律廷", "region": "北二"}, {"code": "AS71", "name": "中和環球店", "mgr": "樺樺", "region": "北一"}, {"code": "AS72", "name": "桃園統領店", "mgr": "LULU", "region": "北二"}, {"code": "AS73", "name": "新莊宏匯店", "mgr": "LULU", "region": "北二"}, {"code": "AS77", "name": "忠孝CHIC.A店", "mgr": "樺樺", "region": "北二"}, {"code": "AS79", "name": "高雄漢神CHIC.A店", "mgr": "姚", "region": "南區"}, {"code": "AS81", "name": "高雄漢神LADY店", "mgr": "姚", "region": "南區"}, {"code": "AS82", "name": "高雄夢時代CHIC.A店", "mgr": "姚", "region": "南區"}, {"code": "AS83", "name": "三多遠百店", "mgr": "姚", "region": "南區"}, {"code": "AS84", "name": "嘉義秀泰店", "mgr": "LILY", "region": "南區"}, {"code": "AS86", "name": "統領大碼店", "mgr": "LULU", "region": "北二"}, {"code": "AS88", "name": "士林一店", "mgr": "律廷", "region": "北一"}, {"code": "AS89", "name": "桃園大江店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS92", "name": "信義ATT店", "mgr": "LULU", "region": "北二"}, {"code": "AS93", "name": "嘉義文化一店", "mgr": "LILY", "region": "南區"}, {"code": "AS95", "name": "桃園台茂店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS96", "name": "桃園台茂AS店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AS97", "name": "嘉義大碼店", "mgr": "LILY", "region": "南區"}, {"code": "AT02", "name": "板橋遠百LADY店", "mgr": "律廷", "region": "北一"}, {"code": "AT03", "name": "新台南FOCUS店", "mgr": "姚", "region": "南區"}, {"code": "AT04", "name": "大江大碼店", "mgr": "Cindy", "region": "桃竹"}, {"code": "AT05", "name": "南紡店", "mgr": "姚", "region": "南區"}, {"code": "AT07", "name": "台中漢神店", "mgr": "泡泡", "region": "中一"}, {"code": "AT08", "name": "台南三井OUTLET店", "mgr": "姚", "region": "南區"}, {"code": "AT11", "name": "一中IP店", "mgr": "泡泡", "region": "中一"}, {"code": "AT10", "name": "夢時代IP店", "mgr": "姚", "region": "南區"}];
 let STORES = [];
+let STORE_SOURCE = '';
 
 const BASE_TOTALS = [{"code": "AS04", "acct": 3, "complaint": 1, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8209255533199196}, {"code": "AS05", "acct": 0, "complaint": 0, "return": 0, "leave": 4, "trash": null, "member_rate": 0.8301886792452831}, {"code": "AS07", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8823529411764706}, {"code": "AS10", "acct": 0, "complaint": 1, "return": 0, "leave": 5, "trash": null, "member_rate": 0.7863720073664825}, {"code": "AS12", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8244897959183674}, {"code": "AS15", "acct": 2, "complaint": 2, "return": 0, "leave": 3, "trash": null, "member_rate": 0.8569500674763832}, {"code": "AS17", "acct": 8, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8790149892933619}, {"code": "AS24", "acct": 1, "complaint": 1, "return": 0, "leave": 3, "trash": null, "member_rate": 0.675715695952616}, {"code": "AS25", "acct": 2, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8300653594771242}, {"code": "AS29", "acct": 0, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.926056338028169}, {"code": "AS35", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8103146853146853}, {"code": "AS37", "acct": 0, "complaint": 0, "return": 1, "leave": 6, "trash": null, "member_rate": 0.7290909090909091}, {"code": "AS38", "acct": 4, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8846846846846846}, {"code": "AS40", "acct": 9, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.7413101604278075}, {"code": "AS44", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8484848484848485}, {"code": "AS45", "acct": 2, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.8070994862213918}, {"code": "AS46", "acct": 0, "complaint": 1, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9586776859504132}, {"code": "AS49", "acct": 4, "complaint": 1, "return": 0, "leave": 2, "trash": null, "member_rate": 0.9267461669505963}, {"code": "AS51", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.7044776119402985}, {"code": "AS52", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8491008600469117}, {"code": "AS57", "acct": 1, "complaint": 4, "return": 0, "leave": 2, "trash": null, "member_rate": 0.636668262326472}, {"code": "AS59", "acct": 0, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8294979079497908}, {"code": "AS61", "acct": 10, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.6862068965517242}, {"code": "AS62", "acct": 4, "complaint": 2, "return": 0, "leave": 1, "trash": null, "member_rate": "改裝"}, {"code": "AS63", "acct": 0, "complaint": 2, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8540111940298507}, {"code": "AS64", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9284963196635121}, {"code": "AS66", "acct": 2, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8433476394849786}, {"code": "AS68", "acct": 0, "complaint": 0, "return": 1, "leave": 0, "trash": null, "member_rate": 0.9284253578732107}, {"code": "AS69", "acct": 0, "complaint": 0, "return": 0, "leave": 7, "trash": null, "member_rate": 0.8305732484076433}, {"code": "AS70", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.6864654333008764}, {"code": "AS71", "acct": 2, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8755490483162518}, {"code": "AS72", "acct": 2, "complaint": 0, "return": 1, "leave": 0, "trash": null, "member_rate": 0.8310249307479224}, {"code": "AS73", "acct": 0, "complaint": 0, "return": 0, "leave": 3, "trash": null, "member_rate": 0.8695652173913043}, {"code": "AS77", "acct": 0, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.775047258979206}, {"code": "AS79", "acct": 0, "complaint": 0, "return": 0, "leave": 1, "trash": null, "member_rate": 0.8888888888888888}, {"code": "AS81", "acct": 0, "complaint": 0, "return": 0, "leave": 4, "trash": null, "member_rate": 0.8768115942028986}, {"code": "AS82", "acct": 0, "complaint": -1, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8369723435225619}, {"code": "AS83", "acct": 16, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8404384896467723}, {"code": "AS84", "acct": 10, "complaint": 1, "return": 0, "leave": 6, "trash": null, "member_rate": 0.8279445727482679}, {"code": "AS86", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9354243542435424}, {"code": "AS88", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.676378772112383}, {"code": "AS89", "acct": 6, "complaint": 1, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8966165413533834}, {"code": "AS92", "acct": 8, "complaint": 2, "return": 0, "leave": 7, "trash": null, "member_rate": 0.5785876993166287}, {"code": "AS93", "acct": 15, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8292682926829268}, {"code": "AS95", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8560090702947846}, {"code": "AS96", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.844559585492228}, {"code": "AS97", "acct": 4, "complaint": 0, "return": 0, "leave": 13, "trash": null, "member_rate": 0.8650442477876106}, {"code": "AT02", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.8023598820058997}, {"code": "AT03", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8448566610455311}, {"code": "AT04", "acct": 0, "complaint": 0, "return": 0, "leave": 0, "trash": null, "member_rate": 0.9080882352941176}, {"code": "AT05", "acct": 2, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.8147321428571429}, {"code": "AT07", "acct": 0, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.7943523634131369}, {"code": "AT08", "acct": 6, "complaint": 0, "return": 0, "leave": 2, "trash": null, "member_rate": 0.7146067415730337}];
 let TOTALS = [];
@@ -1361,11 +1353,12 @@ async function openConfirmModal(){
       const mgrRecs = existing.filter(x=>x.mgr);
       const dispRecs = existing.filter(x=>!x.mgr);
       let blockedBy = null;
+      const sameName = (a,b)=> !!a && !!b && String(a).trim().toLowerCase()===String(b).trim().toLowerCase();
       if(d.mgr){
-        if(mgrRecs.length && !mgrRecs.some(x=>x.mgr===d.mgr)) blockedBy = mgrRecs[0].mgr;
+        if(mgrRecs.length && !mgrRecs.some(x=>sameName(x.mgr, d.mgr))) blockedBy = mgrRecs[0].mgr;
       }else if(mgrRecs.length){
         blockedBy = mgrRecs[0].mgr + '（主管優先）';
-      }else if(dispRecs.length && !dispRecs.some(x=>x.display && x.display===d.display)){
+      }else if(dispRecs.length && !dispRecs.some(x=>sameName(x.display, d.display))){
         blockedBy = dispRecs[0].display || '其他人員';
       }
       if(blockedBy){
@@ -1889,6 +1882,7 @@ async function loadAllData(){
     const boot = await apiGet('bootstrap');
     if(boot){
       STORES = boot.stores && boot.stores.length ? boot.stores : JSON.parse(JSON.stringify(BASE_STORES));
+      STORE_SOURCE = boot.storeSource || '';
       MANAGERS = boot.managers && boot.managers.length ? boot.managers : [...BASE_MANAGERS];
       DISPLAY_STAFF = boot.displayStaff && boot.displayStaff.length ? boot.displayStaff : [...BASE_DISPLAY_STAFF];
       const tot = await apiGet('totals', {month: currentMonth});
@@ -1931,10 +1925,8 @@ async function persist(key, value){
 
 // ---- Tab5 資料維護 ----
 function renderMaintTab(){
-  const mgrSel = document.getElementById('newStoreMgr');
-  mgrSel.innerHTML = MANAGERS.map(m=>`<option value="${m}">${m}</option>`).join('');
-
   document.getElementById('storeCountLabel').textContent = STORES.length;
+  renderStoreSourceBox();
   renderStoreEditTable();
   document.getElementById('mgrListLabel').innerHTML = MANAGERS.map(m=>
     `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--brand-soft);color:var(--brand);border-radius:12px;padding:3px 8px;margin:2px 4px 2px 0;font-size:12px;">
@@ -1946,97 +1938,46 @@ function renderMaintTab(){
     </span>`).join('');
 }
 
+function renderStoreSourceBox(){
+  const box = document.getElementById('storeSourceBox');
+  if(!box) return;
+  if(!STORE_SOURCE){ box.style.display='none'; return; }
+  box.style.display = 'block';
+  if(STORE_SOURCE === 'master'){
+    box.style.background = 'var(--good-bg)'; box.style.color = 'var(--good-text)';
+    box.textContent = '✓ 目前資料來源：門市資料表';
+  }else{
+    box.style.background = 'var(--bad-bg)'; box.style.color = 'var(--bad-text)';
+    box.textContent = '⚠ 讀不到「門市資料表」，暫時使用舊的店家清單。' + STORE_SOURCE.replace(/^fallback:\s*/,'原因：');
+  }
+}
 function renderStoreEditTable(){
   const table = document.getElementById('storeEditTable');
-  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>轄區</th><th class="left">Email</th><th>狀態</th><th>刪除</th></tr>`;
-  STORES.forEach((s,idx)=>{
-    const isClosed = s.status==='已結束';
-    html += `<tr style="${isClosed?'opacity:0.5;':''}">
+  let html = `<tr><th class="left">店代號</th><th class="left">店名</th><th>轄區負責人</th><th>轄區</th><th class="left">Email</th></tr>`;
+  STORES.forEach(s=>{
+    html += `<tr>
       <td class="left">${s.code}</td>
       <td class="left">${s.name}</td>
-      <td><select onchange="updateStoreMgr(${idx}, this.value)" style="${!s.mgr?'color:var(--bad-text);font-weight:700;':''}">
-        <option value="" ${!s.mgr?'selected':''}>(未指派)</option>
-        ${MANAGERS.map(m=>`<option value="${m}" ${m===s.mgr?'selected':''}>${m}</option>`).join('')}
-      </select></td>
-      <td>${s.region}</td>
-      <td class="left"><input type="email" value="${s.email||''}" placeholder="尚未建立" style="width:150px;font-size:12px;padding:4px;"
-             onchange="updateStoreEmail(${idx}, this.value)"></td>
-      <td><select onchange="updateStoreStatus(${idx}, this.value)">
-        <option value="營業中" ${!isClosed?'selected':''}>營業中</option>
-        <option value="已結束" ${isClosed?'selected':''}>已結束營業</option>
-      </select></td>
-      <td><button onclick="deleteStore(${idx})" style="border:1px solid var(--bad-text);background:#fff;color:var(--bad-text);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:12px;">🗑 刪除</button></td>
+      <td style="${!s.mgr?'color:var(--bad-text);font-weight:700;':''}">${s.mgr || '(未指派)'}</td>
+      <td>${s.region||''}</td>
+      <td class="left" style="font-size:12px;${!s.email?'color:var(--bad-text);':''}">${s.email || '尚未建立'}</td>
     </tr>`;
   });
   table.innerHTML = html;
 }
 
-// 刪除門市(從店家清單移除)。已送出的巡店紀錄、月結分數、照片都不會被刪
-async function deleteStore(idx, force){
-  const s = STORES[idx];
-  if(!s) return;
-  if(!force && !confirm(`確定要刪除門市「${s.code} ${s.name}」嗎？\n\n會從店家清單移除；已送出的巡店紀錄與月結分數不會被刪除。\n如果只是結束營業，建議改用「狀態 → 已結束營業」，歷史查詢仍查得到。`)) return;
-
-  if(backendConnected()){
-    const res = await postRaw('deleteStore', {code: s.code, force: !!force});
-    if(res && res.error_code === 'ADMIN_DENIED'){ lockAdmin(); showToast(`🔒 ${res.error || '管理員驗證失敗'}，請重新輸入管理員密碼`); return; }
-    if(res && res.error_code === 'HAS_RECORDS'){
-      if(confirm(`「${s.code} ${s.name}」已有 ${res.count} 筆巡店紀錄。\n\n仍刪除的話，這些紀錄會留在試算表，但歷史查詢將無法再選到這家店。\n要繼續刪除嗎？`)) return deleteStore(idx, true);
-      return;
-    }
-    if(!res || !res.ok){ showToast(`刪除失敗：${res && res.error ? res.error : '請確認後端連線'}`); return; }
-  }
-  STORES.splice(idx, 1);
-  await persist('stores-list', STORES);
-  showToast(`已刪除門市 ${s.code} ${s.name}`);
-  initStoreList(); initAllStoreList(); initFilters(); renderMaintTab();
-}
-
-async function updateStoreStatus(idx, status){
-  STORES[idx].status = status;
-  if(backendConnected()){
-    await apiPost('updateStoreStatus', {code: STORES[idx].code, status});
-  }
-  await persist('stores-list', STORES);
-  showToast(`已將 ${STORES[idx].code} 標記為「${status}」`);
-  initStoreList(); initAllStoreList(); initFilters();
-}
-
-async function updateStoreEmail(idx, email){
-  STORES[idx].email = email;
-  if(backendConnected()){
-    await apiPost('updateStoreEmail', {code: STORES[idx].code, email});
-  }
-  await persist('stores-list', STORES);
-  showToast(`已更新 ${STORES[idx].code} 的Email`);
-}
-async function updateStoreMgr(idx, mgr){
-  STORES[idx].mgr = mgr;
-  if(backendConnected()){
-    await apiPost('updateStoreMgr', {code: STORES[idx].code, mgr});
-  }
-  await persist('stores-list', STORES);
-  showToast(`已更新 ${STORES[idx].code} 轄區負責人為 ${mgr}`);
-  initStoreList(); initAllStoreList(); initFilters();
-}
-
-async function addStore(){
-  const code = document.getElementById('newStoreCode').value.trim().toUpperCase();
-  const name = document.getElementById('newStoreName').value.trim();
-  const mgr = document.getElementById('newStoreMgr').value;
-  const region = document.getElementById('newStoreRegion').value.trim();
-  if(!code || !name || !region){ showToast('請填寫完整店代號／店名／轄區'); return; }
-  if(STORES.find(s=>s.code===code)){ showToast('此店代號已存在'); return; }
-  STORES.push({code, name, mgr, region});
-  if(backendConnected()){
-    await apiPost('addStore', {code, name, mgr, region, email:''});
-  }
-  await persist('stores-list', STORES);
-  document.getElementById('newStoreCode').value='';
-  document.getElementById('newStoreName').value='';
-  document.getElementById('newStoreRegion').value='';
-  showToast(`已新增門市 ${code} ${name}`);
-  initStoreList(); initAllStoreList(); initFilters(); renderMaintTab();
+async function refreshStoreList(){
+  if(!backendConnected()){ showToast('尚未接後端'); return; }
+  const btn = document.getElementById('refreshStoresBtn');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = '讀取中…';
+  const r = await apiGet('refreshStores');
+  btn.disabled = false; btn.textContent = old;
+  if(!r || !r.ok){ showToast('重新讀取失敗，請確認後端連線'); return; }
+  STORES = r.stores && r.stores.length ? r.stores : STORES;
+  if(r.managers && r.managers.length) MANAGERS = r.managers;
+  STORE_SOURCE = r.storeSource || '';
+  showToast(`已重新讀取，共 ${STORES.length} 間門市`);
+  initMgrSelect(); initStoreList(); initAllStoreList(); initFilters(); renderMaintTab();
 }
 
 async function addManager(){
@@ -2063,27 +2004,18 @@ async function addDisplayStaff(){
 }
 
 async function removeManager(name){
-  const affected = STORES.filter(s=>s.mgr===name);
-  const confirmMsg = affected.length
-    ? `確定要刪除主管「${name}」嗎？\n\n目前還有 ${affected.length} 家店指派給他：${affected.map(s=>s.code).join('、')}\n刪除後這些店的轄區負責人會被清空，需要你到下方店家清單重新指派。`
-    : `確定要刪除主管「${name}」嗎？`;
-  if(!confirm(confirmMsg)) return;
+  const affected = STORES.filter(s=>String(s.mgr||'').trim().toLowerCase()===String(name).trim().toLowerCase());
+  if(affected.length){
+    alert(`「${name}」在「門市資料表」裡還負責 ${affected.length} 家店（${affected.map(s=>s.code).join('、')}），名單會自動帶入，無法在這裡刪除。\n\n請先到「門市資料表」把這些店改成其他負責人。`);
+    return;
+  }
+  if(!confirm(`確定要刪除主管「${name}」嗎？`)) return;
 
   MANAGERS = MANAGERS.filter(m=>m!==name);
   if(backendConnected()){ await apiPost('removeManager', {name}); }
   await persist('managers-list', MANAGERS);
-
-  // 清空原本指派給這位主管的店家，避免殘留已刪除的名字
-  for(const s of affected){
-    s.mgr = '';
-    if(backendConnected()){ await apiPost('updateStoreMgr', {code: s.code, mgr: ''}); }
-  }
-  if(affected.length) await persist('stores-list', STORES);
-
-  showToast(affected.length
-    ? `已刪除主管：${name}，請重新指派這 ${affected.length} 家店的轄區負責人：${affected.map(s=>s.code).join('、')}`
-    : `已刪除主管：${name}`);
-  initMgrSelect(); initStoreList(); initAllStoreList(); initFilters(); renderMaintTab();
+  showToast(`已刪除主管：${name}`);
+  initMgrSelect(); renderMaintTab();
 }
 async function removeDisplayStaff(name){
   if(!confirm(`確定要刪除陳列夥伴「${name}」嗎？`)) return;
